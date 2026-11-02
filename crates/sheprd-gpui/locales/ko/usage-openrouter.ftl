@@ -1,0 +1,23 @@
+# OpenRouter의 요금제 사용량입니다. 설정 이름, URL, 헤더 이름과 초기화 주기 이름은 그대로 둡니다.
+usage-openrouter-setting-api-key = https://openrouter.ai/settings/keys의 OpenRouter API 키(sk-or-v1-…)입니다. Management API 키도 되며, 그러면 최근 30일 활동도 보입니다.
+usage-openrouter-setting-management-api-key = https://openrouter.ai/settings/management-keys의 Management API 키입니다(선택 사항). 최근 30일 계정 활동에만 씁니다.
+usage-openrouter-setting-base-url = 프록시용 HTTPS API URL입니다(선택 사항). 기본값은 https://openrouter.ai/api/v1입니다.
+usage-openrouter-setting-http-referer = HTTP-Referer 헤더로 보낼 클라이언트 URL입니다(선택 사항).
+usage-openrouter-setting-x-title = X-Title 헤더로 보낼 클라이언트 제목입니다(선택 사항). 기본값은 Sheprd입니다.
+usage-openrouter-credits = 크레딧
+usage-openrouter-free-tier = 무료 등급
+usage-openrouter-last-30-days = 최근 30일
+usage-openrouter-spend = 지출
+usage-openrouter-requests = 요청
+usage-openrouter-tokens = 토큰
+usage-openrouter-models = 모델
+usage-openrouter-api-key-limit = API 키 한도
+usage-openrouter-spending-cap = 지출 상한
+usage-openrouter-no-limit = 설정한 한도 없음
+usage-openrouter-cap-remaining = 남은 상한
+usage-openrouter-key-used = 키 사용
+usage-openrouter-reset-window = 초기화 주기
+usage-openrouter-today = 오늘
+usage-openrouter-this-week = 이번 주
+usage-openrouter-this-month = 이번 달
+usage-openrouter-api-key = API 키

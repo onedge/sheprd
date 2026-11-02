@@ -1,0 +1,10 @@
+error-client-terminal-attach-busy = 대기 중인 터미널 스크롤이 너무 많습니다
+error-client-terminal-attach-ended = 터미널 연결이 끝났습니다
+error-client-terminal-attach-io = 터미널 연결 I/O에 실패했습니다
+error-client-terminal-attach-protocol = 터미널 연결 프레이밍에 실패했습니다
+error-client-terminal-attach-refused = Herdr가 터미널 연결을 거부했습니다
+error-client-terminal-attach-refused-reason = Herdr가 터미널 연결을 거부했습니다: { $reason }
+error-client-terminal-attach-rejected = Herdr가 터미널 hello를 거부했습니다(프로토콜 { $version })
+error-client-terminal-attach-scroll = 터미널 스크롤은 적어도 한 줄은 움직여야 합니다
+error-client-terminal-attach-size = 터미널 크기는 0이 아니어야 합니다
+error-client-terminal-attach-unexpected = Herdr가 터미널 hello에 예상과 다른 메시지로 답했습니다

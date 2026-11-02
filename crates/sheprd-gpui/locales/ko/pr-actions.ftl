@@ -1,0 +1,21 @@
+# Git 팝업의 풀 리퀘스트 대화상자: 검사와 댓글, 새 댓글, 병합입니다.
+pr-actions-open-in-browser = 브라우저에서 열기
+pr-actions-back = 뒤로
+pr-actions-checks = 검사
+pr-actions-no-checks = 보고된 검사 없음
+pr-actions-unnamed-check = 이름 없는 검사
+pr-actions-comments = 댓글
+pr-actions-loading-comments = 댓글을 불러오는 중...
+pr-actions-no-comments = 아직 댓글이 없습니다
+pr-actions-review-title = 검사와 댓글
+pr-actions-comment-button = 댓글...
+pr-actions-comment-note = 내 GitHub 계정으로 풀 리퀘스트 대화에 올립니다.
+pr-actions-comment-title = 댓글
+pr-actions-comment-submit = 댓글 달기
+pr-actions-merge-branches = { $head }을(를) { $base }에 병합
+pr-actions-review-heading = 검토
+pr-actions-merge-heading = 병합
+pr-actions-checks-heading = 검사
+pr-actions-method = 방식
+pr-actions-merge = 병합
+pr-actions-merge-title = 풀 리퀘스트 병합

@@ -1,0 +1,23 @@
+error-palette-command-changed = 이 명령이 바뀌었거나 제거되었습니다. 팔레트를 다시 여세요.
+error-palette-connection-not-ready = 선택한 연결이 아직 준비되지 않았습니다.
+error-palette-destination-removed = 이 에이전트나 터미널이 더 이상 없습니다. 팔레트를 다시 여세요.
+error-palette-host-unavailable = 이 호스트는 더 이상 연결되어 있지 않습니다. 팔레트를 다시 여세요.
+error-palette-invalid-frecency = 저장된 팔레트 기록이 올바르지 않습니다
+error-palette-local-changed = 로컬 연결이 바뀌었습니다. 팔레트를 다시 여세요.
+error-palette-no-session = 잡아 둔 데몬 세션이 없습니다. 팔레트를 다시 여세요.
+error-palette-pane-removed = 원래 패인이 탭에 더 이상 없습니다. 팔레트를 다시 여세요.
+error-palette-project-clone = git clone 실패: { $error }
+error-palette-project-create = 프로젝트 폴더를 만들지 못했습니다: { $error }
+error-palette-project-exists = 프로젝트 루트에 같은 이름의 폴더가 이미 있습니다
+# palette.project_roots는 구성 키입니다.
+error-palette-project-limit = 프로젝트 찾기가 폴더 한도에 닿았습니다. palette.project_roots의 범위를 좁히세요
+error-palette-project-path = 프로젝트 경로는 제어 문자 없는 UTF-8 절대 경로여야 합니다
+error-palette-project-removed = 프로젝트 폴더를 더 이상 쓸 수 없습니다
+error-palette-project-response = 워크스페이스 만들기 응답이 예상과 다릅니다. 다시 시도하기 전에 워크스페이스 상태를 확인하세요.
+error-palette-project-root-missing = 첫 번째로 설정한 프로젝트 루트를 쓸 수 없습니다
+error-palette-project-roots = palette.project_roots에는 8192바이트 이하의 비어 있지 않은 경로를 최대 16개까지 넣을 수 있습니다
+error-palette-project-state-changed = 워크스페이스 폴더가 바뀌었습니다. 프로젝트를 다시 고르세요.
+error-palette-project-variable = 프로젝트 경로가 정해지지 않은 환경 변수를 씁니다: { $variable }
+error-palette-session-changed = 데몬 세션이 바뀌었습니다. 팔레트를 다시 여세요.
+error-palette-tab-removed = 원래 탭이 워크스페이스에 더 이상 없습니다. 팔레트를 다시 여세요.
+error-palette-workspace-removed = 이 워크스페이스가 더 이상 없습니다. 팔레트를 다시 여세요.

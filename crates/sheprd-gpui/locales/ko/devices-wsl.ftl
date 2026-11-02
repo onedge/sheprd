@@ -1,0 +1,22 @@
+# 기기로 쓰는 WSL 배포판: 기기 추가의 WSL 양식과 제거입니다. $distro는 Ubuntu 같은 배포판 이름입니다.
+devices-wsl-pick = 배포판을 고르세요.
+devices-wsl-already-added = { $distro }은(는) 이미 기기입니다.
+devices-wsl-looking = 배포판을 찾는 중…
+devices-wsl-list-failed = WSL이 배포판 목록을 주지 않았습니다: { $error }
+devices-wsl-none = 설치된 WSL 배포판이 없습니다. `wsl --install`로 설치한 뒤 이 대화상자를 다시 여세요.
+devices-wsl-added = 추가됨
+devices-wsl-intro = 배포판 안에서 Herdr를 확인하고, 설치되어 있으면 서버를 시작합니다. 없으면 먼저 그곳에 Herdr를 설치하세요.
+devices-wsl-session = 세션(선택 사항)
+devices-wsl-checking = { $distro }에서 Herdr를 확인하는 중…
+devices-wsl-add = 배포판 추가
+devices-wsl-add-checking = 확인하는 중…
+devices-wsl-remove-failed = { $distro } 제거: { $error }
+devices-wsl-remove-title = 배포판 제거
+devices-wsl-remove-note = 이 컴퓨터의 기기에서 { $distro }을(를) 제거할까요? 그 안의 Herdr는 계속 실행됩니다.
+devices-wsl-cancel = 취소
+devices-wsl-remove = 제거
+devices-wsl-save-failed = { $distro } 저장: { $error }
+devices-wsl-missing = { $distro }에서 Herdr를 찾지 못했습니다. 배포판 안에 설치한 뒤 다시 추가하세요.
+devices-wsl-outdated = { $distro }의 Herdr가 이 앱에 비해 너무 오래되었습니다. 배포판 안에서 업데이트한 뒤 다시 추가하세요.
+devices-wsl-no-answer = { $distro }이(가) 답하지 않았습니다.
+devices-wsl-check-failed = { $distro } 확인: { $error }

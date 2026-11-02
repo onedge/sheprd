@@ -1,0 +1,6 @@
+# px0 탭: px0 작업대를 페이지로 보여 줍니다. px0은 제품 이름입니다.
+browser-px0-unsupported = 이 빌드는 px0 페이지를 보여 줄 수 없습니다
+browser-px0-no-workspace = px0에는 이 컴퓨터의 워크스페이스가 필요합니다
+browser-px0-starting = px0을 시작하는 중…
+browser-px0-loading = px0을 불러오는 중…
+browser-px0-retry = 다시 시도

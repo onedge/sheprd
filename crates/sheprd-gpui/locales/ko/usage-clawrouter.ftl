@@ -1,0 +1,19 @@
+# ClawRouter의 요금제 사용량입니다. 설정 이름, URL, 제공자 이름과 예산 장부 이름은 그대로 둡니다.
+usage-clawrouter-setting-api-key = https://clawrouter.openclaw.ai/dashboard/access에서 만든 ClawRouter 정책 API 키입니다.
+usage-clawrouter-setting-base-url = 다른 ClawRouter 배포의 HTTPS 서비스 루트나 /v1 URL입니다(선택 사항). 기본값은 https://clawrouter.openclaw.ai입니다.
+usage-clawrouter-routed-count = 라우팅한 제공자 { $count }곳
+usage-clawrouter-managed-budget = 관리되는 월 예산
+usage-clawrouter-unmetered = 계량 안 함
+usage-clawrouter-requests = 요청
+usage-clawrouter-request-counts = { $requests } · { $succeeded } 성공 · { $failed } 실패
+usage-clawrouter-tokens = 토큰
+usage-clawrouter-token-counts = { $tokens } · 입력 { $input } · 출력 { $output }
+usage-clawrouter-actual-cost = 실제 비용
+usage-clawrouter-budget-ledger = 예산 장부
+usage-clawrouter-monthly-budget = 월 예산
+usage-clawrouter-budget-remaining = { $amount } · { $remaining } 남음
+usage-clawrouter-spent-this-month = 이번 달 지출
+usage-clawrouter-routed-providers = 라우팅한 제공자
+usage-clawrouter-provider-usage = 요청 { $requests }개 · { $cost } · 토큰 { $tokens }
+usage-clawrouter-provider-cost = 제공자 비용
+usage-clawrouter-unknown = 알 수 없음

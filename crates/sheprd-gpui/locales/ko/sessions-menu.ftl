@@ -1,0 +1,39 @@
+# 기기 선택기에서 기기가 펼치는 세션입니다. 기기와 세션 이름은 그대로 보입니다.
+sessions-menu-running = 실행 중
+sessions-menu-stopped = 멈춤
+sessions-menu-no-device-sessions = 이 기기에 세션이 없습니다.
+sessions-menu-disabled = 꺼짐
+sessions-menu-checking = 확인하는 중…
+sessions-menu-no-local-sessions = 이 컴퓨터에 세션이 없습니다.
+sessions-menu-stopped-note = 멈춘 세션은 고르면 데몬을 시작합니다.
+sessions-menu-deleting = 삭제하는 중…
+sessions-menu-add-session = 세션 추가…
+sessions-menu-create-and-connect = 만들고 연결
+# --socket과 --dev는 명령줄 옵션이므로 그대로 둡니다.
+sessions-menu-unavailable-local = --socket이나 --dev에서는 쓸 수 없습니다
+sessions-menu-enable-device = 세션을 관리하려면 이 기기를 켜세요
+sessions-menu-device-offline = 이 기기가 온라인이 되면 쓸 수 있습니다
+sessions-menu-wsl-windows-only = WSL은 Windows에서만 쓸 수 있습니다
+sessions-menu-wait-for-delete = 세션 삭제가 끝날 때까지 기다리세요.
+sessions-menu-select-to-delete = 삭제할 세션을 고르세요.
+sessions-menu-default-undeletable = Herdr는 기본 세션을 삭제할 수 없습니다.
+sessions-menu-management-unavailable = 명시한 소켓, 개발 목록, 꺼진 기기에서는 세션을 관리할 수 없습니다.
+sessions-menu-refresh-first = 삭제하기 전에 세션 목록을 새로 고치세요.
+sessions-menu-profile-uses = 저장된 기기 프로필이 이 세션을 씁니다. 삭제하기 전에 그 프로필을 제거하거나 다시 설정하세요.
+sessions-menu-wait-for-list = 삭제하기 전에 이 기기의 세션 목록을 기다리세요.
+sessions-menu-not-listed = 이 세션은 기기의 최신 목록에 없습니다.
+sessions-menu-device-changed = 기기가 바뀌었습니다. 세션 선택기를 다시 여세요.
+sessions-menu-device-unavailable = 기기가 바뀌었거나 쓸 수 없습니다. 세션 선택기를 다시 여세요.
+sessions-menu-name-placeholder = 세션 이름
+sessions-menu-invalid-name = ASCII 글자, 숫자, 점, 밑줄, 하이픈으로 1–64자를 쓰세요. ‘.’과 ‘..’은 쓸 수 없습니다.
+sessions-menu-exists = 그 세션이 이미 있습니다. 목록에서 고르세요.
+sessions-menu-add-title = 세션 추가
+sessions-menu-this-machine = 이 컴퓨터
+sessions-menu-wsl = WSL { $distribution }
+sessions-menu-on = 위치: { $destination }
+sessions-menu-add-note = 화면 없는 세션을 만들고 연결합니다. 이미 있는 이름이면 그 세션에 연결합니다.
+sessions-menu-delete-title = 세션을 삭제할까요?
+# "default"는 기본 세션의 이름이므로 그대로 둡니다.
+sessions-menu-delete-note = Herdr가 이 세션을 멈추고, 실행 중인 프로세스를 끝내고, 저장된 상태를 지웁니다. 이 세션을 쓰는 중이면 이 창은 default로 바뀝니다. 되돌릴 수 없습니다.
+sessions-menu-cancel = 취소
+sessions-menu-delete-permanently = 영구 삭제

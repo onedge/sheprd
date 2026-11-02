@@ -1,0 +1,31 @@
+# $detail은 Boat의 원문이고, $error는 그 아래의 실패이며, $id는 Boat의 샌드박스 ID입니다.
+error-remote-boat-url = { $field }은(는) 자격 증명, 쿼리, 프래그먼트 없는 https여야 합니다(http는 루프백에서만).
+error-remote-boat-missing-key = Boat에는 API 키가 필요합니다. 설정 > 클라우드 기기에서 저장하세요.
+error-remote-boat-authentication = Boat가 API 키를 거부했습니다.
+error-remote-boat-forbidden = Boat가 접근을 거부했습니다. API 키의 범위와 샌드박스 접근 권한을 확인하세요.
+error-remote-boat-status = Boat 요청에 실패했습니다(HTTP { $code })
+error-remote-boat-status-message = Boat 요청에 실패했습니다(HTTP { $code }): { $detail }
+error-remote-boat-network = Boat 네트워크 요청이 실패했거나 시간이 지났습니다.
+error-remote-boat-read = 크기나 시간 한도 안에 Boat 응답을 읽지 못했습니다.
+error-remote-boat-size = Boat 응답이 크기 한도를 넘었습니다.
+error-remote-boat-json = Boat JSON 응답이 올바르지 않습니다.
+error-remote-boat-header = Boat HTTP 헤더가 올바르지 않습니다.
+error-remote-boat-sandbox = Boat 샌드박스가 실패했습니다: { $detail }
+error-remote-boat-deleted = Boat 샌드박스가 삭제되었습니다.
+error-remote-boat-start-timeout = Boat 샌드박스가 10분 안에 시작하지 않았습니다.
+error-remote-boat-cancelled = 취소했습니다.
+error-remote-boat-pending-io = { $path }의 대기 중인 Boat 만들기를 저장하거나 읽지 못했습니다: { $error }
+error-remote-boat-pending-busy = 다른 Sheprd 프로세스가 이 계정의 Boat 샌드박스를 만들거나 복구하는 중입니다.
+error-remote-boat-pending-expired = 대기 중인 Boat 만들기가 너무 오래되어 안전하게 다시 시도할 수 없습니다. 설정 > 클라우드 기기 > Boat에서 대기 중인 요청을 잊기 전에 Boat 대시보드에서 샌드박스를 확인하세요.
+error-remote-boat-pending-creation = Boat 만들기가 성공했을 수 있습니다. 저장된 요청을 다시 시도하려면 설정 > 클라우드 기기 > Boat의 만들기 복구를 쓰세요: { $error }
+error-remote-boat-clock = Boat 만들기 복구에 쓸 시계를 읽지 못했습니다: { $error }
+error-remote-boat-gateway = Boat가 이 앱이 이해하지 못하는 SSH 연결 정보를 돌려주었습니다.
+error-remote-boat-ssh-missing = Boat 기기에는 PATH에 ssh와 ssh-keygen이 있어야 하는데 하나를 실행하지 못했습니다.
+error-remote-boat-ssh-key = Boat SSH 키를 만들거나 읽지 못했습니다.
+error-remote-boat-ssh-keygen = ssh-keygen이 Boat SSH 키를 만들지 못했습니다.
+error-remote-boat-gateway-file = Boat용 SSH 명령을 준비하지 못했습니다.
+error-remote-boat-save-device = Boat 샌드박스 { $id }은(는) 있지만 기기를 저장하지 못했습니다: { $error }. 샌드박스를 복구하려면 이 ID를 보관하세요.
+error-remote-boat-setup = Boat 샌드박스 { $id }을(를) 저장했습니다. 다시 시도하려면 설정 > 클라우드 기기 > Boat의 준비 마치기를 쓰세요: { $error }
+# [boat]는 구성 표입니다.
+error-remote-boat-account = 이 기기는 [boat]에 더 이상 설정되지 않은 Boat 계정의 것입니다.
+error-remote-boat-key-file = Boat SSH 개인 키를 불러오지 못했습니다: { $error }

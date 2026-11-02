@@ -5,6 +5,7 @@ Name=Sheprd
 # language tag with an underscore (Comment[pt_BR]=), as the Desktop Entry
 # Specification spells locales. Name is the product's and stays as it is.
 Comment=Native client for an existing local Herdr daemon
+Comment[ko]=로컬 Herdr 데몬에 연결하는 네이티브 클라이언트
 Exec=sheprd
 Icon=sheprd
 Terminal=false

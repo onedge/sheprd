@@ -1,0 +1,11 @@
+error-clipboard-changed = 읽는 동안 클립보드가 바뀌었습니다. 다시 붙여넣어 보세요.
+error-clipboard-encoding = 클립보드 글이 올바른 UTF-8이 아닙니다.
+error-clipboard-process = 클립보드를 읽지 못했습니다. Linux에서는 Wayland용 wl-clipboard나 X11용 xclip을 설치하세요.
+error-clipboard-size = 클립보드 내용이 { $limit }바이트 한도를 넘습니다.
+error-clipboard-timeout = 클립보드를 가져오는 시간이 지났습니다.
+error-clipboard-unsupported = 이 플랫폼에서는 원격 클립보드를 가져올 수 없습니다.
+error-clipboard-macos-exited = macOS 클립보드 읽기 도우미가 실패로 끝났습니다({ $status }). 다시 붙여넣어 보세요.
+error-clipboard-macos-missing = 시작한 뒤 Sheprd 앱이 제거되거나 바뀌어서 클립보드를 읽을 수 없습니다. 붙여넣으려면 Sheprd를 다시 시작하세요.
+error-clipboard-macos-process = macOS 클립보드 읽기 도우미를 실행하지 못했습니다
+error-clipboard-macos-response = macOS 클립보드 읽기 도우미가 올바르지 않은 응답을 돌려주었습니다
+error-clipboard-macos-text-encoding = 클립보드 글이 올바른 UTF-8이 아닙니다.

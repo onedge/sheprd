@@ -1,0 +1,20 @@
+# $detail은 서버의 원문입니다. [opensandbox]는 구성 표이고 api_url은 그 키입니다.
+error-remote-opensandbox-url = { $field }은(는) 자격 증명, 쿼리, 프래그먼트 없는 https여야 합니다(http는 루프백에서만).
+error-remote-opensandbox-missing-key = OpenSandbox에는 API 키가 필요합니다. 설정 > 클라우드 기기에서 저장하세요.
+error-remote-opensandbox-authentication = OpenSandbox가 API 키를 거부했습니다.
+error-remote-opensandbox-forbidden = OpenSandbox가 접근을 거부했습니다.
+error-remote-opensandbox-gone = 샌드박스 { $id }이(가) 더 이상 없습니다.
+error-remote-opensandbox-stopped = 샌드박스가 멈췄습니다: { $detail }
+error-remote-opensandbox-start-timeout = 샌드박스가 5분 안에 시작하지 않았습니다.
+error-remote-opensandbox-status = OpenSandbox 요청에 실패했습니다(HTTP { $code })
+error-remote-opensandbox-status-message = OpenSandbox 요청에 실패했습니다(HTTP { $code }): { $detail }
+error-remote-opensandbox-network = OpenSandbox 네트워크 요청이 실패했거나 시간이 지났습니다.
+error-remote-opensandbox-read = 크기나 시간 한도 안에 OpenSandbox 응답을 읽지 못했습니다.
+error-remote-opensandbox-size = OpenSandbox 응답이 크기 한도를 넘었습니다.
+error-remote-opensandbox-json = OpenSandbox JSON 응답이 올바르지 않습니다.
+error-remote-opensandbox-header = OpenSandbox 요청 헤더가 올바르지 않습니다.
+error-remote-opensandbox-shell = 샌드박스의 셸이 명령을 거부했습니다: { $detail }
+error-remote-opensandbox-output = 명령의 출력을 쓰지 못했습니다.
+error-remote-opensandbox-executable = 중계에 쓸 이 앱의 실행 파일을 찾지 못했습니다.
+error-remote-opensandbox-cancelled = 취소했습니다.
+error-remote-opensandbox-account = 이 기기는 [opensandbox] api_url에 더 이상 설정되지 않은 OpenSandbox 서버의 것입니다.

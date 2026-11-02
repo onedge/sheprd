@@ -1,0 +1,12 @@
+error-pane-move-unsupported-host = 패인을 옮기려면 로컬 세션이나 SSH 호스트가 필요합니다. 사용자 지정 소켓 엔드포인트는 지원하지 않습니다.
+error-pane-move-development-session = 개발(--dev) 세션에서는 패인을 옮길 수 없습니다.
+error-pane-move-invalid-id = Herdr ID { $id }은(는) herdr CLI에 넘길 수 없습니다.
+error-pane-move-unchanged-same-tab = 패인이 이미 그 탭에 있습니다.
+error-pane-move-unchanged-zoomed-tab = 확대한 탭은 패인을 주거나 받을 수 없습니다. 확대를 풀고 다시 시도하세요.
+error-pane-move-unchanged-other = Herdr가 패인을 그 자리에 두었습니다.
+error-pane-move-refused = 패인을 옮기지 못했습니다: { $error }
+error-pane-move-missing-cli = 패인을 옮기지 못했습니다: 이 호스트에서 herdr CLI를 찾지 못했습니다.
+error-pane-move-script = 패인을 옮기지 못했습니다: { $error }
+error-pane-move-decode = 패인을 옮기지 못했습니다: herdr가 예상과 다른 출력을 돌려주었습니다.
+error-pane-move-partial-tab-move = 만든 탭으로 패인 { $pane }을(를) 옮기지 못했습니다: { $error }
+error-pane-move-rename = 탭은 옮겼지만 이름을 유지하지 못했습니다: { $error }

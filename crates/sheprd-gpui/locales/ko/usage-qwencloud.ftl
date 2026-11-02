@@ -1,0 +1,3 @@
+# Qwen Cloud의 요금제 사용량입니다. 설정 이름, URL, 쿠키 이름, 메뉴 경로는 그대로 둡니다.
+usage-qwencloud-setting-cookie = Qwen Cloud 콘솔 세션입니다. https://home.qwencloud.com/billing/subscription/token-plan-individual에 로그인하고 Developer Tools > Application > Cookies > https://home.qwencloud.com을 연 뒤, 로그인 티켓(login_qwencloud_ticket 또는 login_aliyunid_ticket)과 login_aliyunid_csrf, cna를 복사하세요. "name=value; name2=value2" 형식으로 붙여 넣거나, Network 탭에서 data/api.json 요청의 Cookie 헤더 전체를 복사하세요.
+usage-qwencloud-setting-sec-token = 선택 사항입니다. /tool/user/info.json에서 읽을 수 없을 때의 콘솔 sec_token입니다. Developer Tools > Network에서 Token Plan 페이지의 data/api.json 요청에 있는 sec_token 양식 필드입니다.

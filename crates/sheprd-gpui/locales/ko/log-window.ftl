@@ -1,0 +1,33 @@
+# 로그 창: 앱의 로그와, 자동화가 실행될 때 각 호스트의 자동화 데몬 로그입니다. 로그 기록 자체는 번역하지 않습니다.
+log-window-title = 로그
+log-window-search-placeholder = 검색, namespace:sheprd_gpui target:terminal_painter
+# $level은 INFO 같은 로그 수준이라 그대로 둡니다.
+log-window-minimum = 최소: { $level } v
+log-window-minimum-menu = 최소 수준
+log-window-pause = 일시 중지
+log-window-resume = 이어 보기
+log-window-copy = 복사
+log-window-working = 작업 중…
+log-window-export = 내보내기…
+log-window-entries = 로그 항목
+log-window-empty = 맞는 로그가 없습니다.
+log-window-saved = { $path }에 저장했습니다. 공유하기 전에 검토하세요.
+log-window-not-saved = 저장 안 됨: 상태 폴더가 없습니다. 공유하기 전에 검토하세요.
+log-window-choose-destination = 내보낼 위치를 고르세요…
+log-window-preparing-clipboard = 클립보드를 준비하는 중…
+log-window-export-cancelled = 내보내기를 취소했습니다.
+log-window-no-save-dialog = 저장 대화상자를 열 수 없습니다.
+log-window-copied = 필터한 로그를 복사했습니다. 공유하기 전에 검토하세요.
+log-window-exported = 필터한 로그를 내보냈습니다. 공유하기 전에 검토하세요.
+log-window-export-failed = 내보내기 실패: { $error }
+log-window-unreadable = 로그를 읽을 수 없습니다: { $error }
+log-window-source = 출처
+log-window-source-app = 앱
+log-window-source-automations = { $host }의 자동화
+log-window-reading = 읽는 중…
+log-window-automations-off = { $source } · 자동화가 꺼져 있는 동안 읽지 않음
+log-window-log-tail = { $source } · 긴 로그의 끝부분
+log-window-log-whole = { $source } · 전체 로그
+log-window-host-unreadable = { $host }을(를) 읽을 수 없습니다: { $error }
+log-window-summary-live = { $shown }개 표시 | { $dropped }개 버림 | 실시간 | { $status }
+log-window-summary-paused = { $shown }개 표시 | { $dropped }개 버림 | 일시 중지 | { $status }

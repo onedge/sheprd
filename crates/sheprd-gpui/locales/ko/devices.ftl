@@ -1,0 +1,23 @@
+# 사이드바의 기기 바닥글과 그것이 여는 기기 선택기입니다.
+devices-unavailable-socket = 소켓을 직접 지정하면 기기 설정을 쓸 수 없습니다.
+devices-unavailable-development = 개발용 카탈로그에서는 기기 설정을 쓸 수 없습니다.
+devices-settings = 설정
+devices-settings-shortcut = 설정({ $shortcut })
+devices-all = 모든 기기
+devices-picked = 기기 { $count }대
+devices-picker-connected = 기기: { $device }, 연결됨
+devices-picker-disconnected = 기기: { $device }, 연결 끊김
+devices-hosts = 호스트 { $count }곳
+devices-heading = 기기와 세션
+devices-multi-select-macos = 여러 개는 ⌘-클릭 또는 Space
+devices-multi-select = 여러 개는 Ctrl-클릭 또는 Space
+devices-all-detail = 기기 { $count }대 · { $connected }대 연결됨
+devices-this-device = 이 기기
+devices-row-detail = { $place } · { $state }
+devices-add = 기기 추가…
+devices-sessions-toggle = { $device }의 세션
+devices-adding = 추가하는 중
+devices-activity-heading = 에이전트 활동 · 2시간
+devices-activity-overview = 개요
+devices-activity-working = { $count }개 작업 중
+devices-activity-blocked = { $count }개 입력 대기

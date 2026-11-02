@@ -1,0 +1,21 @@
+# $detail은 Daytona의 원문입니다. [daytona]는 구성 표이고 api_url은 그 키입니다.
+error-remote-daytona-url = { $field }은(는) 자격 증명, 쿼리, 프래그먼트 없는 https여야 합니다(http는 루프백에서만).
+error-remote-daytona-missing-key = Daytona에는 API 키가 필요합니다. 설정 > 클라우드 기기에서 저장하세요.
+error-remote-daytona-authentication = Daytona가 API 키를 거부했습니다.
+error-remote-daytona-forbidden = Daytona가 접근을 거부했습니다. API 키의 권한을 확인하세요.
+error-remote-daytona-status = Daytona 요청에 실패했습니다(HTTP { $code })
+error-remote-daytona-status-message = Daytona 요청에 실패했습니다(HTTP { $code }): { $detail }
+error-remote-daytona-network = Daytona 네트워크 요청이 실패했거나 시간이 지났습니다.
+error-remote-daytona-read = 크기나 시간 한도 안에 Daytona 응답을 읽지 못했습니다.
+error-remote-daytona-size = Daytona 응답이 크기 한도를 넘었습니다.
+error-remote-daytona-json = Daytona JSON 응답이 올바르지 않습니다.
+error-remote-daytona-header = Daytona 인증 헤더가 올바르지 않습니다.
+error-remote-daytona-sandbox = Daytona 샌드박스가 실패했습니다: { $detail }
+error-remote-daytona-deleted = Daytona 샌드박스가 삭제되었습니다.
+error-remote-daytona-snapshot = Daytona가 스냅숏을 빌드하지 못했습니다: { $detail }
+error-remote-daytona-start-timeout = Daytona 샌드박스가 10분 안에 시작하지 않았습니다.
+error-remote-daytona-cancelled = 취소했습니다.
+error-remote-daytona-gateway = Daytona가 이 앱이 이해하지 못하는 SSH 명령을 돌려주었습니다.
+error-remote-daytona-ssh-missing = Daytona 기기에는 PATH에 ssh가 있어야 하는데 실행하지 못했습니다.
+error-remote-daytona-gateway-file = Daytona 게이트웨이용 SSH 명령을 준비하지 못했습니다.
+error-remote-daytona-account = 이 기기는 [daytona] api_url에 더 이상 설정되지 않은 Daytona 계정의 것입니다.

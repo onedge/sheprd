@@ -1,0 +1,71 @@
+# 검토 탭: 체크아웃의 변경 사항, 줄에 단 메모, 메모를 에이전트에게 보내기입니다.
+review-title = 변경 사항 검토
+review-notes-go-to = 메모는 { $agent }에게 갑니다
+review-notes-go-to-agent = 메모는 에이전트에게 갑니다
+review-no-agent = 이 워크스페이스에 에이전트가 없습니다. 메모는 복사할 수 있습니다
+# 기준 브랜치 버튼 앞에 옵니다: "feature 비교 대상 [main ▾]".
+review-against = { $branch } 비교 대상
+review-reading = 읽는 중…
+review-reading-changes = 변경 사항을 읽는 중…
+review-find = 변경 사항에서 찾기
+review-hide-whitespace = 공백 변경 숨기기
+review-layout-unified = 한 열
+review-layout-split = 나란히
+review-scope-uncommitted = 커밋 안 함
+review-scope-branch = 브랜치
+review-no-uncommitted = 커밋 안 한 변경 없음
+review-no-branch-changes = 이 브랜치에 변경 사항 없음
+review-automatic = 자동
+review-current = 현재
+review-reading-branches = 브랜치를 읽는 중…
+review-choose-base = 기준 고르기
+review-describe = 변경 내용 설명…
+review-filter = 파일 필터…
+review-find-placeholder = 변경 사항에서 찾기…
+review-changed-files = 바뀐 파일
+review-hide-viewed = 확인한 파일 숨기기
+review-files-changed = 파일 { $count }개 바뀜
+review-viewed = 확인함
+review-status-added = 새 파일
+review-status-deleted = 삭제됨
+review-status-renamed = 이름 바뀜
+review-status-untracked = 추적 안 함
+review-binary = 바이너리 파일은 보여 주지 않습니다
+review-large-change = 큰 변경이라 보여 주지 않습니다: { $added } { $removed }줄
+review-large-file = 큰 파일이라 보여 주지 않습니다
+review-load-diff = diff 불러오기
+review-try-again = 다시 시도
+review-cut-short = { $count }줄 뒤 잘림
+review-no-lines = 보여 줄 변경 없음
+review-unreadable-change = 변경을 읽지 못했습니다
+review-unreadable-file = 파일을 읽지 못했습니다
+review-unreadable-not-file = 일반 파일이 아닙니다
+review-unreadable-too-large = 너무 커서 보여 줄 수 없습니다
+review-more-lines = ↕ { $count }줄 더
+# $capped의 키(yes, no)는 그대로 둡니다.
+review-search-none = 결과 없음
+review-search-count = { $capped ->
+    [yes] { $count }+개 중 { $current }번째
+   *[no] { $count }개 중 { $current }번째
+}
+review-notes = 메모
+review-notes-empty = 줄이나 파일 이름을 클릭해 바꿀 점을 적으세요.
+review-save-note = 메모 저장
+review-add-note = 메모 추가
+review-withdraw = 회수
+review-copy = 복사
+review-clear-sent = 보낸 메모 지우기
+review-note-place-removed = { $place } (제거됨)
+review-note-sent = { $place } · 보냄
+review-no-checkout = 검토할 로컬 체크아웃이 없습니다
+review-no-workspace = 먼저 워크스페이스를 여세요
+review-too-many-tabs = 열린 탭이 너무 많습니다
+review-notes-full = 더 추가하기 전에 보낸 메모를 지우거나 일부를 제거하세요
+review-note-empty = 먼저 바꿀 점을 쓰세요
+review-send-pending = 이전 메모를 아직 전달하는 중입니다
+review-withdraw-late = 에이전트가 이미 그 메모를 받았습니다
+review-withdrawn = 메모를 회수했습니다
+review-notes-copied = 메모를 복사했습니다
+review-copied = 클립보드에 복사했습니다
+review-path-copied = 경로를 복사했습니다
+review-hunk-copied = 변경 묶음을 복사했습니다

@@ -1,0 +1,23 @@
+# 메인 창의 짧은 알림: 터미널 위 플래시, 상태 줄 오류, 구성 진단 카드, 에이전트 스킬 제안입니다.
+window-notices-request-failed = { $operation }: { $error }
+window-notices-navigate = 이동
+window-notices-annotate-pages-unsupported = 페이지에 주석을 달려면 macOS나 Windows가 필요합니다
+window-notices-scrollback-needs-newer = 스크롤백을 열려면 더 새로운 Herdr 데몬이 필요합니다
+window-notices-clear-needs-newer = 패인 지우기에는 더 새로운 Herdr 데몬이 필요합니다.
+window-notices-move-tabs-needs-newer = 탭을 옮기려면 더 새로운 Herdr 데몬이 필요합니다.
+window-notices-skill-installed-at = { $path }에 브라우저 스킬을 설치했습니다
+window-notices-skill-installed-places = 브라우저 스킬을 { $count }곳에 설치했습니다
+window-notices-skill-offer-title = 에이전트가 페이지를 보여 주게 할까요?
+window-notices-skill-offer-body = 패인의 에이전트가 이곳 브라우저 탭에서 페이지와 HTML 초안을 열고, 내가 남긴 메모를 읽고, 승인할 자동화를 쓰고, 이 앱을 확장하는 Mod를 쓸 수 있습니다. 스킬이 그 방법을 알려 줍니다.
+window-notices-skill-offer-detail = 설치하면 ~/.claude/skills와 ~/.agents/skills 중 있는 곳에 herdr-gpui-browser/SKILL.md, herdr-automations/SKILL.md, herdr-mods/SKILL.md를 쓰고 최신 상태로 유지합니다. 같은 이름의 스킬을 직접 만들었다면 건드리지 않습니다. 설정에서 언제든 제거할 수 있습니다.
+window-notices-skill-offer-install = 설치
+window-notices-skill-offer-decline = 나중에
+window-notices-zen-command = 젠 모드: 나가려면 젠 모드 전환을 실행하세요
+window-notices-zen-key = 젠 모드: 나가려면 { $key }
+window-notices-shift-select = 글을 선택하려면 Shift를 누른 채 드래그하세요
+window-notices-diagnostic-app = Sheprd
+window-notices-diagnostic-copied = 명령을 복사했습니다
+window-notices-diagnostic-full = 전체 메시지
+window-notices-checkpoint-restored = { $branch }의 체크포인트를 복원했습니다
+window-notices-checkpoint-not-restored = 체크포인트를 복원하지 못했습니다: { $error }
+window-notices-checkpoint-not-restored-cause = 체크포인트를 복원하지 못했습니다: { $error }: { $cause }

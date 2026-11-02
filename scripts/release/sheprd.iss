@@ -94,6 +94,7 @@ ShowLanguageDialog=auto
 ; language Setup ran in.
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl,installer\en-US.isl"
+Name: "korean"; MessagesFile: "compiler:Languages\Korean.isl,installer\ko.isl"
 
 [Tasks]
 Name: "addtopath"; Description: "{cm:AddToPath}"

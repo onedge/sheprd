@@ -4,7 +4,9 @@ use gpui::TestAppContext;
 #[gpui::test]
 fn the_qa_pseudo_locale_switches_text_and_back(cx: &mut TestAppContext) {
     cx.update(|cx| {
-        install(&Language::System, cx);
+        // English, not the system's languages: the text compared below is
+        // English, and a machine set to a translated language would show that.
+        install(&Language::Locale(Locale::FALLBACK), cx);
         assert_eq!(shown_pseudo(), None);
         toggle_pseudo(Pseudo::Accented, cx);
         assert_eq!(shown_pseudo(), Some(Pseudo::Accented));

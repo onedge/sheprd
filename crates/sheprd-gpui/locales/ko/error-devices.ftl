@@ -1,0 +1,20 @@
+# $status는 Herdr 명령이 끝난 방식(시스템의 말)이고, $detail은 그 명령의 출력입니다.
+error-devices-adding = 이 호스트를 이미 추가하는 중입니다. 다른 기기 추가 대화상자나 아직 실행 중인 “Set up” 워크스페이스를 마치거나 닫은 뒤 다시 시도하세요.
+error-devices-exists = 이 호스트와 세션은 이미 “{ $label }”(으)로 저장되어 있습니다.
+error-devices-remove = 기기를 제거하지 못했습니다({ $status })
+error-devices-remove-detail = 기기를 제거하지 못했습니다({ $status }): { $detail }
+error-devices-rename = 기기 이름을 바꾸지 못했습니다({ $status })
+error-devices-rename-detail = 기기 이름을 바꾸지 못했습니다({ $status }): { $detail }
+error-devices-server-restart = 이 호스트의 Herdr 서버는 SSH 연결이 끊기면 살아남지 못할 수 있는 방식으로 시작되었습니다. 그래서 기기를 저장하기 전에 Herdr가 서버를 다시 시작해야 합니다. 다시 시작하면 그곳에서 실행 중인 패인이 멈춥니다.
+error-devices-setup = 기기를 저장하지 못했습니다({ $status })
+error-devices-setup-detail = 기기를 저장하지 못했습니다({ $status }): { $detail }
+error-devices-setup-no-profile = 이 기기에는 저장된 프로필이 없습니다.
+error-devices-setup-label = 기기 이름은 제어 문자 없이 128바이트 이하여야 합니다.
+error-devices-setup-target = user@hostname이나 SSH 별칭 같은 SSH 대상을 입력하세요.
+error-devices-setup-session = 세션 이름은 글자, 숫자, 점, 밑줄, 하이픈으로 64바이트 이하여야 하며, '.'과 '..'은 쓸 수 없습니다.
+error-devices-setup-state-directory = Sheprd에 상태 폴더가 없습니다.
+error-devices-setup-paths = 준비 경로는 UTF-8이어야 합니다.
+error-devices-setup-windows = Windows에서는 터미널에서 기기를 준비할 수 없습니다.
+error-devices-setup-timeout = 기기 저장 시간이 지났습니다
+error-devices-tailscale-json = Tailscale이 읽을 수 없는 상태를 돌려주었습니다: { $error }
+error-devices-tailscale-timeout = Tailscale이 제시간에 답하지 않았습니다
