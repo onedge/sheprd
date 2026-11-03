@@ -17,6 +17,7 @@ mod en_xa;
 mod fold;
 mod host_key;
 mod host_key_choice;
+mod initials;
 mod key_login;
 mod local_network;
 #[cfg(feature = "cloud")]

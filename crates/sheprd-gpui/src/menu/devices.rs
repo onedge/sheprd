@@ -14,6 +14,7 @@ mod error;
 mod host_key;
 mod host_key_choice;
 mod host_menu;
+mod initials;
 mod local_network;
 pub(super) mod picker;
 pub(super) mod rail;
@@ -301,12 +302,7 @@ impl SheprdWindow {
         // with the device's initials and says how many hosts there are.
         let bar = self.activity_bar_shown();
         let hosts = self.endpoints.len();
-        let initials: String = label
-            .split_whitespace()
-            .filter_map(|word| word.chars().next())
-            .take(2)
-            .flat_map(char::to_uppercase)
-            .collect();
+        let initials = initials::initials(&label);
         div()
             .id("device-footer")
             .debug_selector(|| "device-footer".into())
