@@ -3,7 +3,8 @@
 
 Every `crates/*/locales/<tag>/<feature>.ftl` must parse as Fluent's message
 syntax, and each message ID start with its file's feature and a hyphen.
-Within a language no ID repeats, and a translation has no ID English lacks.
+Within a language no ID repeats, and a translation has no ID English lacks
+and passes no variable its English message lacks, which would show raw.
 Every English message is used: the app's Rust code names it as a string
 literal (`fl!("id")`, or a table such as the command catalog's), or another
 message references it. Tests do not count, so a message only a test names is
@@ -44,6 +45,8 @@ IDENTIFIER = r"[a-zA-Z][a-zA-Z0-9_-]*"
 ENTRY = re.compile(rf"^(-?{IDENTIFIER})\s*=(.*)$")
 ATTRIBUTE = re.compile(rf"^\s+\.{IDENTIFIER}\s*=")
 REFERENCE = re.compile(rf"\{{\s*({IDENTIFIER})(?:\.{IDENTIFIER})?\s*\}}")
+# A variable a placeable reads, directly or as a function's first argument.
+VARIABLE = re.compile(rf"\{{\s*(?:[A-Z][A-Z0-9_-]*\(\s*)?\$({IDENTIFIER})")
 FL = re.compile(r"\bfl!\(\s*\"([^\"]*)\"")
 LITERAL = re.compile(r"\"([a-z][a-z0-9-]*)\"")
 LOCALIZED_KEY = re.compile(r"^\w+\[([^\]]+)\]=", re.MULTILINE)
@@ -102,6 +105,8 @@ class Ftl:
     # ID -> line, in file order.
     messages: dict[str, int] = field(default_factory=dict)
     references: set[str] = field(default_factory=set)
+    # ID -> the variables its value and attributes read.
+    variables: dict[str, set[str]] = field(default_factory=dict)
 
 
 def placeables(text: str, stack: list[str]) -> bool:
@@ -266,6 +271,8 @@ def parse(path: Path, text: str) -> tuple[Ftl, list[str]]:
     errors: list[str] = []
     stack: list[str] = []
     in_entry = False
+    # The message the current line belongs to; None inside a term.
+    current: str | None = None
     for number, line in enumerate(text.splitlines(), start=1):
         stripped = line.strip()
         if not stripped or (line.startswith("#") and not stack):
@@ -276,6 +283,7 @@ def parse(path: Path, text: str) -> tuple[Ftl, list[str]]:
         if entry:
             in_entry = True
             name = entry.group(1)
+            current = None if name.startswith("-") else name
             if not name.startswith("-"):
                 if name in ftl.messages:
                     errors.append(f"{path}:{number}: {name} is defined twice")
@@ -293,6 +301,8 @@ def parse(path: Path, text: str) -> tuple[Ftl, list[str]]:
             errors.append(f"{path}:{number}: not a message, comment, or continuation")
             continue
         ftl.references.update(REFERENCE.findall(body))
+        if current:
+            ftl.variables.setdefault(current, set()).update(VARIABLE.findall(body))
         if placeables(body, stack):
             errors.append(f"{path}:{number}: unbalanced }}")
     if stack:
@@ -317,6 +327,7 @@ def check(files: list[Ftl], sources: dict[Path, str]) -> list[str]:
             continue
         for name in sorted(set(messages) - set(english)):
             errors.append(f"{messages[name]}: {name} has no {FALLBACK} message")
+    errors.extend(unknown_variables(files))
     used = {name for ftl in files for name in ftl.references}
     for path, text in sources.items():
         # Comments name messages by way of example.
@@ -334,6 +345,32 @@ def check(files: list[Ftl], sources: dict[Path, str]) -> list[str]:
         for name, line in ftl.messages.items():
             if name not in used:
                 errors.append(f"{ftl.path}:{line}: {name} is not used")
+    return errors
+
+
+def unknown_variables(files: list[Ftl]) -> list[str]:
+    """Translated messages that read a variable English never passes.
+
+    A translation may leave one out, as a plural branch that spells the
+    number, but one English lacks has no value and shows as `{$name}`.
+    """
+    english: dict[str, set[str]] = {}
+    for ftl in files:
+        if ftl.language == FALLBACK:
+            for name, variables in ftl.variables.items():
+                english.setdefault(name, set()).update(variables)
+    errors: list[str] = []
+    for ftl in files:
+        if ftl.language == FALLBACK:
+            continue
+        for name, variables in ftl.variables.items():
+            if name not in english:
+                continue
+            for variable in sorted(variables - english[name]):
+                errors.append(
+                    f"{ftl.path}:{ftl.messages[name]}: {name} reads ${variable},"
+                    f" which its {FALLBACK} message does not pass"
+                )
     return errors
 
 

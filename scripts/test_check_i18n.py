@@ -149,6 +149,31 @@ class CheckTests(unittest.TestCase):
         self.assertIn(f"{other}:1: menu-quit is also defined in {EN}", errors)
         self.assertIn(f"{french}: menu-gone has no en-US message", errors)
 
+    def test_a_translation_reads_only_variables_english_passes(self) -> None:
+        french = Path("crates/app/locales/fr/menu.ftl")
+        english = (
+            "menu-quit = Quit { $app }\n"
+            "menu-count = { $count ->\n"
+            "    [one] One item in { $place }\n"
+            "   *[other] { NUMBER($count) } items\n"
+            "}\n"
+            "-menu-term = { $whatever }\n"
+        )
+        translated = (
+            "menu-quit = Quitter { $user }\n"
+            # A selector, a function argument, and a dropped variable pass.
+            "menu-count = { $count ->\n"
+            "   *[other] { NUMBER($count) } éléments\n"
+            "}\n"
+            "-menu-term = { $other }\n"
+        )
+        files = self.files((EN, english), (french, translated))
+        errors = check_i18n.check(files, {Path("a.rs"): '"menu-quit" "menu-count"'})
+        self.assertEqual(
+            errors,
+            [f"{french}:1: menu-quit reads $user, which its en-US message does not pass"],
+        )
+
 
 class MigratedTests(unittest.TestCase):
     ROOT = Path("crates/app/src/menu.rs")
