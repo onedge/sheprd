@@ -16,7 +16,8 @@
 // i18n: migrated
 
 mod chats;
-mod core_pane;
+mod convert;
+pub(crate) mod core_pane;
 mod discovery;
 mod existing;
 mod glide;
@@ -28,6 +29,7 @@ pub(crate) mod pasted;
 mod prepared;
 #[cfg(feature = "integration-test")]
 pub(crate) mod preview;
+mod rail_folds;
 mod reader;
 mod restore;
 mod rich;
@@ -53,6 +55,7 @@ pub(super) fn now_ms() -> u64 {
             u64::try_from(elapsed.as_millis()).unwrap_or(u64::MAX)
         })
 }
+pub(crate) use convert::Error as ConvertError;
 pub(crate) use start::{Error as StartError, PROGRAM_ENV, Program};
 
 use sheprd_chat_protocol::{ByeReason, EndpointId};
@@ -84,6 +87,8 @@ pub enum Error {
     Closed,
     #[error("could not reach the chat program")]
     Connect(#[source] io::Error),
+    #[error(transparent)]
+    Convert(#[from] convert::Error),
     #[error("`{name}` cannot be a chat environment variable")]
     EnvironmentName { name: String },
     #[error(
@@ -182,12 +187,21 @@ pub(crate) enum Route {
     Ssh(String),
 }
 
-/// Folders a remote `herdr-acp` is looked for in before the remote `PATH`,
+/// Folders a remote `sheprd-acp` is looked for in before the remote `PATH`,
 /// which a noninteractive SSH shell often leaves short. `~/.herdr/bin` is
-/// where `cargo install --root ~/.herdr` puts it.
-const REMOTE_PROGRAM_DIRS: [&str; 3] = ["$HOME/.herdr/bin", "$HOME/.cargo/bin", "$HOME/.local/bin"];
+/// where `cargo install --root ~/.herdr` puts it. A Mac has it only inside the
+/// app bundle, which never joins `PATH`, under either name the updater accepts.
+const REMOTE_PROGRAM_DIRS: &[&str] = &[
+    "$HOME/.herdr/bin",
+    "$HOME/.cargo/bin",
+    "$HOME/.local/bin",
+    "$HOME/Applications/Herdr.app/Contents/MacOS", // i18n: data
+    "$HOME/Applications/Sheprd.app/Contents/MacOS", // i18n: data
+    "/Applications/Herdr.app/Contents/MacOS",      // i18n: data
+    "/Applications/Sheprd.app/Contents/MacOS",     // i18n: data
+];
 
-/// The remote `/bin/sh` script that runs the first `herdr-acp` found with
+/// The remote `/bin/sh` script that runs the first `sheprd-acp` found with
 /// `args`, or says where it looked and exits 127. `args` must be
 /// shell-safe; the script has no single quotes, so it may be wrapped in them.
 pub(crate) fn remote_program_script(args: &str) -> String {

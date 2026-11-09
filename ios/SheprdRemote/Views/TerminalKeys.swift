@@ -9,7 +9,8 @@ import UIKit
 @Observable
 final class TermTyping {
     let key: PaneKey
-    /// Held by the key row for the next key typed.
+    /// Held by the key row: ctrl and alt for the next key, shift until
+    /// tapped off.
     var modifiers: TermInput.Modifiers = []
     private(set) var problem: String?
     /// What was typed but is not on the screen yet.
@@ -23,27 +24,18 @@ final class TermTyping {
         self.fleet = fleet
     }
 
-    /// Typed text, with the held modifiers, which are then released.
+    /// Typed text, with the held modifiers, which are then released. The
+    /// keyboard has already applied its own shift.
     func type(_ text: String) {
-        enqueue(TermInput.sends(for: text, modifiers: modifiers))
-        modifiers = []
+        enqueue(TermInput.sends(for: text, modifiers: modifiers.subtracting(.shift)))
+        modifiers = modifiers.afterKey
     }
 
     /// A named key (`esc`, `up`) or a combination (`ctrl+c`), with the held
     /// modifiers added.
     func press(_ name: String) {
-        let parts = name.split(separator: "+").map(String.init)
-        var held = modifiers
-        for part in parts.dropLast() {
-            switch part {
-            case "ctrl": held.insert(.ctrl)
-            case "alt": held.insert(.alt)
-            case "shift": held.insert(.shift)
-            default: break
-            }
-        }
-        enqueue([.keys([TermInput.named(parts.last ?? name, modifiers: held)])])
-        modifiers = []
+        enqueue([.keys([TermInput.pressed(name, held: modifiers)])])
+        modifiers = modifiers.afterKey
     }
 
     func paste(_ text: String) {
@@ -124,55 +116,76 @@ struct TermEchoStrip: View {
     }
 }
 
-/// Terminal B's two key rows: modifiers and the keys a phone keyboard
-/// lacks, with ^C set apart, the arrows, and the keyboard toggle.
+/// Terminal B's two key rows: the modifiers, then the person's keys, set
+/// in Settings (`TermKeyLayout`): the keys a phone keyboard lacks, ^C,
+/// dictation, and the keyboard toggle.
 struct TermKeyRows: View {
+    @Environment(AppModel.self) private var model
     @Bindable var typing: TermTyping
     @Binding var keyboard: Bool
-
-    private static let top: [(key: String, label: String)] = [
-        ("esc", "esc"), ("tab", "⇥"), ("|", "|"), ("slash", "/"), ("minus", "-"), ("~", "~"), ("backtick", "`"), ("up", "↑"),
-    ]
-    private static let bottom: [(key: String, label: String)] = [
-        ("ctrl+d", "^D"), ("ctrl+z", "^Z"), ("ctrl+r", "^R"), ("ctrl+l", "^L"), ("ctrl+a", "^A"), ("ctrl+e", "^E"),
-        ("left", "←"), ("down", "↓"), ("right", "→"),
-    ]
+    let dictation: Dictation
+    let dictate: () -> Void
 
     var body: some View {
+        let keys = model.termKeys.layout
         VStack(spacing: 6) {
             row {
                 modifier("ctrl", .ctrl)
                 modifier("alt", .alt)
-                ForEach(Self.top, id: \.key) { key in keyButton(key.label) { typing.press(key.key) } }
+                modifier("shift", .shift)
+                ForEach(keys.top) { key in termKey(key) }
             }
             row {
-                keyButton("^C", tint: .red) { typing.press("ctrl+c") }
-                    .accessibilityLabel("Control C")
-                ForEach(Self.bottom, id: \.key) { key in keyButton(key.label) { typing.press(key.key) } }
-                keyButton(keyboard ? "⌨︎↓" : "⌨︎") { keyboard.toggle() }
-                    .accessibilityLabel(keyboard ? "Hide keyboard" : "Show keyboard")
+                ForEach(keys.bottom) { key in termKey(key) }
             }
         }
         .padding(.horizontal, 8).padding(.vertical, 6)
-        .background(.bar)
+        // Under the keyboard too: its rounded top corners would otherwise
+        // show the window's light background beside the dark rows.
+        .background { Rectangle().fill(.bar).ignoresSafeArea() }
         .sensoryFeedback(.selection, trigger: typing.modifiers)
     }
 
+    /// The keyboard's own mic cannot reach a terminal, which has no text
+    /// for it to edit, so the row offers the composer's dictation.
+    private var dictationButton: some View {
+        Button(action: dictate) {
+            Image(systemName: dictation.active ? "stop.circle.fill" : "mic.fill")
+                .font(.callout.weight(.medium))
+                .foregroundStyle(dictation.active ? AnyShapeStyle(.red) : AnyShapeStyle(.primary))
+                .symbolEffect(.pulse, isActive: dictation.phase == .listening)
+                .termKeyFace()
+        }
+        .buttonStyle(.plain)
+        .disabled(dictation.phase == .preparing)
+        .accessibilityLabel(dictation.active ? "Stop dictating" : "Dictate")
+    }
+
     private func row(@ViewBuilder _ content: () -> some View) -> some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 6) { content() }
+        TermKeyRow { content() }
+    }
+
+    /// Its keys go out together; a held ctrl or alt is for the first.
+    @ViewBuilder
+    private func termKey(_ key: TermKey) -> some View {
+        switch key.special {
+        case .dictation:
+            dictationButton
+        case .keyboard:
+            keyButton(keyboard ? "⌨︎↓" : "⌨︎", repeats: false) { keyboard.toggle() }
+                .accessibilityLabel(keyboard ? "Hide keyboard" : "Show keyboard")
+        case nil:
+            keyButton(key.label(symbols: model.termKeys.symbols), tint: key.keys == ["ctrl+c"] ? .red : nil, repeats: key.repeats) {
+                for name in key.keys { typing.press(name) }
+            }
+            .accessibilityLabel(key.spoken)
         }
     }
 
-    private func keyButton(_ label: String, tint: Color? = nil, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(label).font(.system(.callout, design: .monospaced).weight(.medium))
-                .foregroundStyle(tint ?? .primary)
-                .frame(minWidth: 38, minHeight: 34).padding(.horizontal, 4)
-                .background(.fill.tertiary, in: .rect(cornerRadius: 8))
-        }
-        .buttonStyle(.plain)
-        .buttonRepeatBehavior(.enabled)
+    private func keyButton(_ label: String, tint: Color? = nil, repeats: Bool = true, action: @escaping () -> Void) -> some View {
+        Button(action: action) { TermKeyCap(label: label, tint: tint) }
+            .buttonStyle(.plain)
+            .buttonRepeatBehavior(repeats ? .enabled : .disabled)
     }
 
     private func modifier(_ label: String, _ flag: TermInput.Modifiers) -> some View {
@@ -180,13 +193,56 @@ struct TermKeyRows: View {
         return Button {
             if held { typing.modifiers.remove(flag) } else { typing.modifiers.insert(flag) }
         } label: {
-            Text(label).font(.system(.callout, design: .monospaced).weight(.semibold))
-                .foregroundStyle(held ? AnyShapeStyle(.white) : AnyShapeStyle(.primary))
-                .frame(minWidth: 44, minHeight: 34)
-                .background(held ? AnyShapeStyle(.tint) : AnyShapeStyle(.fill.tertiary), in: .rect(cornerRadius: 8))
+            TermKeyCap(label: TermKey.modifier(label, symbols: model.termKeys.symbols), modifier: true, held: held)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(label)
         .accessibilityAddTraits(held ? .isSelected : [])
+    }
+}
+
+/// One key row, shared by the terminal and the preview in Settings: its
+/// keys share the row's width when they all fit, as a keyboard's do, and
+/// scroll when they do not.
+struct TermKeyRow<Keys: View>: View {
+    @ViewBuilder let keys: Keys
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 6) { keys }
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) { keys }
+            }
+        }
+    }
+}
+
+/// A key row key's face, shared by the rows and their preview in Settings.
+struct TermKeyCap: View {
+    let label: String
+    var tint: Color?
+    /// The modifiers are bolder, and filled while held.
+    var modifier = false
+    var held = false
+
+    var body: some View {
+        Text(label).font(.system(.callout, design: .monospaced).weight(modifier ? .semibold : .medium))
+            .foregroundStyle(held ? AnyShapeStyle(.white) : AnyShapeStyle(tint ?? .primary))
+            .termKeyFace(held: held)
+    }
+}
+
+extension View {
+    /// A key's size and fill: about as narrow as a keyboard's letter key,
+    /// so a row holds about ten, and wider to fill a row that holds them.
+    func termKeyFace(held: Bool = false) -> some View {
+        frame(minWidth: 24, minHeight: 34)
+            // Never narrower than its label, so a filled row shares only
+            // the room left over and `shift` stays on one line.
+            .fixedSize(horizontal: true, vertical: false)
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 4)
+            .background(held ? AnyShapeStyle(.tint) : AnyShapeStyle(.fill.tertiary), in: .rect(cornerRadius: 8))
     }
 }
 

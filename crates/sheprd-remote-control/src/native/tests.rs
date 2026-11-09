@@ -5,8 +5,10 @@ use sheprd_client::protocol::AgentStatus;
 
 mod agent_name;
 mod create;
+mod create_start;
 mod fixtures;
 mod hosts;
+mod installed_agents;
 #[cfg(unix)]
 mod live_chat;
 mod messages;
@@ -23,12 +25,14 @@ pub(super) fn layout(endpoint: EndpointId) -> Layout {
     Layout {
         connected: true,
         boot: "b".into(),
+        working: 2,
         workspaces: vec![Workspace {
             id: "w1".into(),
             label: "herdr-gpui".into(),
             branch: Some("main".into()),
             cwd: "/work".into(),
             worktree: None,
+            session: None,
             chats: vec![ChatRow {
                 pane: "p1".into(),
                 tab: "t1".into(),
@@ -53,7 +57,10 @@ pub(super) fn layout(endpoint: EndpointId) -> Layout {
                     status: AgentStatus::Done,
                     pane: "p2".into(),
                     title: Some("Fix the build".into()),
+                    changed_ms: Some(1_770_000_000_000),
                 }),
+                agents: Vec::new(),
+                convert: Some(("p2".into(), sheprd_chat_protocol::Agent::Claude)),
             }],
         }],
     }
@@ -101,7 +108,7 @@ impl Session {
         let (outbound, from_live) = mpsc::channel(OUTBOUND_QUEUE);
         tokio::spawn(live::run(
             state.clone(),
-            token,
+            token.into(),
             device.clone(),
             inbound,
             outbound,

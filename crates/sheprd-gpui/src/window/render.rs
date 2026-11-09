@@ -67,6 +67,15 @@ impl SheprdWindow {
     }
 }
 
+/// A card the notice stack can draw.
+#[derive(Clone, Copy, PartialEq)]
+pub(crate) enum NoticeCard {
+    AppConfig,
+    IconFont,
+    DaemonConfig,
+    Announcement,
+}
+
 /// One card in the notice stack, and whether it scrolls, so it can give up
 /// height to keep the stack inside the window.
 pub(super) struct Notice {
@@ -82,19 +91,30 @@ impl SheprdWindow {
     /// Whether [`Self::render_notices`] draws a card, so the keyboard can
     /// reach the cards as a region of their own.
     pub(super) fn notices_shown(&self) -> bool {
+        use NoticeCard::*;
+        [AppConfig, IconFont, DaemonConfig, Announcement]
+            .into_iter()
+            .any(|card| self.notice_shown(card))
+    }
+
+    /// Whether [`Self::render_notices`] draws `card`.
+    pub(crate) fn notice_shown(&self, card: NoticeCard) -> bool {
         self.notices_allowed()
-            && (self.gui_config_diagnostic.visible().is_some()
-                || self.icon_font_notice.visible().is_some()
-                || self
+            && match card {
+                NoticeCard::AppConfig => self.gui_config_diagnostic.visible().is_some(),
+                NoticeCard::IconFont => self.icon_font_notice.visible().is_some(),
+                NoticeCard::DaemonConfig => self
                     .endpoints
                     .get(self.selected_endpoint)
-                    .is_some_and(|endpoint| endpoint.config_diagnostic.visible().is_some())
-                || self.live.product_announcement().is_some())
+                    .is_some_and(|endpoint| endpoint.config_diagnostic.visible().is_some()),
+                NoticeCard::Announcement => self.live.product_announcement().is_some(),
+            }
     }
 }
 
 impl Render for SheprdWindow {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        self.core_terminals.start_frame();
         self.restore_menu_focus(window, cx);
         self.leave_vanished_region(window, cx);
         self.sync_backdrop(window, cx);
@@ -343,7 +363,7 @@ impl Render for SheprdWindow {
                     this.copy_retained_selection(cx);
                 }))
             })
-            .on_scroll_wheel(cx.listener(Self::scroll_wheel))
+            .on_scroll(cx.listener(Self::scroll_wheel))
             .on_drop(cx.listener(Self::drop_terminal_files))
             .on_mouse_down(
                 MouseButton::Middle,
@@ -721,8 +741,7 @@ impl Render for SheprdWindow {
                 (Shown::Terminal, _)
                     if terminal_slot == Some(slot) && self.core_fallback_view().is_some() =>
                 {
-                    self.core_fallback_view()
-                        .map(IntoElement::into_any_element)
+                    self.draw_core_fallback()
                         .unwrap_or_else(|| div().into_any_element())
                 }
                 (Shown::Terminal, _) if terminal_slot == Some(slot) => terminal
@@ -809,7 +828,7 @@ impl Render for SheprdWindow {
                     move |bounds, _, _| menu_bounds.set(bounds),
                     move |_, _, window, _| {
                         let scroll_entity = entity.clone();
-                        window.on_mouse_event(move |_: &ScrollWheelEvent, phase, _, cx| {
+                        window.on_mouse_event(move |_: &ScrollEvent, phase, _, cx| {
                             if phase == DispatchPhase::Capture {
                                 let _ =
                                     scroll_entity.update(cx, |this, _| this.shift_taps.cancel());
@@ -829,6 +848,11 @@ impl Render for SheprdWindow {
             .on_action(
                 cx.listener(|this, action: &crate::actions::SetLayout, _, cx| {
                     this.set_layout(action.mode, cx);
+                }),
+            )
+            .on_action(
+                cx.listener(|this, action: &crate::actions::SetChatLayout, _, cx| {
+                    this.set_chat_layout(action.mode, cx);
                 }),
             )
             .on_action(
@@ -962,6 +986,7 @@ impl Render for SheprdWindow {
             // it would hide them, and one place is easier to find.
             .when(!zen, |root| root.children(self.render_worktree_banner()))
             .children(self.render_tab_ghost(cx))
+            .children(self.render_core_note(cx))
             .children(self.render_toasts(window, cx))
             .children(self.render_file_transfer(window, cx))
             .children(self.render_menu_leaving(window, cx))
