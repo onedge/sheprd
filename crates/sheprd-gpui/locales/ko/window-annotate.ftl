@@ -21,3 +21,5 @@ window-annotate-queued =
        *[other] 메모 { $count }개가 대기 중입니다. 다음 메모에서 Enter를 누르면 함께 보냅니다
     }
 window-annotate-stale-copied = 원래 데몬을 고르지 않은 메모는 복사했습니다
+window-annotate-history-moved = 선택 영역을 읽기 전에 새 출력이 선택을 옮겼습니다. 다시 선택하세요
+window-annotate-history-unread = 스크롤백에서 선택 영역을 읽지 못했습니다

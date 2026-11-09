@@ -67,5 +67,7 @@ review-withdraw-late = 에이전트가 이미 그 메모를 받았습니다
 review-withdrawn = 메모를 회수했습니다
 review-notes-copied = 메모를 복사했습니다
 review-copied = 클립보드에 복사했습니다
+review-open-in-editor = 에디터에서 열기
+review-file-gone = { $path }이(가) 더 이상 체크아웃에 없습니다
 review-path-copied = 경로를 복사했습니다
 review-hunk-copied = 변경 묶음을 복사했습니다

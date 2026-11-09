@@ -7,6 +7,9 @@ error-github-denied = GitHub 승인이 거부되었습니다.
 error-github-device = GitHub 기기 승인 응답이 올바르지 않습니다.
 error-github-encoding = GitHub 자격 증명의 인코딩이 올바르지 않습니다.
 error-github-expired = GitHub 코드가 만료되었습니다. 다시 로그인하세요.
+error-github-check-log-location = GitHub이 작업 로그의 위치를 알려 주지 않았습니다.
+error-github-check-log-read = 작업 로그를 읽지 못했습니다.
+error-github-check-log-too-long = 작업 로그가 너무 길어 끝까지 읽을 수 없습니다.
 error-github-forbidden = GitHub가 접근을 거부했습니다. 토큰 권한이나 SSO 승인을 확인하세요.
 error-github-header = GitHub 인증 헤더가 올바르지 않습니다.
 # $key는 github.oauth_client_id처럼 클라이언트 ID를 담은 구성 키나 환경 변수입니다.

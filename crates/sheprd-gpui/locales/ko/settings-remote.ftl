@@ -38,6 +38,10 @@ settings-remote-section-notifications = 알림
 settings-remote-notifications-note = 일반은 어느 채팅이 나를 찾는지만 알리고 내용은 넣지 않습니다. 발췌는 메시지 일부를 짧게 더합니다.
 settings-remote-privacy-generic = 일반
 settings-remote-privacy-excerpt = 발췌
+settings-remote-live-activities = 실시간 현황
+settings-remote-live-activities-note = 자세히는 페어링한 iPhone의 잠금 화면에 채팅과 현재 단계를 보여 줍니다. 질문과 답 버튼을 보이려면 발췌도 켜야 합니다. 일반은 에이전트와 그 에이전트가 대략 하는 일만 보여 줍니다. 휴대폰 자체 설정에서 더 적게 보이도록 고를 수 있습니다.
+settings-remote-live-activities-detailed = 자세히
+settings-remote-live-activities-generic = 일반
 
 settings-remote-section-devices = 기기
 settings-remote-idle-note = 이 기간 동안 연결하지 않은 기기는 잊히고, 다시 페어링해야 합니다.

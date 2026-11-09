@@ -26,6 +26,7 @@ remote-pair-nearby-mac = 또는 가까운 iPhone에서 Sheprd를 여세요. Blue
 remote-pair-nearby = 또는 가까운 iPhone에서 Sheprd를 여세요. Bluetooth로 이 컴퓨터를 찾습니다.
 remote-pair-nearby-allow-mac = Bluetooth로 가까이에서 페어링하려면 시스템 설정 > 개인정보 보호 및 보안 > Bluetooth에서 Sheprd를 허용하세요.
 remote-pair-nearby-allow = Bluetooth로 가까이에서 페어링하려면 시스템 설정에서 Sheprd의 Bluetooth 사용을 허용하세요.
+remote-pair-get-app = iPhone 앱 받기 (Enter)
 remote-pair-wants = { $device }이(가) 채팅의 원격 제어를 요청합니다.
 remote-pair-app = { $app }에서 설치한 Sheprd 앱이 요청합니다. 그 앱에 이 컴퓨터를 추가하는 중일 때만 허용하세요.
 remote-pair-same-code = 휴대폰에 같은 코드가 보일 때만 허용하세요.

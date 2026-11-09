@@ -29,4 +29,5 @@ error-remote-control-enroll-config = { $path }이(가) 올바른 TOML이 아닙�
 error-remote-control-enroll-no-home = 이 호스트에 홈 폴더가 없습니다
 error-remote-control-enroll-not-started = 이 호스트의 원격 제어 데몬이 시작하지 않았습니다
 error-remote-control-enroll-outdated = 이 호스트의 원격 제어 데몬이 Sheprd보다 오래되었습니다. 업데이트하세요
+error-remote-control-enroll-settings-locked = 이 호스트의 Sheprd가 { $path }을(를) 잠근 채로 두었습니다
 error-remote-control-enroll-unexpected = 원격 제어 데몬이 잘못된 종류의 응답을 주었습니다

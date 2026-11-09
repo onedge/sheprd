@@ -10,6 +10,7 @@ error-automations-off = Sheprd에서 자동화가 꺼져 있습니다: 설정, �
 error-automations-protocol = 이 호스트의 sheprd-automate는 보고 프로토콜 { $found }을(를) 쓰고, 이 앱은 { $expected }을(를) 읽습니다. 이 앱을 업데이트하세요.
 error-automations-refused = sheprd-automate: { $error }
 error-automations-run = sheprd-automate를 실행하지 못했습니다: { $error }
+error-automations-runs-active = 이 호스트에서 자동화가 실행 중입니다. 끝난 뒤 업데이트하세요
 error-automations-unknown-host = 이름이 { $host }인 연결된 호스트가 없습니다
 error-automations-unknown-version = 이 앱에 든 sheprd-automate의 버전을 읽지 못해서 설치할 수 없습니다
 error-automations-unsupported-host = 자동화는 이 종류의 호스트에 닿을 수 없습니다

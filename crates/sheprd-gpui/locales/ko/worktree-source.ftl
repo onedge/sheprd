@@ -8,6 +8,7 @@ worktree-source-tab-issues = 이슈
 worktree-source-tab-hits = { $tab } { $hits }
 worktree-source-sign-in-pull-requests = 풀 리퀘스트를 보려면 Sheprd에서 GitHub에 로그인하세요(오른쪽 위 계정 버튼).
 worktree-source-sign-in-issues = 이슈를 보려면 Sheprd에서 GitHub에 로그인하세요(오른쪽 위 계정 버튼).
+worktree-source-gitlab-merge-requests = GitLab 머지 리퀘스트는 아직 여기에 나오지 않습니다. 이슈 탭에서 프로젝트의 이슈를 볼 수 있습니다.
 worktree-source-search = 체크아웃, 브랜치, 풀 리퀘스트, 이슈 검색...
 worktree-source-default-name = 기본 이름
 worktree-source-name = 이름

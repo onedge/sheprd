@@ -19,3 +19,4 @@ settings-notifications-delay-reset = 초기화
 settings-notifications-sound-description = Herdr의 소리 경로와 에이전트별 설정을 씁니다. 사용자 소리 파일이 없으면 기본 소리를 씁니다.
 settings-notifications-sound-description-no-window = Herdr의 소리 경로와 에이전트별 설정을 씁니다. 사용자 소리 파일이 없으면 기본 소리를 씁니다. 소리를 미리 들으려면 Sheprd 메인 창을 여세요.
 settings-notifications-sound-test = 테스트
+settings-notifications-quiet-off = 끔

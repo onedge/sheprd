@@ -86,6 +86,8 @@ error-remote-cloud-value-invalid = { $value ->
     [boat-sandbox-id] Boat 샌드박스 ID가 올바르지 않습니다.
     [boat-ssh-private-key] Boat SSH 개인 키가 올바르지 않습니다.
     [boat-ssh-public-key] Boat SSH 공개 키가 올바르지 않습니다.
+    [boxd-api-key] boxd API 키가 올바르지 않습니다.
+    [boxd-machine] boxd 머신이 올바르지 않습니다.
     [coder-identifier] Coder 식별자가 올바르지 않습니다.
     [coder-workspace] Coder 워크스페이스가 올바르지 않습니다.
     [container-engine] 컨테이너 엔진이 올바르지 않습니다.
@@ -119,6 +121,8 @@ error-remote-cloud-value-encoding = { $value ->
     [boat-sandbox-id] Boat 샌드박스 ID는 UTF-8이어야 합니다.
     [boat-ssh-private-key] Boat SSH 개인 키는 UTF-8이어야 합니다.
     [boat-ssh-public-key] Boat SSH 공개 키는 UTF-8이어야 합니다.
+    [boxd-api-key] boxd API 키는 UTF-8이어야 합니다.
+    [boxd-machine] boxd 머신은 UTF-8이어야 합니다.
     [coder-identifier] Coder 식별자는 UTF-8이어야 합니다.
     [coder-workspace] Coder 워크스페이스는 UTF-8이어야 합니다.
     [container-engine] 컨테이너 엔진은 UTF-8이어야 합니다.

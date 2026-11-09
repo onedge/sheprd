@@ -64,3 +64,7 @@ sidebar-workspace-move-not-sent = 워크스페이스 이동을 보내지 못했�
 
 sidebar-primary = 기본
 sidebar-spoken-muted = 알림 꺼짐
+sidebar-pull-request-unopened = +PR
+sidebar-group-all = 모든 그룹
+sidebar-agents-group = 에이전트 그룹: { $group }
+sidebar-coordinator-row = 코디네이터: { $row }

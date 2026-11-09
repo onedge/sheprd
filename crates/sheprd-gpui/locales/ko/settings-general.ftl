@@ -17,9 +17,11 @@ settings-general-language-system = 시스템 ({ $language })
 # $tag는 메시지가 없는 BCP 47 태그이고, $language는 대신 보여 주는 언어입니다.
 # 조사가 이름에 따라 바뀌지 않도록 괄호로 씁니다.
 settings-general-language-unavailable = { $tag } (표시 언어: { $language })
+settings-general-menu-bar = 메뉴 막대 보이기
+settings-general-menu-bar-description = 창 위쪽의 메뉴 줄입니다. 숨기면 F10으로 메뉴를 창 위에 열 수 있고, 메뉴 막대 보이기/숨기기로 다시 보이게 할 수 있습니다.
 
 settings-general-window-controls = 창 컨트롤 보이기
-settings-general-window-controls-description = 메뉴 막대에 최소화, 최대화, 닫기 버튼을 그립니다. 막대가 두 줄로 보이지 않도록 창 관리자의 서버 측 장식을 끄세요.
+settings-general-window-controls-description = 최소화, 최대화, 닫기 버튼을 메뉴 막대에 그립니다. 메뉴 막대를 숨기면 제목 표시줄에 그립니다. 막대가 두 줄로 보이지 않도록 창 관리자의 서버 측 장식을 끄세요.
 settings-general-chat-layout = 채팅 레이아웃
 settings-general-chat-layout-description = 채팅 화면이 메시지와 입력창을 그리는 방식입니다. 타임라인, Claude 앱 같은 말풍선, Claude Code 터미널 화면, 문서, 턴마다 카드 하나, 메시지 앱 말풍선, iA Writer 같은 조용한 한 열 중에서 고릅니다. 채팅 제목의 버튼으로도 차례로 바꿀 수 있습니다.
 settings-general-chat-launcher = 채팅 실행 버튼

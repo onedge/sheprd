@@ -3,8 +3,10 @@
 settings-sidebar-section-layout = 레이아웃
 settings-sidebar-section-spacing = 간격
 settings-sidebar-activity-bar-title = 활동 막대 보이기
-settings-sidebar-activity-bar-hint = 창 왼쪽 가장자리의 아이콘 열입니다. 워크스페이스, 개요, 풀 리퀘스트, 이슈, 보안, 자동화, 사용량 사이를 오갑니다.
+settings-sidebar-activity-bar-hint = 창 왼쪽 가장자리의 아이콘 열입니다. 워크스페이스, 개요, 풀 리퀘스트, 이슈, 보안, 자동화, 포트, 사용량 사이를 오갑니다.
 settings-sidebar-automations-title = 자동화 보이기
+settings-sidebar-ports-count-title = 포트에 서버 수 표시
+settings-sidebar-ports-count-hint = 이 컴퓨터에서 실행 중인 서버 수를 활동 막대의 포트 아이콘에 표시합니다. 켜면 포트 섹션이 닫혀 있는 동안 Sheprd가 30초마다 이 컴퓨터의 포트를 나열합니다.
 settings-sidebar-automations-hint = 활동 막대의 자동화 섹션입니다. 끄면 Sheprd는 어느 호스트의 자동화 데몬도 읽거나 시작하지 않습니다.
 settings-sidebar-agents-header-hint = 정렬 전환 버튼이 있는 Agents 제목 행입니다. 숨기면 순서는 Herdr의 ui.agent_panel_sort를 따릅니다. 플러그인이 에이전트 보기를 정하면 이 행은 남습니다.
 

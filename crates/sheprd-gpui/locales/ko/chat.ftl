@@ -7,6 +7,8 @@ chat-layout-document = 문서
 chat-layout-cards = 카드
 chat-layout-imessage = iMessage
 chat-layout-ia = iA
+chat-layout-opencode = OpenCode
+chat-status-commands = 명령
 chat-launcher-plus = + 위에 올리면
 chat-launcher-beside = + 뒤
 chat-launcher-leading = 탭 앞
@@ -25,6 +27,9 @@ chat-needs-input = 입력 필요
 chat-watching = { $count }개 창에서 보는 중
 chat-reconnecting = 다시 연결하는 중…
 chat-show-chat = 채팅
+chat-jump-to-end = 최신 메시지로 스크롤
+chat-jump-waiting = 아래에 새 출력이 있습니다
+chat-pinned-prompt = 이 프롬프트로 이동
 
 # 입력창입니다.
 chat-composer-placeholder = 에이전트에게 메시지 보내기 — /로 명령, Shift-Enter로 줄 바꿈
@@ -41,6 +46,7 @@ chat-files-copying = 파일을 아직 복사하는 중입니다. 첨부가 끝�
 chat-prompt-too-long = 프롬프트가 에이전트가 받을 수 있는 길이보다 깁니다
 chat-select-less = 복사하려면 글을 더 적게 선택하세요
 chat-start-failed = 채팅을 시작하지 못했습니다: { $error }
+chat-convert-failed = 에이전트를 채팅으로 옮기지 못했습니다: { $error }
 
 # 터미널에 표시된 채팅 아래의 에이전트 터미널 입력입니다.
 chat-input-awaiting-fit = 활성화해서 에이전트 입력에 맞추기
@@ -59,6 +65,13 @@ chat-working = 작업 중
 chat-working-writing = 쓰는 중
 chat-working-thinking = 생각하는 중
 chat-working-doing = { $doing }…
+chat-working-deleting = { $target } 삭제 중
+chat-working-editing = { $target } 편집 중
+chat-working-moving = { $target } 옮기는 중
+chat-working-reading = { $target } 읽는 중
+chat-working-searching = { $target } 검색 중
+chat-working-more = 외 { $count }개
+chat-working-hidden = 보이지 않는 단계 { $count }개 더
 chat-answer-cut = 답변의 나머지는 너무 길어서 여기에 보여 주지 않습니다. 복사하면 전체를 가져갑니다.
 
 # 복사 버튼과, 누른 뒤 잠깐 보이는 말입니다.
@@ -68,6 +81,10 @@ chat-copy-answers-label = 답변 복사
 chat-copy-answers-done = 답변을 복사했습니다
 chat-copy-code-label = 코드 복사
 chat-copy-code-done = 코드를 복사했습니다
+chat-copy-diff-label = diff 복사
+chat-copy-diff-done = diff를 복사했습니다
+chat-copy-original-label = 원본 복사
+chat-copy-original-done = 원본 소스를 복사했습니다
 chat-copy-latex-label = LaTeX 복사
 chat-copy-latex-done = LaTeX를 복사했습니다
 
@@ -95,7 +112,7 @@ chat-tool-terminal-elsewhere = 터미널 출력은 프로그램 자체 화면에
 chat-tool-terminal = 터미널 { $id }: 출력은 프로그램의 터미널 화면에서 볼 수 있습니다.
 chat-diff-before = 변경 전:
 chat-diff-after = 변경 후:
-chat-diff-new-file = 새 파일:
+chat-diff-written-content = 쓴 내용(이전 내용은 없음):
 chat-more = 외 { $count }개
 
 # 에이전트가 물은 질문의 답변입니다(Markdown).
@@ -124,6 +141,7 @@ chat-visual-loading = 이미지를 불러오는 중…
 chat-visual-not-drawn = 그리지 못했습니다: { $error }
 chat-visual-image-failed = [이미지] { $error }
 chat-code = 코드
+chat-diff = diff
 chat-code-truncated = 미리 보기는 { $lines }줄, 줄마다 { $characters }자까지만 보여 줍니다. 코드 복사는 블록 전체를 가져갑니다.
 chat-math-unavailable = 수식을 미리 볼 수 없어 원래 LaTeX를 아래에 보여 줍니다.
 chat-summary = 맥락 요약
@@ -133,12 +151,19 @@ chat-summary-hide = 숨기기
 # 옆 레일: 에이전트의 계획과 바꾼 파일입니다.
 chat-rail-plan = 계획
 chat-rail-changed = 변경됨
+chat-rail-subagents = 하위 에이전트
+chat-rail-shells = 셸
+chat-rail-monitors = 모니터
+chat-rail-running = { $count }개 실행 중
+chat-rail-ended = { $count }개 끝남
+chat-rail-stop = { $what } 멈추기
 chat-rail-files = 파일 { $count }개
 chat-plan-progress = 계획 { $done }/{ $total }
 
 # 턴이 끝난 뒤에도 실행 중인 것: 하위 에이전트, 백그라운드 셸, 작업입니다.
 chat-running-subagents = 하위 에이전트 { $count }개
 chat-running-shells = 백그라운드 셸 { $count }개
+chat-running-monitors = 모니터 { $count }개
 chat-running-tasks = 작업 { $count }개
 chat-running-still = { $summary } 실행 중
 chat-running-what = 항목
@@ -151,6 +176,8 @@ chat-running-stopped = 멈춤
 
 # 채팅 제목의 에이전트 설정 메뉴입니다.
 chat-settings-search = 검색…
+chat-settings-hint = { $name }: { $value }
+chat-settings-mode = 모드
 chat-settings-auto-accept-on = 자동 수락 중
 chat-settings-auto-accept-off = 먼저 묻기
 chat-settings-no-match = 맞는 항목 없음

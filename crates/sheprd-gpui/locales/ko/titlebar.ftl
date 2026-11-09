@@ -8,4 +8,5 @@ titlebar-minimize = 최소화
 titlebar-maximize = 최대화
 titlebar-restore = 복원
 titlebar-close = 닫기
+titlebar-unopened = 커밋 { $commits }개, PR 없음
 titlebar-pull-request = PR #{ $number }

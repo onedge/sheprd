@@ -1,5 +1,6 @@
 # keybindings와 pane_keys는 구성 표이고, cmd, ctrl, alt, fn은 보조 키 이름입니다.
 # $keystroke는 "cmd-t"처럼 구성에 쓴 키이고, $command는 new_tab 같은 명령의 구성 이름입니다.
+error-keymap-chord-without-key = keybindings.{ $command }: prefix- 뒤에 누를 키가 있어야 합니다
 error-keymap-duplicate-keystroke = keybindings: { $keystroke }이(가) { $first }와(과) { $second }에 모두 지정되어 있습니다
 error-keymap-duplicate-pane-key = pane_keys: { $keystroke }이(가) 두 번 나옵니다
 error-keymap-empty-pane-key-text = pane_keys.{ $keystroke }: text: 보낼 내용이 있어야 합니다

@@ -1,12 +1,16 @@
 # 데이터베이스, Git, GitLab, 시스템의 원문($error)은 그대로 둡니다. bd는 Beads 프로그램입니다.
 error-orchestrator-bead-id = Bead id { $id }은(는) bd가 받는 값이 아닙니다
 error-orchestrator-beads-missing = 이 호스트에 Beads가 설치되어 있지 않습니다(bd를 찾지 못했습니다)
+error-orchestrator-bead-held = { $id }은(는) 이미 { $holder }이(가) 맡았습니다
+error-orchestrator-bead-held-unknown = { $id }은(는) 이미 누군가 맡았습니다
 error-orchestrator-busy = 이미 여러 작업이 실행 중입니다. 하나가 끝나면 다시 시도하세요
 error-orchestrator-cancelled = 취소했습니다
 error-orchestrator-database = 오케스트레이터 데이터베이스 실패: { $error }
 # $kind의 키는 그대로 두고 각 갈래만 번역합니다. $operation은 영어 설명입니다.
 error-orchestrator-failed = { $kind ->
+    [claim-bead] bead 맡기 실패: { $error }
     [create-worktree] 워크트리 만들기 실패: { $error }
+    [delete-bead] bead 삭제 실패: { $error }
     [discover-agents] 설치된 에이전트 찾기 실패: { $error }
     [name-pane] 에이전트 패인 이름 정하기 실패: { $error }
     [name-tab] 에이전트 탭 이름 정하기 실패: { $error }
@@ -20,6 +24,7 @@ error-orchestrator-failed = { $kind ->
     [read-github] GitHub 읽기 실패: { $error }
     [read-repository] 저장소 읽기 실패: { $error }
     [read-workspaces] 워크스페이스 읽기 실패: { $error }
+    [release-bead] bead 맡기 해제 실패: { $error }
     [remove-worktree] 워크트리 제거 실패: { $error }
     [resolve-beads-folder] Beads 폴더 찾기 실패: { $error }
     [send-message] 메시지 보내기 실패: { $error }
@@ -41,7 +46,9 @@ error-orchestrator-not-owner = 실행 { $run }은(는) 다른 애플리케이션
 error-orchestrator-not-web-address = 여기에서는 웹 주소만 열 수 있습니다
 error-orchestrator-nothing-to-open = 이 실행에는 보여 줄 Herdr 워크스페이스가 없습니다
 error-orchestrator-output = { $kind ->
+    [claim-bead] bead 맡기가 예상과 다른 출력을 돌려주었습니다
     [create-worktree] 워크트리 만들기가 예상과 다른 출력을 돌려주었습니다
+    [delete-bead] bead 삭제가 예상과 다른 출력을 돌려주었습니다
     [discover-agents] 설치된 에이전트 찾기가 예상과 다른 출력을 돌려주었습니다
     [name-pane] 에이전트 패인 이름 정하기가 예상과 다른 출력을 돌려주었습니다
     [name-tab] 에이전트 탭 이름 정하기가 예상과 다른 출력을 돌려주었습니다
@@ -55,6 +62,7 @@ error-orchestrator-output = { $kind ->
     [read-github] GitHub 읽기가 예상과 다른 출력을 돌려주었습니다
     [read-repository] 저장소 읽기가 예상과 다른 출력을 돌려주었습니다
     [read-workspaces] 워크스페이스 읽기가 예상과 다른 출력을 돌려주었습니다
+    [release-bead] bead 맡기 해제가 예상과 다른 출력을 돌려주었습니다
     [remove-worktree] 워크트리 제거가 예상과 다른 출력을 돌려주었습니다
     [resolve-beads-folder] Beads 폴더 찾기가 예상과 다른 출력을 돌려주었습니다
     [send-message] 메시지 보내기가 예상과 다른 출력을 돌려주었습니다
@@ -64,7 +72,9 @@ error-orchestrator-output = { $kind ->
    *[other] { $operation } 작업이 예상과 다른 출력을 돌려주었습니다
 }
 error-orchestrator-output-json = { $kind ->
+    [claim-bead] bead 맡기가 올바르지 않은 JSON을 돌려주었습니다: { $error }
     [create-worktree] 워크트리 만들기가 올바르지 않은 JSON을 돌려주었습니다: { $error }
+    [delete-bead] bead 삭제가 올바르지 않은 JSON을 돌려주었습니다: { $error }
     [discover-agents] 설치된 에이전트 찾기가 올바르지 않은 JSON을 돌려주었습니다: { $error }
     [name-pane] 에이전트 패인 이름 정하기가 올바르지 않은 JSON을 돌려주었습니다: { $error }
     [name-tab] 에이전트 탭 이름 정하기가 올바르지 않은 JSON을 돌려주었습니다: { $error }
@@ -78,6 +88,7 @@ error-orchestrator-output-json = { $kind ->
     [read-github] GitHub 읽기가 올바르지 않은 JSON을 돌려주었습니다: { $error }
     [read-repository] 저장소 읽기가 올바르지 않은 JSON을 돌려주었습니다: { $error }
     [read-workspaces] 워크스페이스 읽기가 올바르지 않은 JSON을 돌려주었습니다: { $error }
+    [release-bead] bead 맡기 해제가 올바르지 않은 JSON을 돌려주었습니다: { $error }
     [remove-worktree] 워크트리 제거가 올바르지 않은 JSON을 돌려주었습니다: { $error }
     [resolve-beads-folder] Beads 폴더 찾기가 올바르지 않은 JSON을 돌려주었습니다: { $error }
     [send-message] 메시지 보내기가 올바르지 않은 JSON을 돌려주었습니다: { $error }
