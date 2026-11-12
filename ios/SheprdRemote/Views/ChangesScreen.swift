@@ -197,7 +197,7 @@ struct ChangesScreen: View {
                 }
             }
         } header: {
-            Text(verbatim: checks.number.map { "Checks on #\($0)" } ?? "Checks")
+            Text(verbatim: checks.number.map { String(localized: "Checks on #\($0)") } ?? String(localized: "Checks"))
         }
     }
 }
@@ -287,10 +287,10 @@ private struct CheckRow: View {
 
     private var label: String {
         switch check.state {
-        case .passed: "Passed"
-        case .failed: "Failed"
-        case .pending: "Pending"
-        case .skipped: "Skipped"
+        case .passed: String(localized: "Passed")
+        case .failed: String(localized: "Failed")
+        case .pending: String(localized: "Pending")
+        case .skipped: String(localized: "Skipped")
         }
     }
 }

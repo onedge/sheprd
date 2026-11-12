@@ -132,16 +132,16 @@ public struct ChatActivityState: Codable, Hashable, Sendable {
     /// `Step 3 of 4` while the plan has a step in progress.
     public var planLabel: String? {
         guard let done = planDone, let total = planTotal, total > 0 else { return nil }
-        return "Step \(min(done + 1, total)) of \(total)"
+        return String(localized: "Step \(min(done + 1, total)) of \(total)", bundle: .module)
     }
 
     /// The line under the activity's title in each phase.
     public var headline: String {
         switch phase {
         case .working: step
-        case .question: "Needs an answer"
-        case .finished: "Finished"
-        case .failed: "Stopped"
+        case .question: String(localized: "Needs an answer", bundle: .module)
+        case .finished: String(localized: "Finished", bundle: .module)
+        case .failed: String(localized: "Stopped", bundle: .module)
         }
     }
 }

@@ -321,7 +321,7 @@ struct TerminalScreen: View {
                             guard !current else { return }
                             model.pendingRoute = .term(PaneKey(device: key.device, pane: pane.pane), title: name)
                         } label: {
-                            Text(pane.label ?? "Pane \(index + 1)").font(.caption.weight(.medium)).lineLimit(1)
+                            Text(pane.label ?? String(localized: "Pane \(index + 1)")).font(.caption.weight(.medium)).lineLimit(1)
                                 .padding(.horizontal, 10).padding(.vertical, 5)
                                 .background(current ? AnyShapeStyle(.tint.opacity(0.3)) : AnyShapeStyle(.fill.tertiary), in: .capsule)
                         }
@@ -416,7 +416,7 @@ struct TerminalScreen: View {
                     model.pendingRouteReplaces = key
                     model.pendingRoute = .chat(PaneKey(device: key.device, pane: chat), title: name)
                 } else {
-                    problem = "The chat is still starting; it shows in your list once it is up."
+                    problem = String(localized: "The chat is still starting; it shows in your list once it is up.")
                 }
             } catch {
                 problem = error.localizedDescription
@@ -454,7 +454,7 @@ struct TerminalScreen: View {
         guard let data = try? await item.loadTransferable(type: Data.self), let image = UIImage(data: data),
               let prepared = PreparedImage(image)
         else {
-            problem = "That picture could not be read."
+            problem = String(localized: "That picture could not be read.")
             return
         }
         let pane = key.pane

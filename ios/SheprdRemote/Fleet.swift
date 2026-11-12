@@ -33,7 +33,7 @@ enum FleetError: Error, LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case let .offline(name): "\(name) is not connected."
+        case let .offline(name): String(localized: "\(name) is not connected.")
         }
     }
 }

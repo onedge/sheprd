@@ -100,7 +100,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate, @preconcurrency UNUser
         } catch {
             log.error("Could not send from a notification: \(error.localizedDescription, privacy: .public)")
             let failed = UNMutableNotificationContent()
-            failed.title = "Not sent"
+            failed.title = String(localized: "Not sent")
             failed.body = error.localizedDescription
             failed.threadIdentifier = AlertKeys.thread(computer: computer, pane: pane)
             try? await center.add(UNNotificationRequest(identifier: UUID().uuidString, content: failed, trigger: nil))

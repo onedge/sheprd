@@ -73,7 +73,7 @@ final class PendingCommands {
         Task { [weak self] in
             try? await Task.sleep(for: Self.patience)
             guard let self, items.contains(where: { $0.id == id && $0.state == .sent }) else { return }
-            fail(id, "The chat did not show it within \(Self.patience.components.seconds) seconds.")
+            fail(id, String(localized: "The chat did not show it within \(Self.patience.components.seconds) seconds."))
         }
     }
 
@@ -124,9 +124,9 @@ extension Expected {
         switch self {
         case .mode: "Mode"
         case .option: "Setting"
-        case let .autoAccept(on): on ? "Turning on auto-accept" : "Turning off auto-accept"
+        case let .autoAccept(on): on ? String(localized: "Turning on auto-accept") : String(localized: "Turning off auto-accept")
         case .answer: "Answer"
-        case .unqueue: "Removing a queued prompt"
+        case .unqueue: String(localized: "Removing a queued prompt")
         }
     }
 }

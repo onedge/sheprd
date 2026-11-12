@@ -157,8 +157,8 @@ final class HostLinks {
 
     private static func reason(_ error: Error) -> String {
         switch error {
-        case RemoteError.status(429, _): "Already being paired. Try again in a minute."
-        case RemoteError.status(404, _): "The computer no longer knows this host."
+        case RemoteError.status(429, _): String(localized: "Already being paired. Try again in a minute.")
+        case RemoteError.status(404, _): String(localized: "The computer no longer knows this host.")
         default: error.localizedDescription
         }
     }

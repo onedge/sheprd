@@ -183,7 +183,7 @@ public actor ComputerLink {
                 guard let origin = race.found else {
                     if !reported { continuation.yield(.unreachable(race.failures)) }
                     reported = true
-                    throw Offline(reason: "No address answered (\(origins.count) tried)")
+                    throw Offline(reason: String(localized: "No address answered (\(origins.count) tried)", bundle: .module))
                 }
                 let token = try await io.session(origin)
                 let opened = try await io.connect(origin, token)
@@ -207,7 +207,7 @@ public actor ComputerLink {
                 }
                 // An expired session reconnects at once with a new token.
                 if ending == .expired { continue }
-                throw Offline(reason: "The connection closed")
+                throw Offline(reason: String(localized: "The connection closed", bundle: .module))
             } catch LinkError.unauthorized {
                 continuation.yield(.status(.revoked))
                 return
@@ -220,7 +220,7 @@ public actor ComputerLink {
             } catch {
                 connection = nil
                 guard !Task.isCancelled else { return }
-                let reason = (error as? Offline)?.reason ?? "The connection failed"
+                let reason = (error as? Offline)?.reason ?? String(localized: "The connection failed", bundle: .module)
                 continuation.yield(.status(.offline(reason: reason)))
                 offline = true
                 await pause()
@@ -286,7 +286,7 @@ public actor ComputerLink {
                     do {
                         let answer = try await io.ping(origin)
                         guard Self.normalized(answer) == fingerprint else {
-                            return .failed("\(origin): another computer answered")
+                            return .failed(String(localized: "\(origin): another computer answered", bundle: .module))
                         }
                         return .found(origin)
                     } catch {

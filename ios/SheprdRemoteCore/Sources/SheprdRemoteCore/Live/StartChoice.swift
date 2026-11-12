@@ -75,7 +75,7 @@ public struct StartChoice: Codable, Hashable, Sendable {
     /// What a new chat starts with beyond the agent's own default, to show
     /// beside its name, or `nil` when it starts as the agent does.
     public var label: String? {
-        let parts = [picked?.name, autoAccept ? "Auto-accept" : nil].compactMap(\.self)
+        let parts = [picked?.name, autoAccept ? String(localized: "Auto-accept", bundle: .module) : nil].compactMap(\.self)
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 

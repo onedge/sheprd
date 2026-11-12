@@ -80,8 +80,8 @@ struct ChatLiveActivity: Widget {
 
     private func title(_ state: ChatActivityState, _ attributes: ChatActivityAttributes) -> String {
         switch state.phase {
-        case .working: "\(attributes.agent) is working"
-        case .question: "\(attributes.agent) needs an answer"
+        case .working: String(localized: "\(attributes.agent) is working")
+        case .question: String(localized: "\(attributes.agent) needs an answer")
         case .finished: "\(attributes.agent) finished"
         case .failed: "\(attributes.agent) stopped"
         }

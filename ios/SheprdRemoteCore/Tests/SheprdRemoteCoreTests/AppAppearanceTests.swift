@@ -10,6 +10,6 @@ import Testing
     }
 
     @Test func theSettingOffersEveryChoice() {
-        #expect(AppAppearance.allCases.map(\.title) == ["System", "Light", "Dark"])
+        #expect(AppAppearance.allCases.map(\.title) == [catalogLabel("System"), catalogLabel("Light"), catalogLabel("Dark")])
     }
 }

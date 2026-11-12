@@ -246,9 +246,9 @@ struct LastAnswer: View {
 
     static func label(_ date: Date, now: Date) -> String {
         let seconds = now.timeIntervalSince(date)
-        if seconds < 60 { return "now" }
-        if seconds < 3600 { return "\(Int(seconds / 60))m" }
-        if seconds < 86400 { return "\(Int(seconds / 3600))h" }
+        if seconds < 60 { return String(localized: "now") }
+        if seconds < 3600 { return String(localized: "\(Int(seconds / 60))m") }
+        if seconds < 86400 { return String(localized: "\(Int(seconds / 3600))h") }
         if seconds < 6 * 86400 { return date.formatted(.dateTime.weekday(.abbreviated)) }
         return date.formatted(.dateTime.month(.abbreviated).day())
     }
@@ -314,7 +314,7 @@ struct AnswerCard: View {
 extension Home.AgentStatus {
     var label: String {
         switch self {
-        case .unknown: "Unknown"
+        case .unknown: String(localized: "Unknown")
         case .idle: "Idle"
         case .working: "Working"
         case .blocked: "Needs you"

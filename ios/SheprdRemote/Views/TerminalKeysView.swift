@@ -136,7 +136,7 @@ private struct KeyEditor: View {
                         Text("Bottom").tag(TermKeyLayout.Row.bottom)
                         Text("More Keys").tag(TermKeyLayout.Row.spare)
                     }
-                    TextField("Label", text: $key.title, prompt: Text(key.keys.isEmpty ? "Shown on the key" : TermKey(keys: key.keys).label(symbols: model.termKeys.symbols)))
+                    TextField("Label", text: $key.title, prompt: Text(key.keys.isEmpty ? String(localized: "Shown on the key") : TermKey(keys: key.keys).label(symbols: model.termKeys.symbols)))
                 }
                 Section {
                     ForEach(Array(key.keys.enumerated()), id: \.offset) { _, name in
@@ -196,7 +196,7 @@ private struct KeyEditor: View {
             TextField("Key", text: $other, prompt: Text("A character, or tab, f5…"))
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
-            Button(made.map { "Add \(TermKey(keys: [$0]).label())" } ?? "Add Combination") {
+            Button(made.map { String(localized: "Add \(TermKey(keys: [$0]).label())") } ?? String(localized: "Add Combination")) {
                 if let made { key.keys.append(made) }
                 held = []
                 other = ""

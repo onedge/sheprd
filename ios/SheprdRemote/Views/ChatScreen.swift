@@ -113,7 +113,7 @@ struct ChatScreen: View {
     private func currentName(_ option: ConfigOption) -> String {
         switch option.kind {
         case let .select(choices, current): choices.first { $0.id == current }?.name ?? current
-        case let .toggle(current): current ? "On" : "Off"
+        case let .toggle(current): current ? String(localized: "On") : String(localized: "Off")
         }
     }
 }
@@ -164,7 +164,7 @@ private struct ChatDocument: View {
                         }
                     } label: {
                         let turns = earlier.filter { if case .user = $0.kind { true } else { false } }.count
-                        Text("Earlier in this chat · \(turns) turn\(turns == 1 ? "" : "s")")
+                        Text(turns == 1 ? String(localized: "Earlier in this chat · 1 turn") : String(localized: "Earlier in this chat · \(turns) turns"))
                             .font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
                     }
                 }
@@ -301,7 +301,7 @@ private struct OutgoingRow: View {
                 if !outgoing.text.isEmpty { Text(outgoing.text).lineLimit(6) }
                 let pictures = outgoing.uploads.count
                 if pictures > 0 {
-                    Label("\(pictures) picture\(pictures == 1 ? "" : "s")", systemImage: "photo")
+                    Label(pictures == 1 ? String(localized: "1 picture") : String(localized: "\(pictures) pictures"), systemImage: "photo")
                         .font(.caption).foregroundStyle(.secondary)
                 }
             }
@@ -318,10 +318,12 @@ private struct OutgoingRow: View {
     private var stageLine: String {
         switch outgoing.stage {
         case .uploading:
-            let pictures = outgoing.uploads.count == 1 ? "picture" : "pictures"
-            return "Uploading \(pictures)… \(Int((outgoing.progress / 0.8 * 100).rounded()))%"
-        case .toComputer: return "Sending to \(computer)…"
-        case .toAgent: return "Sending to \(agent)…"
+            let percent = Int((outgoing.progress / 0.8 * 100).rounded())
+            return outgoing.uploads.count == 1
+                ? String(localized: "Uploading picture… \(percent)%")
+                : String(localized: "Uploading pictures… \(percent)%")
+        case .toComputer: return String(localized: "Sending to \(computer)…")
+        case .toAgent: return String(localized: "Sending to \(agent)…")
         }
     }
 }
@@ -335,7 +337,7 @@ private struct RunningCapsule: View {
         let current = tools.last { $0.status == .inProgress } ?? tools.last { $0.status == .pending }
         HStack(spacing: 8) {
             ProgressView().controlSize(.small)
-            Text(current?.title ?? "Thinking").font(.subheadline.weight(.medium)).lineLimit(1)
+            Text(current?.title ?? String(localized: "Thinking")).font(.subheadline.weight(.medium)).lineLimit(1)
             Spacer()
             if let started = transcript.turn?.startedMs {
                 Text(timerInterval: Date(timeIntervalSince1970: Double(started) / 1000)...Date.distantFuture, countsDown: false)

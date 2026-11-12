@@ -73,7 +73,7 @@ struct ConnectionToast: View {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(names.count == 1 ? "\(names[0]) is offline" : "\(names.count) computers are offline")
                         .font(.subheadline.weight(.medium)).lineLimit(1)
-                    Text(since.map { "Showing chats as of \(Self.time($0))" } ?? reason)
+                    Text(since.map { String(localized: "Showing chats as of \(Self.time($0))") } ?? reason)
                         .font(.caption).foregroundStyle(.secondary).lineLimit(1)
                 }
             }

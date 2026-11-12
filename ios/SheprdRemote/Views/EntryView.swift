@@ -33,8 +33,8 @@ struct EntryView: View {
 
     private func turnLine(_ summary: TurnSummary) -> String {
         let seconds = Int(summary.durationMs / 1000)
-        let time = seconds >= 60 ? "\(seconds / 60)m \(seconds % 60)s" : "\(seconds)s"
-        return summary.end == .done ? "Done in \(time)" : "Ended (\(summary.end.rawValue)) after \(time)"
+        let time = seconds >= 60 ? String(localized: "\(seconds / 60)m \(seconds % 60)s") : String(localized: "\(seconds)s")
+        return summary.end == .done ? String(localized: "Done in \(time)") : String(localized: "Ended (\(summary.end.rawValue)) after \(time)")
     }
 }
 
@@ -106,7 +106,7 @@ struct DiffBlock: View {
                 .contentShape(.rect)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("\(path), \(expanded ? "hide" : "show") changes")
+            .accessibilityLabel(expanded ? String(localized: "\(path), hide changes") : String(localized: "\(path), show changes"))
             if expanded { changes(lines) }
         }
         .background(.fill.quinary, in: .rect(cornerRadius: 12))

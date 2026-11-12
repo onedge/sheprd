@@ -43,8 +43,8 @@ struct StartChoiceRow: View {
     }
 
     private func summary(_ choice: StartChoice) -> String {
-        let mode = choice.picked?.name ?? "Agent's default"
-        return choice.autoAccept ? "\(mode) · Auto-accept" : mode
+        let mode = choice.picked?.name ?? String(localized: "Agent's default")
+        return choice.autoAccept ? String(localized: "\(mode) · Auto-accept") : mode
     }
 
     private func mode(_ choice: StartChoice) -> Binding<String?> {

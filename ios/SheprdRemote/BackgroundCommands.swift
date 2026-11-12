@@ -13,9 +13,9 @@ enum BackgroundCommands {
 
         var errorDescription: String? {
             switch self {
-            case .unknownComputer: "This phone is not paired with that computer."
+            case .unknownComputer: String(localized: "This phone is not paired with that computer.")
             case let .rejected(reason): reason
-            case .notWaiting: "That question is no longer waiting on this chat."
+            case .notWaiting: String(localized: "That question is no longer waiting on this chat.")
             }
         }
     }

@@ -46,8 +46,8 @@ enum NearbyFailure: Error, LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .notPairing: "Open Remote control > Pair device on the computer first."
-        case .codeMismatch: "The computer answered with another code. Pairing stopped."
+        case .notPairing: String(localized: "Open Remote control > Pair device on the computer first.")
+        case .codeMismatch: String(localized: "The computer answered with another code. Pairing stopped.")
         }
     }
 }

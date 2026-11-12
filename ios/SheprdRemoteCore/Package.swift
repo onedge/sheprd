@@ -9,12 +9,15 @@ import PackageDescription
 
 let package = Package(
     name: "SheprdRemoteCore",
+    // Labels the app shows come from Resources/Localizable.xcstrings
+    // (`String(localized:bundle: .module)`); English is the source.
+    defaultLocalization: "en",
     platforms: [.iOS("26.0"), .macOS("26.0"), .watchOS("26.0")],
     products: [
         .library(name: "SheprdRemoteCore", targets: ["SheprdRemoteCore"]),
     ],
     targets: [
-        .target(name: "SheprdRemoteCore"),
+        .target(name: "SheprdRemoteCore", resources: [.process("Resources")]),
         .testTarget(
             name: "SheprdRemoteCoreTests",
             dependencies: ["SheprdRemoteCore"],

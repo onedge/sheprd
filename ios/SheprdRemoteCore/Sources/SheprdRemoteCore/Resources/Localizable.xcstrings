@@ -1,0 +1,482 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%@: another computer answered" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: 다른 컴퓨터가 응답했습니다"
+          }
+        }
+      }
+    },
+    "Address" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "주소"
+          }
+        }
+      }
+    },
+    "Auto-accept" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "자동 수락"
+          }
+        }
+      }
+    },
+    "Backtick" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "백틱"
+          }
+        }
+      }
+    },
+    "Dark" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "어둡게"
+          }
+        }
+      }
+    },
+    "Dictation" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "받아쓰기"
+          }
+        }
+      }
+    },
+    "Done" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "완료"
+          }
+        }
+      }
+    },
+    "Down" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아래"
+          }
+        }
+      }
+    },
+    "Finished" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "끝남"
+          }
+        }
+      }
+    },
+    "Idle" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "유휴"
+          }
+        }
+      }
+    },
+    "Keyboard" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "키보드"
+          }
+        }
+      }
+    },
+    "Left" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "왼쪽"
+          }
+        }
+      }
+    },
+    "Light" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "밝게"
+          }
+        }
+      }
+    },
+    "Local name" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "로컬 이름"
+          }
+        }
+      }
+    },
+    "Local network" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "로컬 네트워크"
+          }
+        }
+      }
+    },
+    "Minus" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "빼기"
+          }
+        }
+      }
+    },
+    "Needs an answer" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "답변 필요"
+          }
+        }
+      }
+    },
+    "Needs you" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "확인 필요"
+          }
+        }
+      }
+    },
+    "New line" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "줄바꿈"
+          }
+        }
+      }
+    },
+    "Next prompt" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다음 프롬프트"
+          }
+        }
+      }
+    },
+    "No address answered (%lld tried)" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "응답한 주소가 없습니다(%lld개 시도)"
+          }
+        }
+      }
+    },
+    "Nothing to show: only the file's name or mode changed." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "보여 줄 내용이 없습니다. 파일 이름이나 모드만 바뀌었습니다."
+          }
+        }
+      }
+    },
+    "Pipe" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "파이프"
+          }
+        }
+      }
+    },
+    "Plus" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "더하기"
+          }
+        }
+      }
+    },
+    "Recent" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최근"
+          }
+        }
+      }
+    },
+    "Reply" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "답장"
+          }
+        }
+      }
+    },
+    "Right" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오른쪽"
+          }
+        }
+      }
+    },
+    "Sheprd could not read this file's change." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd가 이 파일의 변경 사항을 읽지 못했습니다."
+          }
+        }
+      }
+    },
+    "Slash" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "슬래시"
+          }
+        }
+      }
+    },
+    "Space" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "스페이스"
+          }
+        }
+      }
+    },
+    "Step %lld of %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Step %1$lld of %2$lld"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$lld단계 중 %1$lld단계"
+          }
+        }
+      }
+    },
+    "Stopped" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "멈춤"
+          }
+        }
+      }
+    },
+    "System" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시스템"
+          }
+        }
+      }
+    },
+    "Tailscale" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tailscale"
+          }
+        }
+      }
+    },
+    "The computer has not sent this terminal yet." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터가 아직 이 터미널을 보내지 않았습니다."
+          }
+        }
+      }
+    },
+    "The computer is not paired." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터가 페어링되어 있지 않습니다."
+          }
+        }
+      }
+    },
+    "The computer's Sheprd is too old for this app. Update it there." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터의 Sheprd가 이 앱에 비해 너무 오래되었습니다. 그 컴퓨터에서 업데이트하세요."
+          }
+        }
+      }
+    },
+    "The connection closed" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연결이 끊겼습니다"
+          }
+        }
+      }
+    },
+    "The connection failed" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연결하지 못했습니다"
+          }
+        }
+      }
+    },
+    "This change is too large to show in full. The rest is on the computer." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "변경 사항이 너무 커서 모두 보여 줄 수 없습니다. 나머지는 컴퓨터에서 보세요."
+          }
+        }
+      }
+    },
+    "This computer" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 컴퓨터"
+          }
+        }
+      }
+    },
+    "This file's change is too large to show on a phone." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 파일의 변경 사항은 휴대폰에서 보기에 너무 큽니다."
+          }
+        }
+      }
+    },
+    "This is a binary file, so there are no lines to show." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "바이너리 파일이라 보여 줄 줄이 없습니다."
+          }
+        }
+      }
+    },
+    "This phone is no longer paired with the computer." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 휴대폰은 더 이상 컴퓨터와 페어링되어 있지 않습니다."
+          }
+        }
+      }
+    },
+    "Tilde" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "물결표"
+          }
+        }
+      }
+    },
+    "Up" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "위"
+          }
+        }
+      }
+    },
+    "Working" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "작업 중"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

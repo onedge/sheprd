@@ -24,13 +24,13 @@ final class WatchModel: NSObject {
 
     /// Sends a request to the phone; answers why it did not go, if it did not.
     func send(_ request: WatchRequest) async -> String? {
-        guard let data = try? JSONEncoder().encode(request) else { return "Could not send that." }
-        guard WCSession.default.isReachable else { return "Your iPhone is not reachable." }
+        guard let data = try? JSONEncoder().encode(request) else { return String(localized: "Could not send that.") }
+        guard WCSession.default.isReachable else { return String(localized: "Your iPhone is not reachable.") }
         return await withCheckedContinuation { continuation in
             let resume = Resume(continuation)
             WCSession.default.sendMessageData(data) { reply in
                 let response = try? JSONDecoder().decode(WatchResponse.self, from: reply)
-                resume.once(response?.sent == true ? nil : response?.message ?? "The phone did not send it.")
+                resume.once(response?.sent == true ? nil : response?.message ?? String(localized: "The phone did not send it."))
             } errorHandler: { error in
                 resume.once(error.localizedDescription)
             }

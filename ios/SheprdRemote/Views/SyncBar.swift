@@ -107,7 +107,7 @@ private struct SyncList: View {
                     Image(systemName: item.failed ? "exclamationmark.circle.fill" : "clock")
                         .foregroundStyle(item.failed ? .red : .orange)
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("\(item.expected?.label ?? "Stop") · \(title(item.key))").font(.subheadline.weight(.medium))
+                        Text("\(item.expected?.label ?? String(localized: "Stop")) · \(title(item.key))").font(.subheadline.weight(.medium))
                         Text(detail(item)).font(.caption).foregroundStyle(.secondary)
                     }
                 }
@@ -126,9 +126,9 @@ private struct SyncList: View {
 
     private func detail(_ item: PendingCommand) -> String {
         switch item.state {
-        case .sending: "Sending to the computer…"
-        case .sent: "Waiting for the chat to show it…"
-        case let .failed(reason): "Undone: \(reason)"
+        case .sending: String(localized: "Sending to the computer…")
+        case .sent: String(localized: "Waiting for the chat to show it…")
+        case let .failed(reason): String(localized: "Undone: \(reason)")
         }
     }
 }

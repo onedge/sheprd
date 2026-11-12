@@ -89,9 +89,10 @@ private struct AttentionView: View {
 
     private var inline: String {
         switch (summary.waiting, summary.working) {
-        case (0, 0): "Sheprd: all quiet"
-        case let (0, working): "Sheprd: \(working) running"
-        case let (waiting, _): "Sheprd: \(waiting) need\(waiting == 1 ? "s" : "") you"
+        case (0, 0): String(localized: "Sheprd: all quiet")
+        case let (0, working): String(localized: "Sheprd: \(working) running")
+        case (1, _): String(localized: "Sheprd: 1 needs you")
+        case let (waiting, _): String(localized: "Sheprd: \(waiting) need you")
         }
     }
 

@@ -47,9 +47,9 @@ final class ActivityTests: XCTestCase {
         XCTAssertEqual(state.phase, .question)
         XCTAssertEqual(state.question, "Run just ci")
         XCTAssertEqual(state.planFraction, 0.5)
-        XCTAssertEqual(state.planLabel, "Step 3 of 4")
+        XCTAssertEqual(state.planLabel, catalogLabel("Step \(3) of \(4)"))
         XCTAssertEqual(state.waiting, 1)
-        XCTAssertEqual(state.headline, "Needs an answer")
+        XCTAssertEqual(state.headline, catalogLabel("Needs an answer"))
         // What the lock screen's answer buttons and step stack need.
         XCTAssertEqual(state.permission, 7)
         XCTAssertEqual(state.options.map(\.id), ["allow", "reject"])
@@ -63,7 +63,7 @@ final class ActivityTests: XCTestCase {
         let state = try decode(ChatActivityState.self, aps["content-state"])
         XCTAssertEqual(state.phase, .finished)
         XCTAssertEqual(state.summary, "Worked 6m 2s")
-        XCTAssertEqual(state.headline, "Finished")
+        XCTAssertEqual(state.headline, catalogLabel("Finished"))
     }
 
     func testStateRoundTripsAsUnixSeconds() throws {

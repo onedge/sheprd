@@ -84,11 +84,11 @@ final class PairingModel {
 
         var errorDescription: String? {
             switch self {
-            case .link: "That is not a Sheprd pairing link. Scan the QR in Sheprd's Remote control dialog."
-            case .denied: "The computer denied this phone."
-            case .expired: "The pairing expired. Show a new QR on the computer."
-            case .timedOut: "Nobody answered on the computer."
-            case .certificateChanged: "The computer's certificate changed during pairing."
+            case .link: String(localized: "That is not a Sheprd pairing link. Scan the QR in Sheprd's Remote control dialog.")
+            case .denied: String(localized: "The computer denied this phone.")
+            case .expired: String(localized: "The pairing expired. Show a new QR on the computer.")
+            case .timedOut: String(localized: "Nobody answered on the computer.")
+            case .certificateChanged: String(localized: "The computer's certificate changed during pairing.")
             }
         }
     }
@@ -106,7 +106,7 @@ final class PairingModel {
     }
 
     private func runNearby(_ nearby: NearbyComputer, bluetooth: NearbyBluetooth, deviceName: String) async throws -> Computer {
-        step = .working("Connecting to \(nearby.name)…")
+        step = .working(String(localized: "Connecting to \(nearby.name)…"))
         let result: NearbySAS.Result
         var origins: [String]
         switch nearby.route {

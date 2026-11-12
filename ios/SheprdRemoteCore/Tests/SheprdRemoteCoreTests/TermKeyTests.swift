@@ -15,7 +15,7 @@ import Testing
         #expect(TermKey(keys: ["enter"]).label() == "⏎")
         #expect(TermKey(keys: ["ctrl+j"]).label() == "⇧⏎")
         #expect(TermKey(keys: ["enter"]).spoken == "Enter")
-        #expect(TermKey(keys: ["ctrl+j"]).spoken == "New line")
+        #expect(TermKey(keys: ["ctrl+j"]).spoken == catalogLabel("New line"))
     }
 
     @Test func aKeyCanPressSeveralKeysInOrder() {
@@ -82,8 +82,8 @@ import Testing
         #expect(bottom.dropFirst().first?.special == .dictation)
         #expect(bottom.last?.special == .keyboard)
         #expect(TermKey(keys: ["ctrl+c"]).label() == "^C")
-        #expect(TermKey(special: .keyboard).spoken == "Keyboard")
-        #expect(TermKey(special: .dictation).spoken == "Dictation")
+        #expect(TermKey(special: .keyboard).spoken == catalogLabel("Keyboard"))
+        #expect(TermKey(special: .dictation).spoken == catalogLabel("Dictation"))
         #expect(TermKey(keys: ["esc"]).special == nil)
         #expect(!TermKey(special: .keyboard).repeats)
         // Deleting from a row only makes a key spare; the keyboard key stays,
@@ -303,7 +303,7 @@ import Testing
         #expect(key("alt+ß").label() == "⌥ß" && key("ctrl+ß").label() == "^ß")
         #expect(key("ctrl+alt+f5").label(symbols: true) == "⌃⌥F5" && key("ctrl+alt+f5").spoken == "Control Alt F5")
         #expect(key("alt+tab").label() == "⌥⇥" && key("alt+tab").spoken == "Alt Tab")
-        #expect(key("ctrl+space").label() == "⌃␣" && key("ctrl+space").spoken == "Control Space")
+        #expect(key("ctrl+space").label() == "⌃␣" && key("ctrl+space").spoken == "Control \(catalogLabel("Space"))")
         #expect(key("q").label() == "q" && key("q").spoken == "q")
         // Made by the person, unlike ^C, which More Keys offers.
         #expect(!key("ctrl+b").isStock && key("ctrl+c").isStock && key("ctrl+b").repeats)

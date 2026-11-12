@@ -43,11 +43,11 @@ public enum OriginKind: Hashable, Sendable {
     /// The label the computer's page shows beside the address.
     public var label: String {
         switch self {
-        case .tailscale: "Tailscale"
-        case .localNetwork: "Local network"
-        case .localName: "Local name"
-        case .loopback: "This computer"
-        case .other: "Address"
+        case .tailscale: String(localized: "Tailscale", bundle: .module)
+        case .localNetwork: String(localized: "Local network", bundle: .module)
+        case .localName: String(localized: "Local name", bundle: .module)
+        case .loopback: String(localized: "This computer", bundle: .module)
+        case .other: String(localized: "Address", bundle: .module)
         }
     }
 

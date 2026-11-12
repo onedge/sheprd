@@ -79,7 +79,7 @@ final class LockState {
         guard !unlocking else { return }
         unlocking = true
         defer { unlocking = false }
-        if await OwnerCheck.confirm("Unlock Sheprd") { locked = false }
+        if await OwnerCheck.confirm(String(localized: "Unlock Sheprd")) { locked = false }
     }
 }
 

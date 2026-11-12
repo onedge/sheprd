@@ -51,15 +51,15 @@ final class ScannerController: UIViewController, @preconcurrency AVCaptureMetada
 
     private func setUp() async {
         guard await AVCaptureDevice.requestAccess(for: .video) else {
-            return show("Camera access is off. Allow it in Settings, or paste the link below.")
+            return show(String(localized: "Camera access is off. Allow it in Settings, or paste the link below."))
         }
         guard let camera = AVCaptureDevice.default(for: .video),
               let input = try? AVCaptureDeviceInput(device: camera),
               session.canAddInput(input)
-        else { return show("No camera here. Paste the pairing link below.") }
+        else { return show(String(localized: "No camera here. Paste the pairing link below.")) }
         session.addInput(input)
         let output = AVCaptureMetadataOutput()
-        guard session.canAddOutput(output) else { return show("The camera cannot read codes.") }
+        guard session.canAddOutput(output) else { return show(String(localized: "The camera cannot read codes.")) }
         session.addOutput(output)
         output.setMetadataObjectsDelegate(self, queue: .main)
         output.metadataObjectTypes = [.qr]

@@ -51,13 +51,13 @@ final class WatchLink: NSObject, WCSessionDelegate, @unchecked Sendable {
         // this phone, as Siri also refuses then. Otherwise the Watch being
         // unlocked on the wrist is the owner's check.
         guard !AppLock.isOn else {
-            return WatchResponse(sent: false, message: "Sheprd is locked. Answer on your iPhone.")
+            return WatchResponse(sent: false, message: String(localized: "Sheprd is locked. Answer on your iPhone."))
         }
         guard let request = try? JSONDecoder().decode(WatchRequest.self, from: data) else {
-            return WatchResponse(sent: false, message: "The phone could not read that.")
+            return WatchResponse(sent: false, message: String(localized: "The phone could not read that."))
         }
         guard let checked = request.command(in: WidgetSummary.load()) else {
-            return WatchResponse(sent: false, message: "That is no longer waiting. Open Sheprd on the phone.")
+            return WatchResponse(sent: false, message: String(localized: "That is no longer waiting. Open Sheprd on the phone."))
         }
         do {
             try await BackgroundCommands.send(checked.command, computer: checked.computer, pane: checked.pane)

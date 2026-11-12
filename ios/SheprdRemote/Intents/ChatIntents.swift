@@ -27,8 +27,13 @@ struct WhatNeedsMeIntent: AppIntent {
         // only, never chat titles.
         let hidden = AppLock.isOn
         guard await UIApplication.shared.isProtectedDataAvailable, !hidden else {
-            let unlock = hidden ? "Open Sheprd to see which." : "Unlock to see which."
-            let dialog: IntentDialog = waiting.isEmpty ? "Nothing needs you." : "\(waiting.count) chat\(waiting.count == 1 ? "" : "s") need\(waiting.count == 1 ? "s" : "") you. \(unlock)"
+            let dialog: IntentDialog = switch (waiting.count, hidden) {
+            case (0, _): "Nothing needs you."
+            case (1, true): "1 chat needs you. Open Sheprd to see which."
+            case (1, false): "1 chat needs you. Unlock to see which."
+            case let (count, true): "\(count) chats need you. Open Sheprd to see which."
+            case let (count, false): "\(count) chats need you. Unlock to see which."
+            }
             return .result(value: [], dialog: dialog)
         }
         let dialog: IntentDialog = switch waiting.count {

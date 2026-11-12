@@ -110,8 +110,8 @@ enum VoiceError: Error, LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .noLanguage: "Voice commands are not available on this phone yet."
-        case .noMicrophone: "Allow the microphone in Settings to talk to Sheprd."
+        case .noLanguage: String(localized: "Voice commands are not available on this phone yet.")
+        case .noMicrophone: String(localized: "Allow the microphone in Settings to talk to Sheprd.")
         }
     }
 }

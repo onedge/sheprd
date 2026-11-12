@@ -103,7 +103,7 @@ public struct AlertPresentation: Hashable, Sendable {
     /// A finished turn's Reply, which the app registers at launch.
     public static let finished = AlertPresentation(
         category: finishedCategory,
-        actions: [Action(id: replyAction, title: "Reply", style: .textInput(placeholder: "Next prompt"))]
+        actions: [Action(id: replyAction, title: String(localized: "Reply", bundle: .module), style: .textInput(placeholder: String(localized: "Next prompt", bundle: .module)))]
     )
 
     init(category: String?, actions: [Action]) {

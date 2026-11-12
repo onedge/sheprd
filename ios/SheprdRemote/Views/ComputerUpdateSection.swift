@@ -21,7 +21,7 @@ struct ComputerUpdateSection: View {
 
     var body: some View {
         Section {
-            LabeledContent("Version", value: machine?.home?.version ?? "Unknown")
+            LabeledContent("Version", value: machine?.home?.version ?? String(localized: "Unknown"))
             if machine?.needsUpdate == true || unreachablyOld {
                 ComputerStatusLine(status: .outdated)
             }
@@ -47,21 +47,21 @@ struct ComputerUpdateSection: View {
     }
 
     private func action(_ update: ComputerUpdate) -> String {
-        guard let app = update.app else { return "Update" }
+        guard let app = update.app else { return String(localized: "Update") }
         switch app.stage {
-        case .available: return app.latest.map { "Update to \($0)" } ?? "Update"
+        case .available: return app.latest.map { String(localized: "Update to \($0)") } ?? String(localized: "Update")
         case .failed: return "Try Again"
-        case .busy, .current, .disabled, .idle: return "Check for Updates"
+        case .busy, .current, .disabled, .idle: return String(localized: "Check for Updates")
         }
     }
 
     private var footer: String? {
         if let problem { return problem }
-        if tooOld || unreachablyOld { return "Update Sheprd on \(name) by hand once. After that you can update it from here." }
+        if tooOld || unreachablyOld { return String(localized: "Update Sheprd on \(name) by hand once. After that you can update it from here.") }
         guard let update else { return nil }
-        guard let app = update.app else { return "Sheprd is not open on \(name), so it cannot update from here." }
+        guard let app = update.app else { return String(localized: "Sheprd is not open on \(name), so it cannot update from here.") }
         switch app.stage {
-        case .current: return "Sheprd is up to date."
+        case .current: return String(localized: "Sheprd is up to date.")
         case .disabled, .failed: return app.detail
         case .available, .busy, .idle: return nil
         }

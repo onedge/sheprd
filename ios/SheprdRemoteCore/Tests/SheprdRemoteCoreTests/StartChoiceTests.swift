@@ -56,9 +56,9 @@ import Testing
 
     @Test func theLabelSaysWhatIsNotTheAgentsDefault() {
         #expect(StartChoice(offered: modes).label == nil)
-        #expect(StartChoice(autoAccept: true, offered: modes).label == "Auto-accept")
+        #expect(StartChoice(autoAccept: true, offered: modes).label == catalogLabel("Auto-accept"))
         #expect(StartChoice(mode: "default", offered: modes).label == "Default")
-        #expect(StartChoice(autoAccept: true, mode: "bypassPermissions", offered: modes).label == "Bypass Permissions · Auto-accept")
+        #expect(StartChoice(autoAccept: true, mode: "bypassPermissions", offered: modes).label == "Bypass Permissions · \(catalogLabel("Auto-accept"))")
     }
 
     @Test func onlyModesAndAutoAcceptAreSettingsToOrder() {

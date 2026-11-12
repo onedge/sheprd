@@ -158,8 +158,8 @@ struct NewWorkspaceSheet: View {
     private var offersLeastBusy: Bool { ranked.count > 1 }
 
     private var leastBusyName: String {
-        guard automatic, let machine = model.fleet.machines.first(where: { $0.id == device }) else { return "Least busy" }
-        return "Least busy: \(model.displayName(machine.computer))"
+        guard automatic, let machine = model.fleet.machines.first(where: { $0.id == device }) else { return String(localized: "Least busy") }
+        return String(localized: "Least busy: \(model.displayName(machine.computer))")
     }
 
     /// The picker's selection: a computer, or nil for the least busy one.
@@ -415,8 +415,8 @@ extension AppModel {
             return
         }
         let unsentNotice = created.pane == nil
-            ? "The chat started, but your first prompt was not sent. Open the chat from Home and send it again:\n\n\(prompt)"
-            : "The chat started, but your first prompt was not sent. It is in the chat's message box: send it when the agent is ready."
+            ? String(localized: "The chat started, but your first prompt was not sent. Open the chat from Home and send it again:\n\n\(prompt)")
+            : String(localized: "The chat started, but your first prompt was not sent. It is in the chat's message box: send it when the agent is ready.")
         notice = unset.map { "\($0)\n\n\(unsentNotice)" } ?? unsentNotice
     }
 
@@ -431,11 +431,11 @@ extension AppModel {
         case nil:
             noticeTitle = "Update Sheprd"
             let name = computers.first { $0.device == device }.map(displayName) ?? "This computer"
-            let prompt = created.prompted ? " Your first prompt ran in that mode too." : ""
-            return "\(name) runs an older Sheprd that cannot start a chat in the mode you picked, so this chat is in the agent's default.\(prompt) Update it from the computer's page in Settings."
+            let prompt = created.prompted ? String(localized: " Your first prompt ran in that mode too.") : ""
+            return String(localized: "\(name) runs an older Sheprd that cannot start a chat in the mode you picked, so this chat is in the agent's default.\(prompt) Update it from the computer's page in Settings.")
         }
     }
 
     /// Said when a chat may be in another mode than the one the person saw.
-    static let startMissed = "The chat may not have the mode or auto-accept you picked. Check them in its Session sheet."
+    static let startMissed = String(localized: "The chat may not have the mode or auto-accept you picked. Check them in its Session sheet.")
 }

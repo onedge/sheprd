@@ -42,7 +42,7 @@ struct AgentSortTests {
         let sections = AgentSort.priority.sections(of: [Home.AgentStatus.done, .blocked]) {
             AgentSort.Facts(status: $0, date: nil, title: "", group: "", groupTitle: "")
         }
-        #expect(sections.map(\.title) == ["Needs you", "Done"])
+        #expect(sections.map(\.title) == [catalogLabel("Needs you"), catalogLabel("Done")])
     }
 
     @Test func workspaceKeepsTheirOrderWithTheNewestFirstInEach() {

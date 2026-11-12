@@ -376,7 +376,9 @@ final class AppModel {
         guard let fingerprint = link.fingerprint,
               let computer = computers.first(where: { $0.fingerprint == fingerprint })
         else {
-            message = "\(link.computer.isEmpty ? "That computer" : link.computer) is not paired with this phone."
+            message = link.computer.isEmpty
+                ? String(localized: "That computer is not paired with this phone.")
+                : String(localized: "\(link.computer) is not paired with this phone.")
             return
         }
         let key = PaneKey(device: computer.device, pane: link.pane)

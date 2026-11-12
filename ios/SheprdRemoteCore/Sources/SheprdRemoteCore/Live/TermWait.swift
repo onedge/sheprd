@@ -24,11 +24,11 @@ public enum TermWait: Hashable, Sendable {
         case let .offline(reason)?:
             self = .unreachable(reason)
         case .revoked?:
-            self = .unreachable("This phone is no longer paired with the computer.")
+            self = .unreachable(String(localized: "This phone is no longer paired with the computer.", bundle: .module))
         case .outdated?:
-            self = .unreachable("The computer's Sheprd is too old for this app. Update it there.")
+            self = .unreachable(String(localized: "The computer's Sheprd is too old for this app. Update it there.", bundle: .module))
         case nil:
-            self = .unreachable("The computer is not paired.")
+            self = .unreachable(String(localized: "The computer is not paired.", bundle: .module))
         case .connecting?, .online?:
             self = waited >= Self.patience ? .slow : .loading
         }
@@ -40,7 +40,7 @@ public enum TermWait: Hashable, Sendable {
         case .loading: nil
         case let .refused(reason): reason
         case let .unreachable(reason): reason
-        case .slow: "The computer has not sent this terminal yet."
+        case .slow: String(localized: "The computer has not sent this terminal yet.", bundle: .module)
         }
     }
 }

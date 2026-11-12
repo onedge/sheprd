@@ -57,7 +57,7 @@ final class NotificationService: UNNotificationServiceExtension {
     private static func cover() -> UNNotificationContent {
         let content = UNMutableNotificationContent()
         content.title = "Sheprd"
-        content.body = "New activity"
+        content.body = String(localized: "New activity")
         return content
     }
 }

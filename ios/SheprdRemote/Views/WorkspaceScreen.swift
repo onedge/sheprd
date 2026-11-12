@@ -342,7 +342,7 @@ private struct PullRequestRow: View {
             Image(systemName: "arrow.triangle.pull").font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(tone.color)
                 .frame(width: 28, height: 28).background(tone.color.opacity(0.15), in: .rect(cornerRadius: 28 * 0.28))
-            Text(verbatim: "Pull request #\(pullRequest.number)").foregroundStyle(.primary)
+            Text(verbatim: String(localized: "Pull request #\(pullRequest.number)")).foregroundStyle(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
             Image(systemName: tone.symbol).foregroundStyle(tone.color).imageScale(.large)
             Image(systemName: "chevron.forward").font(.footnote.weight(.semibold)).foregroundStyle(.tertiary)
@@ -373,8 +373,8 @@ private struct ChangesRow: View {
     private var label: String {
         switch count {
         case nil: "Changes"
-        case 1?: "Changes, 1 file"
-        case let count?: "Changes, \(count) files"
+        case 1?: String(localized: "Changes, 1 file")
+        case let count?: String(localized: "Changes, \(count) files")
         }
     }
 }

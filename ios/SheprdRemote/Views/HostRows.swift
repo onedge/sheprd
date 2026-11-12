@@ -11,7 +11,7 @@ struct HostRows: View {
         ForEach(model.hostLinks.rows(computer)) { host in
             HStack {
                 // Listed as paired only when no computer here has its key.
-                HostLine(host: host, detail: host.state.isPaired ? "Not on this phone" : nil)
+                HostLine(host: host, detail: host.state.isPaired ? String(localized: "Not on this phone") : nil)
                 Spacer()
                 if let action = action(host) {
                     let posting = model.hostLinks.posting.contains(.init(computer: computer.fingerprint, host: host.host))
@@ -29,7 +29,7 @@ struct HostRows: View {
         guard !waiting else { return nil }
         switch host.state {
         case .offered, .paired: return "Pair"
-        case .failed: return "Retry"
+        case .failed: return String(localized: "Retry")
         case .allowed, .asking, .pending: return nil
         }
     }
@@ -89,10 +89,10 @@ extension HostState {
     /// One line for where the phone stands with a host.
     var summary: String {
         switch self {
-        case .offered: "Not allowed for this phone yet; pairing asks the computer"
-        case .allowed: "Allowed; pairing next"
-        case .asking: "Waiting for Allow on the computer"
-        case .pending: "Pairing…"
+        case .offered: String(localized: "Not allowed for this phone yet; pairing asks the computer")
+        case .allowed: String(localized: "Allowed; pairing next")
+        case .asking: String(localized: "Waiting for Allow on the computer")
+        case .pending: String(localized: "Pairing…")
         case .paired: "Paired"
         case let .failed(reason): reason
         }

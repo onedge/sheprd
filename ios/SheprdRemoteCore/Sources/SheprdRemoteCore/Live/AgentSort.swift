@@ -45,9 +45,9 @@ public enum AgentSort: String, CaseIterable, Identifiable, Sendable {
         }
         switch self {
         case .recent:
-            return rows.isEmpty ? [] : [Section(id: "recent", title: "Recent", items: rows.map(\.item))]
+            return rows.isEmpty ? [] : [Section(id: "recent", title: String(localized: "Recent", bundle: .module), items: rows.map(\.item))]
         case .priority:
-            let titled: [(Home.AgentStatus, String)] = [(.blocked, "Needs you"), (.done, "Done"), (.working, "Working"), (.idle, "Idle")]
+            let titled: [(Home.AgentStatus, String)] = [(.blocked, String(localized: "Needs you", bundle: .module)), (.done, String(localized: "Done", bundle: .module)), (.working, String(localized: "Working", bundle: .module)), (.idle, String(localized: "Idle", bundle: .module))]
             return titled.compactMap { status, title in
                 let matching = rows.filter { ($0.facts.status == .unknown ? .idle : $0.facts.status) == status }
                 return matching.isEmpty ? nil : Section(id: status.rawValue, title: title, items: matching.map(\.item))

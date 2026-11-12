@@ -53,7 +53,7 @@ struct RootView: View {
         }
         // The split view presents it itself, over whichever sheet is open.
         .sheet(isPresented: Binding(get: { window.pairing && !wide }, set: { window.pairing = $0 })) { PairView() }
-        .alert(model.noticeTitle ?? "Not sent", isPresented: Binding(get: { model.notice != nil }, set: { if !$0 { model.notice = nil; model.noticeTitle = nil } })) {
+        .alert(model.noticeTitle ?? String(localized: "Not sent"), isPresented: Binding(get: { model.notice != nil }, set: { if !$0 { model.notice = nil; model.noticeTitle = nil } })) {
         } message: {
             Text(model.notice ?? "")
         }

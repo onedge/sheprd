@@ -30,6 +30,7 @@ The native app for Sheprd's remote control (`docs/ios-app-plan.md`).
 | `Mockups/` | The SwiftUI mockups the screens were picked from (`just ios-mockups`) |
 | `Spikes/` | Phase 0 spikes (`docs/ios-spikes.md`) |
 | `tools/` | The simulator loop's control client and the TestFlight upload scripts |
+| `Localization/` | The String Catalogs: `Localizable` (every target), `InfoPlist` (permission prompts), `AppShortcuts` (Siri phrases); the package keeps its own in `SheprdRemoteCore/Sources/SheprdRemoteCore/Resources` |
 
 ## Build and test
 
@@ -49,6 +50,39 @@ python3 ios/tools/test_branding.py  # generated names and stable deployed identi
   cannot drift apart.
 - **Generated files:** the `.xcodeproj`, Info.plists, and entitlements are
   not committed. Edit `project.yml` and run `xcodegen` again.
+
+## Localization
+
+English is the source language; Korean (`ko`) is translated. Each string
+lives in a String Catalog (`.xcstrings`), and `just ios-test` runs
+`tools/test_localization.py`, which fails when a string has no translation
+or a translation drops a format specifier such as `%lld` or `${chat}`.
+
+- **What is extracted:** a literal passed to SwiftUI (`Text("Pair")`,
+  `Button`, `.navigationTitle`), a `LocalizedStringResource`, or an App
+  Intent's dialog. A `String` built anywhere else is not: wrap it in
+  `String(localized:)`, or in `SheprdRemoteCore` in
+  `String(localized:bundle: .module)`.
+- **Plurals:** write each count's whole sentence (`count == 1 ? "1 tab" :
+  "\(count) tabs"`), never an `s` appended by interpolation, which no
+  translation can follow.
+- **Not translated:** prompts sent to an agent (text shortcuts, the check
+  log prompt), diagnostics, and spoken voice replies, which follow the
+  English command parser (see Voice commands). Alert text comes sealed from
+  the daemon, which writes it in English.
+- **Adding strings:** build, then export, translate, and import:
+
+  ```sh
+  cd ios
+  xcodebuild -exportLocalizations -project SheprdRemote.xcodeproj \
+    -localizationPath /tmp/loc -exportLanguage ko
+  # fill the <target> of each <trans-unit> in /tmp/loc/ko.xcloc
+  xcodebuild -importLocalizations -project SheprdRemote.xcodeproj \
+    -localizationPath /tmp/loc/ko.xcloc
+  ```
+
+  Import also writes `InfoPlist.xcstrings` for the extensions; they only
+  carry the name `Sheprd`, so delete those rather than commit them.
 
 ## The simulator loop
 

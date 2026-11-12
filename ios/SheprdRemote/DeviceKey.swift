@@ -15,7 +15,7 @@ enum DeviceKey {
         case accessControl
 
         var errorDescription: String? {
-            "Could not set up the Secure Enclave key's access control."
+            String(localized: "Could not set up the Secure Enclave key's access control.")
         }
     }
 

@@ -120,7 +120,7 @@ struct SettingsView: View {
                         // Turning the lock off asks too, so a borrowed,
                         // unlocked phone cannot drop it.
                         Task {
-                            if await OwnerCheck.confirm(on ? "Lock Sheprd" : "Stop locking Sheprd") {
+                            if await OwnerCheck.confirm(on ? String(localized: "Lock Sheprd") : String(localized: "Stop locking Sheprd")) {
                                 requireFaceID = on
                                 model.appLockChanged()
                             }

@@ -176,7 +176,7 @@ private struct MachineHeader<Actions: View>: View {
                         .rotationEffect(.degrees(collapsed ? 0 : 90))
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("\(collapsed ? "Expand" : "Collapse") \(model.displayName(machine.computer))")
+                .accessibilityLabel(collapsed ? String(localized: "Expand \(model.displayName(machine.computer))") : String(localized: "Collapse \(model.displayName(machine.computer))"))
                 Image(systemName: machine.computer.via == nil ? "laptopcomputer" : "server.rack")
                 Text(model.displayName(machine.computer)).font(.headline).lineLimit(1)
                 if let vouching = model.vouching(machine.computer) {
@@ -466,11 +466,11 @@ extension Home.PullRequest.Tone {
 
     var label: String {
         switch self {
-        case .attention: "needs attention"
-        case .held: "blocked or behind"
+        case .attention: String(localized: "needs attention")
+        case .held: String(localized: "blocked or behind")
         case .merged: "merged"
-        case .ready: "ready to merge"
-        case .waiting: "checks or review pending"
+        case .ready: String(localized: "ready to merge")
+        case .waiting: String(localized: "checks or review pending")
         case .other: "draft"
         }
     }

@@ -30,7 +30,7 @@ struct VoiceSheet: View {
                 model.pendingRoute = route
             }
         case let .failed(reason):
-            VoiceProblem(title: "That did not work", detail: reason, session: session)
+            VoiceProblem(title: String(localized: "That did not work"), detail: reason, session: session)
         case let .answered(words):
             VoiceAnswered(words: words, waiting: session.waiting)
         default:
@@ -167,7 +167,7 @@ private struct VoiceRow<Choices: View>: View {
                     .frame(width: 26)
                 VStack(alignment: .leading, spacing: 1) {
                     Text(label).font(.caption).foregroundStyle(.secondary)
-                    Text(value ?? (asking ? "Which one?" : "Listening…"))
+                    Text(value ?? (asking ? String(localized: "Which one?") : String(localized: "Listening…")))
                         .font(value == nil ? .body : .body.weight(.medium))
                         .foregroundStyle(value != nil ? AnyShapeStyle(.primary) : asking ? AnyShapeStyle(.orange) : AnyShapeStyle(.tertiary))
                 }
@@ -259,7 +259,7 @@ private struct VoiceWorkspaceCard: View {
             VoiceTextRow(
                 symbol: "arrow.triangle.branch",
                 label: "New worktree",
-                placeholder: "None, in the checkout itself",
+                placeholder: String(localized: "None, in the checkout itself"),
                 tint: VoiceSlot.topic.tint,
                 monospaced: true,
                 text: Binding(get: { plan.branch }, set: { session.edit(branch: $0) })
@@ -281,7 +281,7 @@ private struct VoiceWorkspaceCard: View {
             VoiceTextRow(
                 symbol: "text.bubble",
                 label: "First prompt",
-                placeholder: session.firstSentence ? "Listening…" : "None",
+                placeholder: session.firstSentence ? String(localized: "Listening…") : String(localized: "None"),
                 tint: VoiceSlot.task.tint,
                 text: Binding(get: { plan.prompt }, set: { session.edit(prompt: $0) })
             )
@@ -318,15 +318,15 @@ private struct VoiceWorkspaceCard: View {
     private var computerDetail: String? {
         guard plan.computer != nil else { return nil }
         if plan.computerSource == .said, let load = plan.computer?.home?.load {
-            return "\(Int(load.spareCores)) cores spare"
+            return String(localized: "\(Int(load.spareCores)) cores spare")
         }
         return detail(plan.computerSource)
     }
 
     private func detail(_ source: VoicePlan.Source) -> String? {
         switch source {
-        case .leastBusy: "least busy"
-        case .recent: "last used"
+        case .leastBusy: String(localized: "least busy")
+        case .recent: String(localized: "last used")
         case .said: nil
         }
     }
@@ -408,7 +408,7 @@ private struct VoiceChatCard: View {
         case .ask: "Send to"
         case .open: "Open"
         case .stop: "Stop"
-        case .unanswerable: "Nothing to answer in"
+        case .unanswerable: String(localized: "Nothing to answer in")
         }
     }
 

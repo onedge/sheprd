@@ -17,7 +17,7 @@ private struct ForgetConfirmation: ViewModifier {
 
     func body(content: Content) -> some View {
         content.confirmationDialog(
-            computer.map { "Forget \(model.displayName($0))?" } ?? "",
+            computer.map { String(localized: "Forget \(model.displayName($0))?") } ?? "",
             isPresented: Binding(get: { computer != nil }, set: { if !$0 { computer = nil } }),
             titleVisibility: .visible,
             presenting: computer
@@ -37,7 +37,7 @@ private struct ForgetConfirmation: ViewModifier {
 enum ForgetCopy {
     @MainActor
     static func consequence(_ name: String) -> String {
-        "Its chats and cached messages leave this \(UIDevice.current.model). Sheprd keeps running on \(name); pair again any time from its Remote control settings."
+        String(localized: "Its chats and cached messages leave this \(UIDevice.current.model). Sheprd keeps running on \(name); pair again any time from its Remote control settings.")
     }
 }
 

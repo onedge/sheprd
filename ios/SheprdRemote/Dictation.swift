@@ -41,13 +41,13 @@ final class Dictation {
         let allowed = await AVAudioApplication.requestRecordPermission()
         guard mine == attempt else { return }
         guard allowed else {
-            phase = .failed("Allow the microphone in Settings to dictate.")
+            phase = .failed(String(localized: "Allow the microphone in Settings to dictate."))
             return
         }
         let supported = await SpeechTranscriber.supportedLocale(equivalentTo: .current)
         guard mine == attempt else { return }
         guard let locale = supported else {
-            phase = .failed("Dictation does not support your language yet.")
+            phase = .failed(String(localized: "Dictation does not support your language yet."))
             return
         }
         let transcriber = SpeechTranscriber(
@@ -140,8 +140,8 @@ enum DictationError: Error, LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .noFormat: "Dictation has no audio format for this language."
-        case .noConverter: "The microphone's audio could not be converted for dictation."
+        case .noFormat: String(localized: "Dictation has no audio format for this language.")
+        case .noConverter: String(localized: "The microphone's audio could not be converted for dictation.")
         }
     }
 }

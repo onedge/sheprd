@@ -24,9 +24,9 @@ public enum DiffShown: String, Codable, Hashable, Sendable {
     public var note: String? {
         switch self {
         case .text: nil
-        case .binary: "This is a binary file, so there are no lines to show."
-        case .tooLarge: "This file's change is too large to show on a phone."
-        case .unreadable: "Sheprd could not read this file's change."
+        case .binary: String(localized: "This is a binary file, so there are no lines to show.", bundle: .module)
+        case .tooLarge: String(localized: "This file's change is too large to show on a phone.", bundle: .module)
+        case .unreadable: String(localized: "Sheprd could not read this file's change.", bundle: .module)
         }
     }
 }
@@ -126,8 +126,8 @@ public struct FileDiff: Codable, Hashable, Sendable {
     /// stops short.
     public var note: String? {
         if let note = shown.note { return note }
-        if truncated { return "This change is too large to show in full. The rest is on the computer." }
-        return lines.isEmpty ? "Nothing to show: only the file's name or mode changed." : nil
+        if truncated { return String(localized: "This change is too large to show in full. The rest is on the computer.", bundle: .module) }
+        return lines.isEmpty ? String(localized: "Nothing to show: only the file's name or mode changed.", bundle: .module) : nil
     }
 }
 

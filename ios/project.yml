@@ -11,6 +11,9 @@ options:
   deploymentTarget:
     iOS: "26.0"
   createIntermediateGroups: true
+  # The source language; `ko` and any later language come from the string
+  # catalogs in Localization/ (see README.md, Localization).
+  developmentLanguage: en
 
 settings:
   base:
@@ -20,6 +23,10 @@ settings:
     MARKETING_VERSION: 0.1.0
     SWIFT_STRICT_CONCURRENCY: complete
     SWIFT_VERSION: "6.0"
+    # Collect every localizable literal into Localization/*.xcstrings, which
+    # `xcodebuild -exportLocalizations` reads.
+    LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+    SWIFT_EMIT_LOC_STRINGS: YES
     TARGETED_DEVICE_FAMILY: "1,2"
 
 packages:
@@ -33,6 +40,9 @@ targets:
     sources:
       - SheprdRemote
       - Shared
+      - path: Localization/Localizable.xcstrings
+      - path: Localization/InfoPlist.xcstrings
+      - path: Localization/AppShortcuts.xcstrings
     dependencies:
       - package: SheprdRemoteCore
       - target: SheprdRemoteWidgets
@@ -107,6 +117,7 @@ targets:
       - SheprdRemoteWatch
       - path: Shared/WidgetSummary.swift
       - path: Shared/WatchMessages.swift
+      - path: Localization/Localizable.xcstrings
     dependencies:
       - package: SheprdRemoteCore
     info:
@@ -137,6 +148,7 @@ targets:
       - path: SheprdRemote/Keychain.swift
       - path: SheprdRemote/PreparedImage.swift
       - path: SheprdRemote/RemoteClient.swift
+      - path: Localization/Localizable.xcstrings
     dependencies:
       - package: SheprdRemoteCore
     info:
@@ -175,6 +187,7 @@ targets:
       - SheprdRemoteNotifications
       - path: Shared/NotifyKey.swift
       - path: Shared/NotificationCategories.swift
+      - path: Localization/Localizable.xcstrings
     dependencies:
       - package: SheprdRemoteCore
     info:
@@ -203,6 +216,7 @@ targets:
     sources:
       - SheprdRemoteWidgets
       - Shared
+      - path: Localization/Localizable.xcstrings
     dependencies:
       - package: SheprdRemoteCore
       - sdk: SwiftUI.framework

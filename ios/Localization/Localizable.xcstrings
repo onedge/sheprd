@@ -1,0 +1,5360 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : ""
+          }
+        }
+      }
+    },
+    " Your first prompt ran in that mode too." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " 첫 프롬프트도 그 모드로 실행되었습니다."
+          }
+        }
+      }
+    },
+    "·" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "·"
+          }
+        }
+      }
+    },
+    "“Always” answers are on your iPhone." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“항상” 답변은 iPhone에서 하세요."
+          }
+        }
+      }
+    },
+    "/%@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "/%@"
+          }
+        }
+      }
+    },
+    "%@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
+          }
+        }
+      }
+    },
+    "%@  %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@  %2$@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@  %2$@"
+          }
+        }
+      }
+    },
+    "%@ · %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ · %2$@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        }
+      }
+    },
+    "%@ · %@ · %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ · %2$@ · %3$@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@ · %3$@"
+          }
+        }
+      }
+    },
+    "%@ · Auto-accept" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · 자동 수락"
+          }
+        }
+      }
+    },
+    "%@ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ %2$@"
+          }
+        }
+      }
+    },
+    "%@ %lld percent" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$lld percent"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ %2$lld퍼센트"
+          }
+        }
+      }
+    },
+    "%@ actions" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 동작"
+          }
+        }
+      }
+    },
+    "%@ is not connected." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@에 연결되어 있지 않습니다."
+          }
+        }
+      }
+    },
+    "%@ is not paired with this phone." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@은(는) 이 휴대폰과 페어링되어 있지 않습니다."
+          }
+        }
+      }
+    },
+    "%@ is offline" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 오프라인"
+          }
+        }
+      }
+    },
+    "%@ is on it." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@이(가) 맡았습니다."
+          }
+        }
+      }
+    },
+    "%@ is ready to pair" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 페어링 준비됨"
+          }
+        }
+      }
+    },
+    "%@ is working" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 작업 중"
+          }
+        }
+      }
+    },
+    "%@ needs a newer Sheprd" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@에 최신 Sheprd가 필요합니다"
+          }
+        }
+      }
+    },
+    "%@ needs an answer" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 답변 필요"
+          }
+        }
+      }
+    },
+    "%@ of %@ tokens" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ of %2$@ tokens"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "토큰 %1$@ / %2$@"
+          }
+        }
+      }
+    },
+    "%@ on %@ needs you." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ on %2$@ needs you."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$@의 %1$@에서 확인이 필요합니다."
+          }
+        }
+      }
+    },
+    "%@ runs an older Sheprd that cannot start a chat in the mode you picked, so this chat is in the agent's default.%@ Update it from the computer's page in Settings." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ runs an older Sheprd that cannot start a chat in the mode you picked, so this chat is in the agent's default.%2$@ Update it from the computer's page in Settings."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@의 Sheprd가 오래되어 고른 모드로 채팅을 시작할 수 없습니다. 그래서 이 채팅은 에이전트 기본 모드로 시작했습니다.%2$@ 설정의 컴퓨터 페이지에서 업데이트하세요."
+          }
+        }
+      }
+    },
+    "%@ shows a code too. Choose **Allow** there if they match." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@에도 코드가 보입니다. 같으면 그쪽에서 **허용**을 고르세요."
+          }
+        }
+      }
+    },
+    "%@ unpaired this %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ unpaired this %2$@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@에서 이 %2$@의 페어링을 해제했습니다"
+          }
+        }
+      }
+    },
+    "%@ unpaired this phone" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@에서 이 휴대폰의 페어링을 해제했습니다"
+          }
+        }
+      }
+    },
+    "%@, connected" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, 연결됨"
+          }
+        }
+      }
+    },
+    "%@, hide changes" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, 변경 사항 숨기기"
+          }
+        }
+      }
+    },
+    "%@, show changes" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, 변경 사항 보기"
+          }
+        }
+      }
+    },
+    "%lld" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld"
+          }
+        }
+      }
+    },
+    "%lld chats need you" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅 %lld개 확인 필요"
+          }
+        }
+      }
+    },
+    "%lld chats need you: %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld chats need you: %2$@."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅 %1$lld개에서 확인이 필요합니다: %2$@."
+          }
+        }
+      }
+    },
+    "%lld chats need you. Open Sheprd to see which." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅 %lld개에서 확인이 필요합니다. 어느 채팅인지 보려면 Sheprd를 여세요."
+          }
+        }
+      }
+    },
+    "%lld chats need you. Unlock to see which." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅 %lld개에서 확인이 필요합니다. 어느 채팅인지 보려면 잠금을 해제하세요."
+          }
+        }
+      }
+    },
+    "%lld commits, no pull request" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "커밋 %lld개, 풀 리퀘스트 없음"
+          }
+        }
+      }
+    },
+    "%lld computers are offline" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터 %lld대가 오프라인입니다"
+          }
+        }
+      }
+    },
+    "%lld computers need a newer Sheprd" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터 %lld대에 최신 Sheprd가 필요합니다"
+          }
+        }
+      }
+    },
+    "%lld cores spare" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "여유 코어 %lld개"
+          }
+        }
+      }
+    },
+    "%lld more files are too many to list here." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "파일 %lld개가 더 있어 여기에 모두 보여 줄 수 없습니다."
+          }
+        }
+      }
+    },
+    "%lld more lines" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld줄 더"
+          }
+        }
+      }
+    },
+    "%lld need you" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld개 확인 필요"
+          }
+        }
+      }
+    },
+    "%lld of %lld characters" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld of %2$lld characters"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld / %2$lld자"
+          }
+        }
+      }
+    },
+    "%lld passed or skipped" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld개 통과 또는 건너뜀"
+          }
+        }
+      }
+    },
+    "%lld pictures" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진 %lld장"
+          }
+        }
+      }
+    },
+    "%lld running" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld개 실행 중"
+          }
+        }
+      }
+    },
+    "%lld tabs" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "탭 %lld개"
+          }
+        }
+      }
+    },
+    "%lld." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld."
+          }
+        }
+      }
+    },
+    "%lld%%" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld%%"
+          }
+        }
+      }
+    },
+    "%lldh" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld시간"
+          }
+        }
+      }
+    },
+    "%lldm" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld분"
+          }
+        }
+      }
+    },
+    "%lldm %llds" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lldm %2$llds"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld분 %2$lld초"
+          }
+        }
+      }
+    },
+    "%llds" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld초"
+          }
+        }
+      }
+    },
+    "•" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "•"
+          }
+        }
+      }
+    },
+    "+%lld" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+%lld"
+          }
+        }
+      }
+    },
+    "−%lld" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "−%lld"
+          }
+        }
+      }
+    },
+    "▏" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "▏"
+          }
+        }
+      }
+    },
+    "◦" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "◦"
+          }
+        }
+      }
+    },
+    "1 chat needs you. Open Sheprd to see which." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅 1개에서 확인이 필요합니다. 어느 채팅인지 보려면 Sheprd를 여세요."
+          }
+        }
+      }
+    },
+    "1 chat needs you. Unlock to see which." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅 1개에서 확인이 필요합니다. 어느 채팅인지 보려면 잠금을 해제하세요."
+          }
+        }
+      }
+    },
+    "1 commit, no pull request" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "커밋 1개, 풀 리퀘스트 없음"
+          }
+        }
+      }
+    },
+    "1 needs you" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1개 확인 필요"
+          }
+        }
+      }
+    },
+    "1 picture" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진 1장"
+          }
+        }
+      }
+    },
+    "1 tab" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "탭 1개"
+          }
+        }
+      }
+    },
+    "A character, or tab, f5…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "문자 하나, 또는 tab, f5…"
+          }
+        }
+      }
+    },
+    "A computer appears here while Remote control > Pair device is open on it." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터에서 원격 제어 > 기기 페어링을 열어 두면 여기에 나타납니다."
+          }
+        }
+      }
+    },
+    "Add" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "추가"
+          }
+        }
+      }
+    },
+    "Add %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 추가"
+          }
+        }
+      }
+    },
+    "Add a picture or shortcut" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진이나 단축 문구 추가"
+          }
+        }
+      }
+    },
+    "Add a tag" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "태그 추가"
+          }
+        }
+      }
+    },
+    "Add Combination" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "조합 추가"
+          }
+        }
+      }
+    },
+    "Add Key" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "키 추가"
+          }
+        }
+      }
+    },
+    "Add tag %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 태그 추가"
+          }
+        }
+      }
+    },
+    "Add text you send often, such as asking the agent to carry on." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "에이전트에게 계속하라고 하는 말처럼 자주 보내는 글을 추가하세요."
+          }
+        }
+      }
+    },
+    "Add to Bottom Row" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아래 줄에 추가"
+          }
+        }
+      }
+    },
+    "Add to Top Row" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "위 줄에 추가"
+          }
+        }
+      }
+    },
+    "Addresses" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "주소"
+          }
+        }
+      }
+    },
+    "Agent" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "에이전트"
+          }
+        }
+      }
+    },
+    "Agent's default" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "에이전트 기본값"
+          }
+        }
+      }
+    },
+    "Agent's Default" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "에이전트 기본값"
+          }
+        }
+      }
+    },
+    "Allow the microphone in Settings to dictate." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "받아쓰려면 설정에서 마이크를 허용하세요."
+          }
+        }
+      }
+    },
+    "Allow the microphone in Settings to talk to Sheprd." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd에게 말하려면 설정에서 마이크를 허용하세요."
+          }
+        }
+      }
+    },
+    "Allowed; pairing next" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "허용됨, 다음은 페어링"
+          }
+        }
+      }
+    },
+    "Allows every tool call without asking." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 도구 호출을 묻지 않고 허용합니다."
+          }
+        }
+      }
+    },
+    "Already being paired. Try again in a minute." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이미 페어링하는 중입니다. 1분 뒤에 다시 시도하세요."
+          }
+        }
+      }
+    },
+    "Also pairing %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@도 페어링"
+          }
+        }
+      }
+    },
+    "Always allow this without asking" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앞으로 묻지 않고 항상 허용"
+          }
+        }
+      }
+    },
+    "Always deny this without asking" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앞으로 묻지 않고 항상 거부"
+          }
+        }
+      }
+    },
+    "Answer" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "답변"
+          }
+        }
+      }
+    },
+    "Answer a Question" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "질문에 답하기"
+          }
+        }
+      }
+    },
+    "Answer kind" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "답변 종류"
+          }
+        }
+      }
+    },
+    "Answer name" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "답변 이름"
+          }
+        }
+      }
+    },
+    "Appearance" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "화면 모드"
+          }
+        }
+      }
+    },
+    "Ask ${chat} to ${prompt}" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${chat}에 ${prompt} 요청"
+          }
+        }
+      }
+    },
+    "Ask a Chat" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅에 묻기"
+          }
+        }
+      }
+    },
+    "Ask an agent instead" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "대신 에이전트에게 묻기"
+          }
+        }
+      }
+    },
+    "Asks for Face ID when the app opens and hides it in the app switcher. \"Always\" answers ask either way." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앱을 열 때 Face ID를 요청하고 앱 전환기에서 내용을 가립니다. \"항상\" 답변은 이 설정과 관계없이 Face ID를 요청합니다."
+          }
+        }
+      }
+    },
+    "Auto-accept" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "자동 수락"
+          }
+        }
+      }
+    },
+    "blocked or behind" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "막혔거나 뒤처짐"
+          }
+        }
+      }
+    },
+    "Bluetooth" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth"
+          }
+        }
+      }
+    },
+    "Bottom" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아래"
+          }
+        }
+      }
+    },
+    "Bottom Row" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아래 줄"
+          }
+        }
+      }
+    },
+    "Branch" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "브랜치"
+          }
+        }
+      }
+    },
+    "Cached chats and lists" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "캐시한 채팅과 목록"
+          }
+        }
+      }
+    },
+    "Camera access is off. Allow it in Settings, or paste the link below." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "카메라 접근이 꺼져 있습니다. 설정에서 허용하거나 아래에 링크를 붙여넣으세요."
+          }
+        }
+      }
+    },
+    "Cancel" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "취소"
+          }
+        }
+      }
+    },
+    "Cannot show the changes" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "변경 사항을 보여 줄 수 없습니다"
+          }
+        }
+      }
+    },
+    "Cannot show this file" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 파일을 보여 줄 수 없습니다"
+          }
+        }
+      }
+    },
+    "Certificate" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "인증서"
+          }
+        }
+      }
+    },
+    "Change by voice" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음성으로 바꾸기"
+          }
+        }
+      }
+    },
+    "Changes" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "변경 사항"
+          }
+        }
+      }
+    },
+    "Changes what new tabs start with" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 탭의 시작 설정을 바꿉니다"
+          }
+        }
+      }
+    },
+    "Changes, %lld files" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "변경 사항, 파일 %lld개"
+          }
+        }
+      }
+    },
+    "Changes, 1 file" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "변경 사항, 파일 1개"
+          }
+        }
+      }
+    },
+    "Chat" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅"
+          }
+        }
+      }
+    },
+    "Chats" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅"
+          }
+        }
+      }
+    },
+    "Chats and agents running in Sheprd on your computers appear here." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터의 Sheprd에서 실행 중인 채팅과 에이전트가 여기에 나타납니다."
+          }
+        }
+      }
+    },
+    "Chats waiting on you and running, on every computer." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 컴퓨터에서 확인을 기다리거나 실행 중인 채팅입니다."
+          }
+        }
+      }
+    },
+    "Check for Updates" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "업데이트 확인"
+          }
+        }
+      }
+    },
+    "Check that the computer shows the same code, then choose Allow there." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터에 같은 코드가 보이는지 확인한 뒤 그쪽에서 허용을 고르세요."
+          }
+        }
+      }
+    },
+    "Checks" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "검사"
+          }
+        }
+      }
+    },
+    "Checks on #%llu" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "#%llu 검사"
+          }
+        }
+      }
+    },
+    "checks or review pending" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "검사나 리뷰 대기 중"
+          }
+        }
+      }
+    },
+    "Choose a folder" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "폴더 고르기"
+          }
+        }
+      }
+    },
+    "Chosen for its room: %@ cores spare, %lld%% memory in use." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Chosen for its room: %1$@ cores spare, %2$lld%% memory in use."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "여유가 있어 골랐습니다: 여유 코어 %1$@개, 메모리 %2$lld%% 사용 중."
+          }
+        }
+      }
+    },
+    "Clear cache" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "캐시 지우기"
+          }
+        }
+      }
+    },
+    "Close" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "닫기"
+          }
+        }
+      }
+    },
+    "Close %@?" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@을(를) 닫을까요?"
+          }
+        }
+      }
+    },
+    "Close Chat" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅 닫기"
+          }
+        }
+      }
+    },
+    "Close Pane" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "패인 닫기"
+          }
+        }
+      }
+    },
+    "Close Tab" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "탭 닫기"
+          }
+        }
+      }
+    },
+    "Close this chat?" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 채팅을 닫을까요?"
+          }
+        }
+      }
+    },
+    "Collapse %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 접기"
+          }
+        }
+      }
+    },
+    "Collapse All" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모두 접기"
+          }
+        }
+      }
+    },
+    "Combination" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "조합"
+          }
+        }
+      }
+    },
+    "Command" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "명령"
+          }
+        }
+      }
+    },
+    "Compare" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "비교"
+          }
+        }
+      }
+    },
+    "Composing: %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "입력 중: %@"
+          }
+        }
+      }
+    },
+    "Computer" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터"
+          }
+        }
+      }
+    },
+    "Computer Details" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터 정보"
+          }
+        }
+      }
+    },
+    "Computers" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터"
+          }
+        }
+      }
+    },
+    "Confirm by Voice" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음성으로 확인"
+          }
+        }
+      }
+    },
+    "Confirm by Voice reads the plan aloud and starts on a plain yes, for a new worktree only. Anything else still needs a tap. Use Phone Language is experimental: commands other than English are less reliable, and cannot stop or answer a chat." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음성으로 확인을 켜면 계획을 소리 내어 읽고, \"네\"라고만 답해도 시작합니다. 새 워크트리에만 적용됩니다. 그 밖의 작업은 계속 탭해야 합니다. 휴대폰 언어 사용은 실험 기능입니다. 영어가 아닌 명령은 덜 정확하고, 채팅을 멈추거나 답할 수 없습니다."
+          }
+        }
+      }
+    },
+    "Connected" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연결됨"
+          }
+        }
+      }
+    },
+    "Connected through the checked address. When it stops answering, this phone tries the others." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "체크한 주소로 연결되어 있습니다. 이 주소가 응답하지 않으면 휴대폰이 다른 주소를 시도합니다."
+          }
+        }
+      }
+    },
+    "Connecting to %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@에 연결하는 중"
+          }
+        }
+      }
+    },
+    "Connecting to %@…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@에 연결하는 중…"
+          }
+        }
+      }
+    },
+    "Connecting…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연결하는 중…"
+          }
+        }
+      }
+    },
+    "Context %lld percent full" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컨텍스트 %lld퍼센트 사용"
+          }
+        }
+      }
+    },
+    "Copied" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "복사됨"
+          }
+        }
+      }
+    },
+    "Copy" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "복사"
+          }
+        }
+      }
+    },
+    "Could not send that." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "보내지 못했습니다."
+          }
+        }
+      }
+    },
+    "Could not set up the Secure Enclave key's access control." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Secure Enclave 키의 접근 제어를 설정하지 못했습니다."
+          }
+        }
+      }
+    },
+    "Create" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "만들기"
+          }
+        }
+      }
+    },
+    "ctrl, alt, and shift always start the top row. Keys you made stay in More Keys." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ctrl, alt, shift는 항상 위 줄의 맨 앞에 옵니다. 직접 만든 키는 추가 키에 남습니다."
+          }
+        }
+      }
+    },
+    "ctrl, alt, or shift with one character, or with tab, enter, esc, space, backspace, up, down, left, right, or f1 to f12." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ctrl, alt, shift와 문자 하나, 또는 tab, enter, esc, space, backspace, up, down, left, right, f1~f12 중 하나를 조합합니다."
+          }
+        }
+      }
+    },
+    "Dictate" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "받아쓰기"
+          }
+        }
+      }
+    },
+    "Dictation does not support your language yet." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "받아쓰기가 아직 사용자의 언어를 지원하지 않습니다."
+          }
+        }
+      }
+    },
+    "Dictation has no audio format for this language." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 언어에 맞는 받아쓰기 오디오 형식이 없습니다."
+          }
+        }
+      }
+    },
+    "Dismiss" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "닫기"
+          }
+        }
+      }
+    },
+    "Done" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "완료"
+          }
+        }
+      }
+    },
+    "Done in %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 만에 완료"
+          }
+        }
+      }
+    },
+    "Draft not sent" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "보내지 않은 초안"
+          }
+        }
+      }
+    },
+    "Drag keys between the rows and More Keys, or tap a key in More Keys to add it. Deleting a key from a row moves it to More Keys. The keyboard key always stays in a row." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "키를 줄과 추가 키 사이로 끌어 옮기거나, 추가 키에서 키를 탭해 넣으세요. 줄에서 지운 키는 추가 키로 옮겨집니다. 키보드 키는 항상 줄에 남습니다."
+          }
+        }
+      }
+    },
+    "Earlier in this chat · %lld turns" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 채팅의 이전 대화 · %lld턴"
+          }
+        }
+      }
+    },
+    "Earlier in this chat · 1 turn" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 채팅의 이전 대화 · 1턴"
+          }
+        }
+      }
+    },
+    "Edit Key" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "키 편집"
+          }
+        }
+      }
+    },
+    "Edit Shortcut" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "단축 문구 편집"
+          }
+        }
+      }
+    },
+    "Edit…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "편집…"
+          }
+        }
+      }
+    },
+    "Ended (%@) after %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Ended (%1$@) after %2$@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$@ 뒤 종료(%1$@)"
+          }
+        }
+      }
+    },
+    "Every computer's chats, by what they need." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 컴퓨터의 채팅을 필요한 일 순서로 보여 줍니다."
+          }
+        }
+      }
+    },
+    "Everything you sent is in" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "보낸 내용이 모두 들어갔습니다"
+          }
+        }
+      }
+    },
+    "Expand %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 펼치기"
+          }
+        }
+      }
+    },
+    "Expand All" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모두 펼치기"
+          }
+        }
+      }
+    },
+    "Failed" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "실패"
+          }
+        }
+      }
+    },
+    "First prompt" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "첫 프롬프트"
+          }
+        }
+      }
+    },
+    "Folders" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "폴더"
+          }
+        }
+      }
+    },
+    "Forget" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "잊기"
+          }
+        }
+      }
+    },
+    "Forget %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 잊기"
+          }
+        }
+      }
+    },
+    "Forget %@?" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@을(를) 잊을까요?"
+          }
+        }
+      }
+    },
+    "Forget %@…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 잊기…"
+          }
+        }
+      }
+    },
+    "Forget This Computer" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 컴퓨터 잊기"
+          }
+        }
+      }
+    },
+    "Forgetting a computer removes its chats from this %@. It does not stop Sheprd there." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터를 잊으면 그 채팅이 이 %@에서 사라집니다. 그 컴퓨터의 Sheprd는 멈추지 않습니다."
+          }
+        }
+      }
+    },
+    "Forgotten" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "잊음"
+          }
+        }
+      }
+    },
+    "From this phone" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 휴대폰에서"
+          }
+        }
+      }
+    },
+    "Generic shows the agent and what it is doing, without the chat's name, steps, or questions. A computer can also choose this in Sheprd's Remote control settings." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "일반 표시는 채팅 이름, 단계, 질문 없이 에이전트와 하고 있는 일만 보여 줍니다. 컴퓨터의 Sheprd 원격 제어 설정에서도 고를 수 있습니다."
+          }
+        }
+      }
+    },
+    "Go to %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@(으)로 이동"
+          }
+        }
+      }
+    },
+    "Herdr session %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Herdr 세션 %@"
+          }
+        }
+      }
+    },
+    "Hidden" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "숨김"
+          }
+        }
+      }
+    },
+    "Hide keyboard" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "키보드 숨기기"
+          }
+        }
+      }
+    },
+    "Hide Sidebar" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사이드바 숨기기"
+          }
+        }
+      }
+    },
+    "Hide the terminal" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "터미널 숨기기"
+          }
+        }
+      }
+    },
+    "Hold alerts at the desk" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "책상에서 알림 보류"
+          }
+        }
+      }
+    },
+    "Hold Alerts at the Desk" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "책상에서 알림 보류"
+          }
+        }
+      }
+    },
+    "Home" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "홈"
+          }
+        }
+      }
+    },
+    "I cannot do that from here." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "여기에서는 할 수 없습니다."
+          }
+        }
+      }
+    },
+    "I did not hear anything." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아무것도 듣지 못했습니다."
+          }
+        }
+      }
+    },
+    "Idle" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "유휴"
+          }
+        }
+      }
+    },
+    "In Sheprd, open Remote control > Pair device and point the camera at the QR." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd에서 원격 제어 > 기기 페어링을 열고 카메라를 QR 코드에 대세요."
+          }
+        }
+      }
+    },
+    "In Sheprd, open Remote control > Pair device, then scan its code here." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd에서 원격 제어 > 기기 페어링을 연 뒤 그 코드를 여기에서 스캔하세요."
+          }
+        }
+      }
+    },
+    "In this order, so Tab then Enter accepts an agent's suggestion with one tap." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 순서대로 누릅니다. 예를 들어 Tab 다음 Enter로 에이전트의 제안을 한 번에 받아들입니다."
+          }
+        }
+      }
+    },
+    "iPhone" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone"
+          }
+        }
+      }
+    },
+    "Is this your code?" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 코드가 맞나요?"
+          }
+        }
+      }
+    },
+    "It was closed in Sheprd, or its computer is not connected." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd에서 닫혔거나 그 컴퓨터가 연결되어 있지 않습니다."
+          }
+        }
+      }
+    },
+    "Its chats and cached messages leave this %@. Sheprd keeps running on %@; pair again any time from its Remote control settings." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Its chats and cached messages leave this %1$@. Sheprd keeps running on %2$@; pair again any time from its Remote control settings."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "그 채팅과 캐시한 메시지가 이 %1$@에서 사라집니다. %2$@의 Sheprd는 계속 실행됩니다. 원격 제어 설정에서 언제든 다시 페어링할 수 있습니다."
+          }
+        }
+      }
+    },
+    "Its modes show here after your first chat with it." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 에이전트와 처음 채팅한 뒤에 모드가 여기에 나타납니다."
+          }
+        }
+      }
+    },
+    "Its pane closes in Sheprd and %@ stops." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd에서 패인이 닫히고 %@이(가) 멈춥니다."
+          }
+        }
+      }
+    },
+    "Its pane closes in Sheprd and the agent stops." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd에서 패인이 닫히고 에이전트가 멈춥니다."
+          }
+        }
+      }
+    },
+    "Keep Generic" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "일반 표시 유지"
+          }
+        }
+      }
+    },
+    "Key" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "키"
+          }
+        }
+      }
+    },
+    "Label" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "라벨"
+          }
+        }
+      }
+    },
+    "Labels" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "라벨"
+          }
+        }
+      }
+    },
+    "Last answered %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마지막 응답 %@"
+          }
+        }
+      }
+    },
+    "Last problem" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마지막 문제"
+          }
+        }
+      }
+    },
+    "last used" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마지막 사용"
+          }
+        }
+      }
+    },
+    "least busy" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "가장 한가함"
+          }
+        }
+      }
+    },
+    "Least busy" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "가장 한가한 컴퓨터"
+          }
+        }
+      }
+    },
+    "Least busy: %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "가장 한가한 컴퓨터: %@"
+          }
+        }
+      }
+    },
+    "Listening…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "듣는 중…"
+          }
+        }
+      }
+    },
+    "Listens for a command: start an agent, or ask, stop, or open a chat." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "명령을 듣습니다. 에이전트를 시작하거나, 채팅에 묻거나, 채팅을 멈추거나 열 수 있습니다."
+          }
+        }
+      }
+    },
+    "Listens for a command." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "명령을 듣습니다."
+          }
+        }
+      }
+    },
+    "Lists the chats waiting on you on every computer." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 컴퓨터에서 확인을 기다리는 채팅을 보여 줍니다."
+          }
+        }
+      }
+    },
+    "Live Activities" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "실시간 현황"
+          }
+        }
+      }
+    },
+    "Live Activities are off for Sheprd. Turn them on in Settings." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd의 실시간 현황이 꺼져 있습니다. 설정에서 켜세요."
+          }
+        }
+      }
+    },
+    "Loading folders…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "폴더를 불러오는 중…"
+          }
+        }
+      }
+    },
+    "Loading the chat…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅을 불러오는 중…"
+          }
+        }
+      }
+    },
+    "Lock Sheprd" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd 잠그기"
+          }
+        }
+      }
+    },
+    "Log excerpt" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "로그 발췌"
+          }
+        }
+      }
+    },
+    "Looking for %@'s hosts" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@의 호스트를 찾는 중"
+          }
+        }
+      }
+    },
+    "Looking for computers nearby" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "가까운 컴퓨터를 찾는 중"
+          }
+        }
+      }
+    },
+    "Message %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@에 메시지"
+          }
+        }
+      }
+    },
+    "Messages" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "메시지"
+          }
+        }
+      }
+    },
+    "Mode" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모드"
+          }
+        }
+      }
+    },
+    "More Keys" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "추가 키"
+          }
+        }
+      }
+    },
+    "Move Agent into Chat" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "에이전트를 채팅으로 옮기기"
+          }
+        }
+      }
+    },
+    "Moving into Chat…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅으로 옮기는 중…"
+          }
+        }
+      }
+    },
+    "Name" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이름"
+          }
+        }
+      }
+    },
+    "Nearby" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "가까운 컴퓨터"
+          }
+        }
+      }
+    },
+    "need you" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "확인 필요"
+          }
+        }
+      }
+    },
+    "Needs a newer Sheprd" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최신 Sheprd 필요"
+          }
+        }
+      }
+    },
+    "needs attention" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "확인 필요"
+          }
+        }
+      }
+    },
+    "Needs you" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "확인 필요"
+          }
+        }
+      }
+    },
+    "Needs You" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "확인 필요"
+          }
+        }
+      }
+    },
+    "New %@ tab" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 %@ 탭"
+          }
+        }
+      }
+    },
+    "New %@ tabs start in" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 %@ 탭의 시작 위치"
+          }
+        }
+      }
+    },
+    "New %@ tabs start in %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "New %1$@ tabs start in %2$@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 %1$@ 탭은 %2$@에서 시작합니다"
+          }
+        }
+      }
+    },
+    "New activity" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 활동"
+          }
+        }
+      }
+    },
+    "New Chat in %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@에서 새 채팅"
+          }
+        }
+      }
+    },
+    "New Key" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 키"
+          }
+        }
+      }
+    },
+    "New Sheprd Workspace" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 Sheprd 워크스페이스"
+          }
+        }
+      }
+    },
+    "New Shortcut" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 단축 문구"
+          }
+        }
+      }
+    },
+    "New tab" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 탭"
+          }
+        }
+      }
+    },
+    "New Workspace" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 워크스페이스"
+          }
+        }
+      }
+    },
+    "New worktree" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 워크트리"
+          }
+        }
+      }
+    },
+    "New worktree of %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@의 새 워크트리"
+          }
+        }
+      }
+    },
+    "Next Chat" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다음 채팅"
+          }
+        }
+      }
+    },
+    "No camera here. Paste the pairing link below." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "카메라가 없습니다. 아래에 페어링 링크를 붙여넣으세요."
+          }
+        }
+      }
+    },
+    "No changes on this branch" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 브랜치에 변경 사항이 없습니다"
+          }
+        }
+      }
+    },
+    "No chats" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅 없음"
+          }
+        }
+      }
+    },
+    "No computers yet" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아직 컴퓨터가 없습니다"
+          }
+        }
+      }
+    },
+    "No shortcuts" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "단축 문구 없음"
+          }
+        }
+      }
+    },
+    "No usage reported yet" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아직 보고된 사용량이 없습니다"
+          }
+        }
+      }
+    },
+    "Nobody answered on the computer." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터에서 아무도 응답하지 않았습니다."
+          }
+        }
+      }
+    },
+    "None" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "없음"
+          }
+        }
+      }
+    },
+    "None, in the checkout itself" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "없음, 체크아웃에서 바로"
+          }
+        }
+      }
+    },
+    "Not allowed for this phone yet; pairing asks the computer" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 휴대폰은 아직 허용되지 않았습니다. 페어링하면 컴퓨터에 요청합니다"
+          }
+        }
+      }
+    },
+    "Not now" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "나중에"
+          }
+        }
+      }
+    },
+    "Not on this phone" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 휴대폰에 없음"
+          }
+        }
+      }
+    },
+    "Not sent" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "보내지 못함"
+          }
+        }
+      }
+    },
+    "Nothing needs you." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "확인할 것이 없습니다."
+          }
+        }
+      }
+    },
+    "Nothing needs you. %lld running." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "확인할 것이 없습니다. %lld개 실행 중입니다."
+          }
+        }
+      }
+    },
+    "Nothing running" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "실행 중인 것 없음"
+          }
+        }
+      }
+    },
+    "Nothing running." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "실행 중인 것이 없습니다."
+          }
+        }
+      }
+    },
+    "Nothing to answer in" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "답할 채팅 없음"
+          }
+        }
+      }
+    },
+    "Nothing to show" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "보여 줄 내용 없음"
+          }
+        }
+      }
+    },
+    "Nothing uncommitted" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "커밋하지 않은 변경 없음"
+          }
+        }
+      }
+    },
+    "now" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지금"
+          }
+        }
+      }
+    },
+    "Off" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "끔"
+          }
+        }
+      }
+    },
+    "Offline" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오프라인"
+          }
+        }
+      }
+    },
+    "On" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "켬"
+          }
+        }
+      }
+    },
+    "Open" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "열기"
+          }
+        }
+      }
+    },
+    "Open %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 열기"
+          }
+        }
+      }
+    },
+    "Open chat" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅 열기"
+          }
+        }
+      }
+    },
+    "Open Chat" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅 열기"
+          }
+        }
+      }
+    },
+    "Open in New Window" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 창에서 열기"
+          }
+        }
+      }
+    },
+    "Open in Safari" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Safari에서 열기"
+          }
+        }
+      }
+    },
+    "Open Remote control > Pair device on the computer first." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "먼저 컴퓨터에서 원격 제어 > 기기 페어링을 여세요."
+          }
+        }
+      }
+    },
+    "Open Sheprd on your iPhone." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone에서 Sheprd를 여세요."
+          }
+        }
+      }
+    },
+    "Open Sheprd once with a computer connected, so its chats are listed here." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터가 연결된 상태로 Sheprd를 한 번 열면 그 채팅이 여기에 나옵니다."
+          }
+        }
+      }
+    },
+    "Open the Chats" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅 열기"
+          }
+        }
+      }
+    },
+    "Open the terminal" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "터미널 열기"
+          }
+        }
+      }
+    },
+    "Open this link?" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 링크를 열까요?"
+          }
+        }
+      }
+    },
+    "Other agents" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다른 에이전트"
+          }
+        }
+      }
+    },
+    "Over Bluetooth, %@ knows when you are near it and holds phone alerts while you use it." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@은(는) Bluetooth로 사용자가 가까이 있는지 알고, 컴퓨터를 쓰는 동안 휴대폰 알림을 보류합니다."
+          }
+        }
+      }
+    },
+    "Over Bluetooth, this phone tells the computer when you are near it, and the computer holds phone alerts while you are there and using it. It also keeps the computer's addresses current. The computer needs presence on in Sheprd's Remote control settings." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 휴대폰은 사용자가 컴퓨터 가까이 있으면 Bluetooth로 알립니다. 그러면 컴퓨터는 사용자가 곁에서 컴퓨터를 쓰는 동안 휴대폰 알림을 보류합니다. 컴퓨터 주소도 최신으로 유지합니다. 컴퓨터의 Sheprd 원격 제어 설정에서 근처 감지를 켜야 합니다."
+          }
+        }
+      }
+    },
+    "Pair" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "페어링"
+          }
+        }
+      }
+    },
+    "Pair a computer" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터 페어링"
+          }
+        }
+      }
+    },
+    "Pair a Computer" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터 페어링"
+          }
+        }
+      }
+    },
+    "Pair Again" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다시 페어링"
+          }
+        }
+      }
+    },
+    "Pair again to see its chats" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅을 보려면 다시 페어링하세요"
+          }
+        }
+      }
+    },
+    "Pair one in Settings to see its workspaces here." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정에서 컴퓨터를 페어링하면 그 워크스페이스가 여기에 나옵니다."
+          }
+        }
+      }
+    },
+    "Paired" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "페어링됨"
+          }
+        }
+      }
+    },
+    "Paired through" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "페어링 경로"
+          }
+        }
+      }
+    },
+    "Paired with %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@와(과) 페어링됨"
+          }
+        }
+      }
+    },
+    "Pairing failed" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "페어링 실패"
+          }
+        }
+      }
+    },
+    "Pairing…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "페어링하는 중…"
+          }
+        }
+      }
+    },
+    "Pane %lld" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "패인 %lld"
+          }
+        }
+      }
+    },
+    "Passed" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "통과"
+          }
+        }
+      }
+    },
+    "Paste Photo" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진 붙여넣기"
+          }
+        }
+      }
+    },
+    "Pending" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "대기 중"
+          }
+        }
+      }
+    },
+    "Photo Library" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진 보관함"
+          }
+        }
+      }
+    },
+    "Pick a chat" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅 고르기"
+          }
+        }
+      }
+    },
+    "Picture" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진"
+          }
+        }
+      }
+    },
+    "Pictures" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진"
+          }
+        }
+      }
+    },
+    "Presses" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "누를 키"
+          }
+        }
+      }
+    },
+    "Preview" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "미리 보기"
+          }
+        }
+      }
+    },
+    "Previous Chat" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이전 채팅"
+          }
+        }
+      }
+    },
+    "Priority" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "우선순위"
+          }
+        }
+      }
+    },
+    "Privacy" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "개인 정보"
+          }
+        }
+      }
+    },
+    "Project" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프로젝트"
+          }
+        }
+      }
+    },
+    "Prompt" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프롬프트"
+          }
+        }
+      }
+    },
+    "Pull request #%llu" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "풀 리퀘스트 #%llu"
+          }
+        }
+      }
+    },
+    "Pull request %llu, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Pull request %1$llu, %2$@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "풀 리퀘스트 %1$llu, %2$@"
+          }
+        }
+      }
+    },
+    "Pull request checks" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "풀 리퀘스트 검사"
+          }
+        }
+      }
+    },
+    "Pull request merged" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "풀 리퀘스트 병합됨"
+          }
+        }
+      }
+    },
+    "Question" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "질문"
+          }
+        }
+      }
+    },
+    "Question text" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "질문 내용"
+          }
+        }
+      }
+    },
+    "Queued" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "대기열에 있음"
+          }
+        }
+      }
+    },
+    "ready to merge" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "병합 준비됨"
+          }
+        }
+      }
+    },
+    "Recent" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최근"
+          }
+        }
+      }
+    },
+    "Remove from the queue" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "대기열에서 빼기"
+          }
+        }
+      }
+    },
+    "Remove picture" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진 빼기"
+          }
+        }
+      }
+    },
+    "Remove tag %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 태그 빼기"
+          }
+        }
+      }
+    },
+    "Removing a queued prompt" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "대기열의 프롬프트를 빼는 중"
+          }
+        }
+      }
+    },
+    "Rename" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이름 바꾸기"
+          }
+        }
+      }
+    },
+    "Rename Tab" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "탭 이름 바꾸기"
+          }
+        }
+      }
+    },
+    "Rename Tab…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "탭 이름 바꾸기…"
+          }
+        }
+      }
+    },
+    "Rename Workspace" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "워크스페이스 이름 바꾸기"
+          }
+        }
+      }
+    },
+    "Renames the workspace" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "워크스페이스 이름을 바꿉니다"
+          }
+        }
+      }
+    },
+    "Reply" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "답장"
+          }
+        }
+      }
+    },
+    "Require Face ID" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Face ID 요구"
+          }
+        }
+      }
+    },
+    "Restore Default Keys" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기본 키로 되돌리기"
+          }
+        }
+      }
+    },
+    "Retry" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다시 시도"
+          }
+        }
+      }
+    },
+    "Revoked" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "취소됨"
+          }
+        }
+      }
+    },
+    "Row" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "줄"
+          }
+        }
+      }
+    },
+    "Running" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "실행 중"
+          }
+        }
+      }
+    },
+    "Runs without asking" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "묻지 않고 실행"
+          }
+        }
+      }
+    },
+    "Same network" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "같은 네트워크"
+          }
+        }
+      }
+    },
+    "Save" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저장"
+          }
+        }
+      }
+    },
+    "Say yes to start" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"네\"라고 하면 시작합니다"
+          }
+        }
+      }
+    },
+    "Send" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "보내기"
+          }
+        }
+      }
+    },
+    "Send a picture" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진 보내기"
+          }
+        }
+      }
+    },
+    "Send the log to the agent" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "에이전트에게 로그 보내기"
+          }
+        }
+      }
+    },
+    "Send to" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "보낼 곳"
+          }
+        }
+      }
+    },
+    "Send to Sheprd" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd로 보내기"
+          }
+        }
+      }
+    },
+    "Sending to %@…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@(으)로 보내는 중…"
+          }
+        }
+      }
+    },
+    "Sending to the computer…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터로 보내는 중…"
+          }
+        }
+      }
+    },
+    "Sends a prompt to a chat on one of your computers." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터 중 하나의 채팅에 프롬프트를 보냅니다."
+          }
+        }
+      }
+    },
+    "Sent to %@." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@(으)로 보냈습니다."
+          }
+        }
+      }
+    },
+    "Sent to the agent" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "에이전트에게 보냄"
+          }
+        }
+      }
+    },
+    "Session" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "세션"
+          }
+        }
+      }
+    },
+    "Settings" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정"
+          }
+        }
+      }
+    },
+    "Share" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "공유"
+          }
+        }
+      }
+    },
+    "Sheprd" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd"
+          }
+        }
+      }
+    },
+    "Sheprd actions" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd 동작"
+          }
+        }
+      }
+    },
+    "Sheprd Chat" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd 채팅"
+          }
+        }
+      }
+    },
+    "Sheprd Chats" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd 채팅"
+          }
+        }
+      }
+    },
+    "Sheprd Computer" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd 컴퓨터"
+          }
+        }
+      }
+    },
+    "Sheprd is locked" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd가 잠겨 있습니다"
+          }
+        }
+      }
+    },
+    "Sheprd is locked. Answer on your iPhone." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd가 잠겨 있습니다. iPhone에서 답하세요."
+          }
+        }
+      }
+    },
+    "Sheprd is locked. Open it to send to a chat." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd가 잠겨 있습니다. 채팅에 보내려면 Sheprd를 여세요."
+          }
+        }
+      }
+    },
+    "Sheprd is not open on %@, so it cannot update from here." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@에서 Sheprd가 열려 있지 않아 여기에서 업데이트할 수 없습니다."
+          }
+        }
+      }
+    },
+    "Sheprd is ready to pair. Its chats, terminals, and notifications will come to this %@." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd가 페어링할 준비가 되었습니다. 그 채팅, 터미널, 알림이 이 %@(으)로 옵니다."
+          }
+        }
+      }
+    },
+    "Sheprd is up to date." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd가 최신 버전입니다."
+          }
+        }
+      }
+    },
+    "Sheprd restarts on %@ once the update is in. Terminals and agents keep running." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "업데이트가 설치되면 %@에서 Sheprd가 다시 시작합니다. 터미널과 에이전트는 계속 실행됩니다."
+          }
+        }
+      }
+    },
+    "Sheprd there removed this %@, so its chats stop updating here." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "그 컴퓨터의 Sheprd가 이 %@을(를) 제거해서 그 채팅이 더 이상 여기에서 업데이트되지 않습니다."
+          }
+        }
+      }
+    },
+    "Sheprd: %lld need you" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd: %lld개 확인 필요"
+          }
+        }
+      }
+    },
+    "Sheprd: %lld running" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd: %lld개 실행 중"
+          }
+        }
+      }
+    },
+    "Sheprd: 1 needs you" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd: 1개 확인 필요"
+          }
+        }
+      }
+    },
+    "Sheprd: all quiet" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd: 조용함"
+          }
+        }
+      }
+    },
+    "Shortcuts" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "단축 문구"
+          }
+        }
+      }
+    },
+    "Shortcuts appear under + in a chat. One sends at once when the message is empty, or is added to what you are writing. Your computers keep the same list, so Sheprd and your other devices share it." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "단축 문구는 채팅의 + 아래에 나옵니다. 메시지 칸이 비어 있으면 바로 보내고, 쓰고 있는 글이 있으면 그 뒤에 덧붙입니다. 컴퓨터가 같은 목록을 보관하므로 Sheprd와 다른 기기도 이 목록을 함께 씁니다."
+          }
+        }
+      }
+    },
+    "Show %@ computers" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 컴퓨터 보기"
+          }
+        }
+      }
+    },
+    "Show keyboard" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "키보드 보기"
+          }
+        }
+      }
+    },
+    "Show Sidebar" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사이드바 보기"
+          }
+        }
+      }
+    },
+    "Show the terminal" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "터미널 보기"
+          }
+        }
+      }
+    },
+    "Showing chats as of %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 기준 채팅을 보여 줍니다"
+          }
+        }
+      }
+    },
+    "Shown" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "표시됨"
+          }
+        }
+      }
+    },
+    "Shown in the menu" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "메뉴에 표시"
+          }
+        }
+      }
+    },
+    "Shown on the key" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "키에 표시"
+          }
+        }
+      }
+    },
+    "Shows every computer's chats by what they need." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 컴퓨터의 채팅을 필요한 일 순서로 보여 줍니다."
+          }
+        }
+      }
+    },
+    "Shows it full screen" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전체 화면으로 봅니다"
+          }
+        }
+      }
+    },
+    "Shows the session's settings" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "세션 설정을 봅니다"
+          }
+        }
+      }
+    },
+    "Shows what a command would do, to confirm: start an agent, or ask, stop, or open a chat." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "명령이 할 일을 보여 주고 확인을 받습니다. 에이전트를 시작하거나, 채팅에 묻거나, 채팅을 멈추거나 열 수 있습니다."
+          }
+        }
+      }
+    },
+    "Skipped" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "건너뜀"
+          }
+        }
+      }
+    },
+    "Skipping %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 건너뜀"
+          }
+        }
+      }
+    },
+    "Sort agents" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "에이전트 정렬"
+          }
+        }
+      }
+    },
+    "Sort Agents" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "에이전트 정렬"
+          }
+        }
+      }
+    },
+    "Speak Results" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "결과 읽어 주기"
+          }
+        }
+      }
+    },
+    "Split Down" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아래로 분할"
+          }
+        }
+      }
+    },
+    "Split Right" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오른쪽으로 분할"
+          }
+        }
+      }
+    },
+    "Standalone GitHub reads are not enabled on this computer. Its owner can sign in with gh and enable remote GitHub CLI reads there." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 컴퓨터에서는 단독 GitHub 읽기가 켜져 있지 않습니다. 컴퓨터 주인이 gh로 로그인하고 그 컴퓨터에서 원격 GitHub CLI 읽기를 켤 수 있습니다."
+          }
+        }
+      }
+    },
+    "Start" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시작"
+          }
+        }
+      }
+    },
+    "Start %@ on %@ in %@?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Start %1$@ on %2$@ in %3$@?"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$@의 %3$@에서 %1$@을(를) 시작할까요?"
+          }
+        }
+      }
+    },
+    "Start ${agent} on ${computer} in ${project} to ${prompt}" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${computer}의 ${project}에서 ${agent} 시작해 ${prompt}"
+          }
+        }
+      }
+    },
+    "Start a chat in this workspace to send it this log." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 로그를 보내려면 이 워크스페이스에서 채팅을 시작하세요."
+          }
+        }
+      }
+    },
+    "Start an Agent" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "에이전트 시작"
+          }
+        }
+      }
+    },
+    "Starting…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시작하는 중…"
+          }
+        }
+      }
+    },
+    "Starts a workspace with an agent on one of your computers." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터 중 하나에서 에이전트와 함께 워크스페이스를 시작합니다."
+          }
+        }
+      }
+    },
+    "Starts a workspace with an agent." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "에이전트와 함께 워크스페이스를 시작합니다."
+          }
+        }
+      }
+    },
+    "Starts an agent in a project on one of your computers, in a new worktree when you name a topic." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터 중 하나의 프로젝트에서 에이전트를 시작합니다. 주제를 말하면 새 워크트리에서 시작합니다."
+          }
+        }
+      }
+    },
+    "Stop" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "멈추기"
+          }
+        }
+      }
+    },
+    "Stop %@ on %@?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Stop %1$@ on %2$@?"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$@의 %1$@을(를) 멈출까요?"
+          }
+        }
+      }
+    },
+    "Stop a Chat" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅 멈추기"
+          }
+        }
+      }
+    },
+    "Stop dictating" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "받아쓰기 멈추기"
+          }
+        }
+      }
+    },
+    "Stop listening" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "듣기 멈추기"
+          }
+        }
+      }
+    },
+    "Stop locking Sheprd" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd 잠그지 않기"
+          }
+        }
+      }
+    },
+    "Stopped %@." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@을(를) 멈췄습니다."
+          }
+        }
+      }
+    },
+    "Stops the running turn of a chat, declines its questions, and drops its queue." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅에서 실행 중인 턴을 멈추고, 질문을 거절하고, 대기열을 비웁니다."
+          }
+        }
+      }
+    },
+    "Storage" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저장 공간"
+          }
+        }
+      }
+    },
+    "Symbols" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기호"
+          }
+        }
+      }
+    },
+    "Symbols take less room: ⎋ ⌃ ⌥ ⇧ for esc, ctrl, alt, and shift. A row's keys share its width when they fit, and scroll when they do not, as in the preview below." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기호는 자리를 덜 차지합니다: esc, ctrl, alt, shift는 ⎋ ⌃ ⌥ ⇧로 보입니다. 아래 미리 보기처럼 한 줄의 키가 너비에 들어가면 나눠 쓰고, 넘치면 스크롤합니다."
+          }
+        }
+      }
+    },
+    "Tags" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "태그"
+          }
+        }
+      }
+    },
+    "Tags sync through this computer to the phones and desktops paired with it. Filter by them at the top of Workspaces." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "태그는 이 컴퓨터를 거쳐 페어링한 휴대폰과 데스크톱에 동기화됩니다. 워크스페이스 위쪽에서 태그로 거를 수 있습니다."
+          }
+        }
+      }
+    },
+    "Take Photo" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진 찍기"
+          }
+        }
+      }
+    },
+    "Talk" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "말하기"
+          }
+        }
+      }
+    },
+    "Talk to Sheprd" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd에게 말하기"
+          }
+        }
+      }
+    },
+    "Tell Sheprd" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd에게 명령"
+          }
+        }
+      }
+    },
+    "Tell Sheprd ${command}" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd에게 ${command}"
+          }
+        }
+      }
+    },
+    "Terminal" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "터미널"
+          }
+        }
+      }
+    },
+    "Terminal Keys" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "터미널 키"
+          }
+        }
+      }
+    },
+    "Terminals" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "터미널"
+          }
+        }
+      }
+    },
+    "Terminals stay dark either way." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "터미널은 어느 쪽이든 어두운 화면을 유지합니다."
+          }
+        }
+      }
+    },
+    "Text" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "글"
+          }
+        }
+      }
+    },
+    "Text Shortcuts" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "단축 문구"
+          }
+        }
+      }
+    },
+    "That computer does not offer that project or agent." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "그 컴퓨터에는 그 프로젝트나 에이전트가 없습니다."
+          }
+        }
+      }
+    },
+    "That computer is not paired with this phone." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "그 컴퓨터는 이 휴대폰과 페어링되어 있지 않습니다."
+          }
+        }
+      }
+    },
+    "That did not work" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "잘 되지 않았습니다"
+          }
+        }
+      }
+    },
+    "That is no longer waiting. Open Sheprd on the phone." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "더 이상 기다리는 질문이 아닙니다. 휴대폰에서 Sheprd를 여세요."
+          }
+        }
+      }
+    },
+    "That is not a Sheprd pairing link. Scan the QR in Sheprd's Remote control dialog." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd 페어링 링크가 아닙니다. Sheprd 원격 제어 대화 상자의 QR 코드를 스캔하세요."
+          }
+        }
+      }
+    },
+    "That picture could not be read." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "그 사진을 읽지 못했습니다."
+          }
+        }
+      }
+    },
+    "That question is no longer waiting on this chat." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "그 질문은 더 이상 이 채팅에서 기다리고 있지 않습니다."
+          }
+        }
+      }
+    },
+    "The agent started, but the prompt was not sent. Open Sheprd to send it." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "에이전트는 시작했지만 프롬프트를 보내지 못했습니다. 보내려면 Sheprd를 여세요."
+          }
+        }
+      }
+    },
+    "The camera cannot read codes." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "카메라가 코드를 읽을 수 없습니다."
+          }
+        }
+      }
+    },
+    "The chat did not close" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅이 닫히지 않았습니다"
+          }
+        }
+      }
+    },
+    "The chat did not show it within %lld seconds." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld초 안에 채팅에 나타나지 않았습니다."
+          }
+        }
+      }
+    },
+    "The chat is still starting; it shows in your list once it is up." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅이 아직 시작하는 중입니다. 시작되면 목록에 나타납니다."
+          }
+        }
+      }
+    },
+    "The chat may not have the mode or auto-accept you picked. Check them in its Session sheet." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅이 고른 모드나 자동 수락으로 시작하지 않았을 수 있습니다. 채팅의 세션 시트에서 확인하세요."
+          }
+        }
+      }
+    },
+    "The chat started, but your first prompt was not sent. It is in the chat's message box: send it when the agent is ready." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅은 시작했지만 첫 프롬프트를 보내지 못했습니다. 프롬프트는 채팅의 메시지 칸에 있습니다. 에이전트가 준비되면 보내세요."
+          }
+        }
+      }
+    },
+    "The chat started, but your first prompt was not sent. Open the chat from Home and send it again:\n\n%@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅은 시작했지만 첫 프롬프트를 보내지 못했습니다. 홈에서 채팅을 열고 다시 보내세요:\n\n%@"
+          }
+        }
+      }
+    },
+    "The computer answered with another code. Pairing stopped." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터가 다른 코드로 응답했습니다. 페어링을 멈췄습니다."
+          }
+        }
+      }
+    },
+    "The computer denied this phone." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터가 이 휴대폰을 거부했습니다."
+          }
+        }
+      }
+    },
+    "The computer no longer knows this host." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터가 더 이상 이 호스트를 알지 못합니다."
+          }
+        }
+      }
+    },
+    "The computer went out of Bluetooth range." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터가 Bluetooth 범위를 벗어났습니다."
+          }
+        }
+      }
+    },
+    "The computer's certificate changed during pairing." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "페어링하는 동안 컴퓨터의 인증서가 바뀌었습니다."
+          }
+        }
+      }
+    },
+    "The microphone's audio could not be converted for dictation." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마이크 오디오를 받아쓰기용으로 변환하지 못했습니다."
+          }
+        }
+      }
+    },
+    "The name shows in Sheprd and in your lists." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 이름은 Sheprd와 목록에 나옵니다."
+          }
+        }
+      }
+    },
+    "The pairing expired. Show a new QR on the computer." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "페어링 시간이 지났습니다. 컴퓨터에서 새 QR 코드를 띄우세요."
+          }
+        }
+      }
+    },
+    "The phone could not read that." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "휴대폰이 그 내용을 읽지 못했습니다."
+          }
+        }
+      }
+    },
+    "The phone did not send it." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "휴대폰이 보내지 않았습니다."
+          }
+        }
+      }
+    },
+    "The tab did not start" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "탭이 시작하지 않았습니다"
+          }
+        }
+      }
+    },
+    "The workspace was not renamed" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "워크스페이스 이름을 바꾸지 못했습니다"
+          }
+        }
+      }
+    },
+    "They don't match" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "같지 않습니다"
+          }
+        }
+      }
+    },
+    "Thinking" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "생각하는 중"
+          }
+        }
+      }
+    },
+    "This computer is no longer paired with this phone." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 컴퓨터는 더 이상 이 휴대폰과 페어링되어 있지 않습니다."
+          }
+        }
+      }
+    },
+    "This phone is not paired with that computer." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 휴대폰은 그 컴퓨터와 페어링되어 있지 않습니다."
+          }
+        }
+      }
+    },
+    "This phone's name on the computer" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터에 보일 이 휴대폰의 이름"
+          }
+        }
+      }
+    },
+    "This workspace is gone" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 워크스페이스가 사라졌습니다"
+          }
+        }
+      }
+    },
+    "Title" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "제목"
+          }
+        }
+      }
+    },
+    "To do" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "할 일"
+          }
+        }
+      }
+    },
+    "Toggle Sidebar" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사이드바 전환"
+          }
+        }
+      }
+    },
+    "Top" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "위"
+          }
+        }
+      }
+    },
+    "Top Row" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "위 줄"
+          }
+        }
+      }
+    },
+    "Try “New worktree on studio about the login bug, and ask Claude to fix it.”" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“New worktree on studio about the login bug, and ask Claude to fix it.”처럼 말해 보세요."
+          }
+        }
+      }
+    },
+    "Try again" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다시 시도"
+          }
+        }
+      }
+    },
+    "Try Again" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다시 시도"
+          }
+        }
+      }
+    },
+    "Turning off auto-accept" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "자동 수락을 끄는 중"
+          }
+        }
+      }
+    },
+    "Turning on auto-accept" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "자동 수락을 켜는 중"
+          }
+        }
+      }
+    },
+    "Typed, not on the screen yet: %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "입력했지만 아직 화면에 없음: %@"
+          }
+        }
+      }
+    },
+    "Uncommitted" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "커밋하지 않음"
+          }
+        }
+      }
+    },
+    "Undone: %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "취소됨: %@"
+          }
+        }
+      }
+    },
+    "Unknown" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알 수 없음"
+          }
+        }
+      }
+    },
+    "Unlock" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "잠금 해제"
+          }
+        }
+      }
+    },
+    "Unlock Sheprd" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd 잠금 해제"
+          }
+        }
+      }
+    },
+    "Unpaired" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "페어링 해제됨"
+          }
+        }
+      }
+    },
+    "Unpaired this %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 %@의 페어링을 해제했습니다"
+          }
+        }
+      }
+    },
+    "Unzoom" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "확대 해제"
+          }
+        }
+      }
+    },
+    "Update" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "업데이트"
+          }
+        }
+      }
+    },
+    "Update and Restart" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "업데이트하고 다시 시작"
+          }
+        }
+      }
+    },
+    "Update Sheprd on %@ by hand once. After that you can update it from here." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@의 Sheprd를 한 번 직접 업데이트하세요. 그 뒤로는 여기에서 업데이트할 수 있습니다."
+          }
+        }
+      }
+    },
+    "Update Sheprd on %@?" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@의 Sheprd를 업데이트할까요?"
+          }
+        }
+      }
+    },
+    "Update Sheprd there to see its chats" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅을 보려면 그 컴퓨터의 Sheprd를 업데이트하세요"
+          }
+        }
+      }
+    },
+    "Update to %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@(으)로 업데이트"
+          }
+        }
+      }
+    },
+    "Updating…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "업데이트하는 중…"
+          }
+        }
+      }
+    },
+    "Uploading picture… %lld%%" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진 올리는 중… %lld%%"
+          }
+        }
+      }
+    },
+    "Uploading pictures… %lld%%" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진 올리는 중… %lld%%"
+          }
+        }
+      }
+    },
+    "Use Phone Language" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "휴대폰 언어 사용"
+          }
+        }
+      }
+    },
+    "Use the Agent's Title" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "에이전트의 제목 사용"
+          }
+        }
+      }
+    },
+    "Version" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "버전"
+          }
+        }
+      }
+    },
+    "via %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 경유"
+          }
+        }
+      }
+    },
+    "Voice" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음성"
+          }
+        }
+      }
+    },
+    "Voice commands are not available on this phone yet." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 휴대폰에서는 아직 음성 명령을 쓸 수 없습니다."
+          }
+        }
+      }
+    },
+    "Waiting for Allow on the computer" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터에서 허용하기를 기다리는 중"
+          }
+        }
+      }
+    },
+    "Waiting for the chat to show it…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅에 나타나기를 기다리는 중…"
+          }
+        }
+      }
+    },
+    "Waiting for the computer…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터를 기다리는 중…"
+          }
+        }
+      }
+    },
+    "What Needs Me" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "확인할 것"
+          }
+        }
+      }
+    },
+    "What needs you is at the top of the list." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "확인이 필요한 것이 목록 맨 위에 있습니다."
+          }
+        }
+      }
+    },
+    "What should I do?" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "무엇을 할까요?"
+          }
+        }
+      }
+    },
+    "What should it do first? (optional)" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "먼저 무엇을 할까요? (선택 사항)"
+          }
+        }
+      }
+    },
+    "What should it do with this?" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이것으로 무엇을 할까요?"
+          }
+        }
+      }
+    },
+    "What should it do?" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "무엇을 할까요?"
+          }
+        }
+      }
+    },
+    "Which agent?" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "어느 에이전트인가요?"
+          }
+        }
+      }
+    },
+    "Which one?" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "어느 것인가요?"
+          }
+        }
+      }
+    },
+    "Which project?" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "어느 프로젝트인가요?"
+          }
+        }
+      }
+    },
+    "With a First Prompt…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "첫 프롬프트와 함께…"
+          }
+        }
+      }
+    },
+    "Words" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "문구"
+          }
+        }
+      }
+    },
+    "Working" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "작업 중"
+          }
+        }
+      }
+    },
+    "Workspace" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "워크스페이스"
+          }
+        }
+      }
+    },
+    "Workspaces" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "워크스페이스"
+          }
+        }
+      }
+    },
+    "Workspaces, chats, terminals" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "워크스페이스, 채팅, 터미널"
+          }
+        }
+      }
+    },
+    "Worktree Topic" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "워크트리 주제"
+          }
+        }
+      }
+    },
+    "You" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "나"
+          }
+        }
+      }
+    },
+    "Your iPhone is not reachable." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone에 연결할 수 없습니다."
+          }
+        }
+      }
+    },
+    "Zoom" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "확대"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

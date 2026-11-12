@@ -11,8 +11,8 @@ enum OwnerCheck {
     /// "Always" answers outlive the question, so they ask first.
     static func allows(_ option: PermissionOption) async -> Bool {
         switch option.kind {
-        case .allowAlways: await confirm("Always allow this without asking")
-        case .rejectAlways: await confirm("Always deny this without asking")
+        case .allowAlways: await confirm(String(localized: "Always allow this without asking"))
+        case .rejectAlways: await confirm(String(localized: "Always deny this without asking"))
         default: true
         }
     }

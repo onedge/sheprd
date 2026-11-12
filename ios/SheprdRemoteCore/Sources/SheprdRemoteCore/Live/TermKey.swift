@@ -35,8 +35,8 @@ public struct TermKey: Codable, Hashable, Identifiable, Sendable {
 
         public var name: String {
             switch self {
-            case .dictation: "Dictation"
-            case .keyboard: "Keyboard"
+            case .dictation: String(localized: "Dictation", bundle: .module)
+            case .keyboard: String(localized: "Keyboard", bundle: .module)
             }
         }
     }
@@ -69,17 +69,17 @@ public struct TermKey: Codable, Hashable, Identifiable, Sendable {
         Choice(key: "enter", symbol: "⏎", name: "Enter"),
         // A new line without Enter: Claude Code and Codex read Ctrl-J as
         // one, and write it Shift-Enter.
-        Choice(key: "ctrl+j", symbol: "⇧⏎", name: "New line"),
+        Choice(key: "ctrl+j", symbol: "⇧⏎", name: String(localized: "New line", bundle: .module)),
         Choice(key: "backspace", symbol: "⌫", name: "Delete"),
-        Choice(key: "up", symbol: "↑", name: "Up"),
-        Choice(key: "down", symbol: "↓", name: "Down"),
-        Choice(key: "left", symbol: "←", name: "Left"),
-        Choice(key: "right", symbol: "→", name: "Right"),
-        Choice(key: "|", symbol: "|", name: "Pipe"),
-        Choice(key: "slash", symbol: "/", name: "Slash"),
-        Choice(key: "minus", symbol: "-", name: "Minus"),
-        Choice(key: "~", symbol: "~", name: "Tilde"),
-        Choice(key: "backtick", symbol: "`", name: "Backtick"),
+        Choice(key: "up", symbol: "↑", name: String(localized: "Up", bundle: .module)),
+        Choice(key: "down", symbol: "↓", name: String(localized: "Down", bundle: .module)),
+        Choice(key: "left", symbol: "←", name: String(localized: "Left", bundle: .module)),
+        Choice(key: "right", symbol: "→", name: String(localized: "Right", bundle: .module)),
+        Choice(key: "|", symbol: "|", name: String(localized: "Pipe", bundle: .module)),
+        Choice(key: "slash", symbol: "/", name: String(localized: "Slash", bundle: .module)),
+        Choice(key: "minus", symbol: "-", name: String(localized: "Minus", bundle: .module)),
+        Choice(key: "~", symbol: "~", name: String(localized: "Tilde", bundle: .module)),
+        Choice(key: "backtick", symbol: "`", name: String(localized: "Backtick", bundle: .module)),
     ] + "acdeklruwz".map { letter in
         Choice(key: "ctrl+\(letter)", symbol: "^\(letter.uppercased())", name: "Control \(letter.uppercased())")
     }
@@ -126,7 +126,7 @@ public struct TermKey: Codable, Hashable, Identifiable, Sendable {
         // prints it, B (but not ß as SS). F5 is always upper case.
         let upper = last.uppercased()
         let printed = last.count > 1 || (modifiers.contains("ctrl") || modifiers.contains("shift")) && upper.count == 1 ? upper : last
-        let base = choice(last).map { ($0.symbol, $0.name) } ?? ["space": ("␣", "Space"), "plus": ("+", "Plus")][last] ?? (printed, printed)
+        let base = choice(last).map { ($0.symbol, $0.name) } ?? ["space": ("␣", String(localized: "Space", bundle: .module)), "plus": ("+", String(localized: "Plus", bundle: .module))][last] ?? (printed, printed)
         let names = modifiers.map { ["ctrl": "Control", "alt": "Alt", "shift": "Shift"][$0] ?? $0 } + [base.1]
         // ^B, as the offered ^C is.
         let symbol = modifiers == ["ctrl"] && last.count == 1 ? "^" + printed : modifiers.map { modifier($0, symbols: true) }.joined() + base.0

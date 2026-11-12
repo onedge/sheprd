@@ -1,0 +1,161 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Ask ${chat} in ${applicationName}" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringSet" : {
+            "state" : "new",
+            "values" : [
+              "Ask ${chat} in ${applicationName}",
+              "Ask a chat in ${applicationName}"
+            ]
+          }
+        },
+        "ko" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "${applicationName}에서 ${chat}에 묻기",
+              "${applicationName}에서 채팅에 묻기"
+            ]
+          }
+        }
+      }
+    },
+    "Open the ${applicationName} chats" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringSet" : {
+            "state" : "new",
+            "values" : [
+              "Open the ${applicationName} chats"
+            ]
+          }
+        },
+        "ko" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "${applicationName} 채팅 열기"
+            ]
+          }
+        }
+      }
+    },
+    "Start an agent in ${applicationName}" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringSet" : {
+            "state" : "new",
+            "values" : [
+              "Start an agent in ${applicationName}",
+              "Start an agent on ${computer} in ${applicationName}"
+            ]
+          }
+        },
+        "ko" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "${applicationName}에서 에이전트 시작",
+              "${applicationName}에서 ${computer}에 에이전트 시작"
+            ]
+          }
+        }
+      }
+    },
+    "Stop ${chat} in ${applicationName}" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringSet" : {
+            "state" : "new",
+            "values" : [
+              "Stop ${chat} in ${applicationName}"
+            ]
+          }
+        },
+        "ko" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "${applicationName}에서 ${chat} 멈추기"
+            ]
+          }
+        }
+      }
+    },
+    "Talk to ${applicationName}" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringSet" : {
+            "state" : "new",
+            "values" : [
+              "Talk to ${applicationName}"
+            ]
+          }
+        },
+        "ko" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "${applicationName}에게 말하기"
+            ]
+          }
+        }
+      }
+    },
+    "Tell ${applicationName} something" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringSet" : {
+            "state" : "new",
+            "values" : [
+              "Tell ${applicationName} something",
+              "Give ${applicationName} a command"
+            ]
+          }
+        },
+        "ko" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "${applicationName}에게 할 일 말하기",
+              "${applicationName}에게 명령하기"
+            ]
+          }
+        }
+      }
+    },
+    "What needs me in ${applicationName}" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringSet" : {
+            "state" : "new",
+            "values" : [
+              "What needs me in ${applicationName}",
+              "What's waiting in ${applicationName}"
+            ]
+          }
+        },
+        "ko" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "${applicationName}에서 확인할 것",
+              "${applicationName}에서 기다리는 것"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

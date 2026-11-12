@@ -45,7 +45,7 @@ final class NearbyBluetooth: NSObject {
 
         var errorDescription: String? {
             switch self {
-            case .gone: "The computer went out of Bluetooth range."
+            case .gone: String(localized: "The computer went out of Bluetooth range.")
             case let .refused(message): message
             }
         }
