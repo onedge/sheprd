@@ -45,6 +45,9 @@ error-orchestrator-not-a-repository = 이 폴더는 Git 저장소 안에 있지 
 error-orchestrator-not-owner = 실행 { $run }은(는) 다른 애플리케이션의 것입니다
 error-orchestrator-not-web-address = 여기에서는 웹 주소만 열 수 있습니다
 error-orchestrator-nothing-to-open = 이 실행에는 보여 줄 Herdr 워크스페이스가 없습니다
+error-orchestrator-retained = 살펴볼 수 있도록 체크아웃, 에이전트 기록, Beads 맡기를 남겨 두었습니다: { $error }
+error-orchestrator-action-lock = 저장소의 작업 잠금을 얻지 못했습니다: { $error }
+error-orchestrator-ownership-uncertain = 실행의 에이전트 신원을 확인하지 못했습니다. 살펴볼 수 있도록 체크아웃과 터미널을 남겨 두었습니다.
 error-orchestrator-output = { $kind ->
     [claim-bead] bead 맡기가 예상과 다른 출력을 돌려주었습니다
     [create-worktree] 워크트리 만들기가 예상과 다른 출력을 돌려주었습니다

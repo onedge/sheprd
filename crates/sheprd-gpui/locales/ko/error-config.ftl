@@ -18,6 +18,7 @@ error-config-invalid-sound-volume = sound.volume은 0에서 100 사이여야 합
 error-config-invalid-terminal-padding = terminal.{ $key }은(는) 숫자 하나나 숫자 한 쌍이어야 하며, 각각 0에서 64 논리 픽셀 사이의 유한한 값이어야 합니다
 error-config-invalid-theme-pair = 시스템을 따르는 테마는 두 쪽을 모두 지정해야 합니다: light:NAME,dark:NAME
 error-config-invalid-theme-path = theme은 이름, 절대 경로, ~/ 경로 중 하나여야 합니다
+error-config-invalid-undo-close-seconds = undo_close_tab.seconds는 1에서 60 사이여야 합니다
 error-config-invalid-usage-table = usage는 TOML 표여야 합니다
 error-config-invalid-zen-font-size = zen.font_size는 8에서 48 논리 픽셀 사이의 유한한 값이어야 합니다
 error-config-invalid-zen-width = zen.width는 20~1000열이거나 "10%"~"100%" 비율이어야 합니다

@@ -23,3 +23,6 @@ window-annotate-queued =
 window-annotate-stale-copied = 원래 데몬을 고르지 않은 메모는 복사했습니다
 window-annotate-history-moved = 선택 영역을 읽기 전에 새 출력이 선택을 옮겼습니다. 다시 선택하세요
 window-annotate-history-unread = 스크롤백에서 선택 영역을 읽지 못했습니다
+window-annotate-core-gone = 에이전트가 패인을 떠나 메모를 복사했습니다
+window-annotate-core-blocked = 에이전트가 질문하는 중이라 메모를 복사했습니다
+window-annotate-core-unreachable = 에이전트에 연결하지 못해 메모를 복사했습니다

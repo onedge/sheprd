@@ -265,6 +265,16 @@ orchestrator-confirm-delete-bead-body = bd delete --force를 실행합니다. �
 orchestrator-delete = 삭제
 orchestrator-dismiss = 닫기
 orchestrator-done-started = 에이전트를 시작했습니다
+orchestrator-done-recovered = 에이전트 터미널을 복구했습니다. 첫 프롬프트는 다시 보내지 않았습니다
+orchestrator-done-adopted = 확인된 현재 프로세스의 제어를 넘겨받았습니다
+orchestrator-adopt = 현재 프로세스 넘겨받기
+orchestrator-confirm-adopt-body = 이 이전 방식의 실행에는 과거 소유 기록이 없습니다. 그래서 현재 프로세스가 원래 에이전트라는 증거가 없습니다. 아래 현재 프로세스의 제어를 이 실행에 넘길까요? 취소하면 아무것도 바뀌지 않습니다.
+    호스트: { $host }
+    터미널: { $terminal }
+    체크아웃: { $cwd }
+    현재 프로세스: { $process }
+orchestrator-restart = 에이전트 다시 시작
+orchestrator-confirm-restart-body = 이 실행의 확인된 에이전트를 끝내고, 저장된 모델과 첫 프롬프트로 같은 체크아웃에서 다시 시작합니다. 체크아웃의 변경 사항은 남습니다.
 orchestrator-done-stopped = 에이전트를 멈췄습니다
 orchestrator-done-sent = 메시지를 보냈습니다
 orchestrator-done-removed = 실행을 제거했습니다

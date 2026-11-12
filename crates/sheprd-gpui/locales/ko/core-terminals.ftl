@@ -1,6 +1,6 @@
 # herdr-core(Herdr 2)가 실행하고 앱이 탭에 그리는 터미널입니다.
 core-terminals-open-workspace = 먼저 워크스페이스를 여세요
-core-terminals-workspaces-local-only = Herdr 2 워크스페이스는 이 컴퓨터에만 있습니다
+core-terminals-workspaces-need-core = 이 호스트에 herdr-core가 설치되어 있지 않아 Herdr 2 워크스페이스가 없습니다. 추가하려면 호스트 메뉴에서 Herdr 2 설치를 고르세요
 core-terminals-host-without-core = 이 호스트에 herdr-core가 설치되어 있지 않아 탭이 그 호스트의 Herdr에서 실행됩니다. 추가하려면 호스트 메뉴에서 Herdr 2 설치를 고르세요
 core-terminals-too-many-tabs = 열린 탭이 너무 많습니다
 core-terminals-this-computer = 이 에이전트는 이 컴퓨터에서 실행됩니다. 에이전트를 열려면 보이게 하세요
@@ -18,10 +18,9 @@ core-terminals-state-idle = 유휴
 core-terminals-state-working = 작업 중
 core-terminals-mirror-needs-pane = 먼저 미러링할 Herdr 2 패인을 클릭하세요
 core-terminals-menu-mirror = 새 탭에 미러링
-core-terminals-unsupported = Herdr 2 패인은 아직 이 작업을 할 수 없습니다
-core-terminals-nowhere-to-move = 이 패인을 옮길 다른 탭이 없습니다
+core-terminals-mirror-only-watches = 미러는 보기만 합니다. 이름 바꾸기나 옮기기는 입력하는 쪽 패인에서 하세요
+core-terminals-nowhere-to-move = 이것을 옮길 다른 탭이나 워크스페이스가 없습니다
 core-terminals-watching = 보는 중
-core-terminals-sidebar = Herdr 2
 core-terminals-edit-failed = 기록을 에디터에서 열지 못했습니다
 core-terminals-edit-remote = 스크롤백 편집은 이 컴퓨터의 패인에서만 됩니다
 core-terminals-install-started = { $device }에 Herdr 2를 설치하는 중...

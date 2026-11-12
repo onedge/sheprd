@@ -12,6 +12,7 @@ worktree-scripts-not-started =
        *[archive] 보관 스크립트가 시작되지 않았습니다: { $error }
     }
 worktree-scripts-remove-failed = 워크트리 제거: { $error }
+worktree-scripts-archive-failed = 보관 스크립트가 실패해서 워크트리를 남겨 두었습니다. 그 탭에서 이유를 볼 수 있습니다.
 worktree-scripts-ask-setup = 이 워크트리의 준비 스크립트를 실행할까요?
 worktree-scripts-ask-run = 이 워크트리의 실행 스크립트를 실행할까요?
 worktree-scripts-ask-archive = 제거하기 전에 보관 스크립트를 실행할까요?

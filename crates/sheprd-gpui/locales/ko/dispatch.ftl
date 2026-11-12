@@ -18,6 +18,7 @@ dispatch-new-sandbox = 새 { $noun ->
     }
 dispatch-sandbox-own = 자기 파일과 한도
 dispatch-sandbox-made = 만들 때 생성
+dispatch-created-unopened = { $host }에 { $path }을(를) 만들었지만 대상이 바뀌었거나 보여 줄 수 없었습니다. 체크아웃은 그 호스트에 남아 있습니다.
 dispatch-cores-free =
     { $count ->
        *[other] 코어 { $count }개 여유

@@ -15,6 +15,9 @@ chat-launcher-leading = 탭 앞
 chat-launcher-trailing = 오른쪽 끝
 chat-launcher-button = 버튼 하나
 chat-launcher-off = 끔
+chat-html-render-always = 항상
+chat-html-render-never = 안 함
+chat-html-render-default = 기본값
 
 # 채팅 패인 제목: 에이전트 상태, 보고 있는 클라이언트, 터미널에서 채팅으로 돌아가는 버튼입니다.
 chat-status-starting = 시작하는 중
@@ -80,6 +83,10 @@ chat-copy-message-done = 메시지를 복사했습니다
 chat-copy-answers-label = 답변 복사
 chat-copy-answers-done = 답변을 복사했습니다
 chat-copy-code-label = 코드 복사
+chat-code-wrap = 줄바꿈
+chat-code-unwrap = 줄바꿈 해제
+chat-page-show-code = 코드 보기
+chat-page-render = 웹 페이지 보기
 chat-copy-code-done = 코드를 복사했습니다
 chat-copy-diff-label = diff 복사
 chat-copy-diff-done = diff를 복사했습니다

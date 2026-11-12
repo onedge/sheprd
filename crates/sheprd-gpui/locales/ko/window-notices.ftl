@@ -5,6 +5,7 @@ window-notices-annotate-pages-unsupported = 페이지에 주석을 달려면 mac
 window-notices-scrollback-needs-newer = 스크롤백을 열려면 더 새로운 Herdr 데몬이 필요합니다
 window-notices-clear-needs-newer = 패인 지우기에는 더 새로운 Herdr 데몬이 필요합니다.
 window-notices-move-tabs-needs-newer = 탭을 옮기려면 더 새로운 Herdr 데몬이 필요합니다.
+window-notices-scroll-bottom-failed = 맨 아래로 스크롤 요청을 보내지 못했습니다: { $error }
 window-notices-skill-installed-at = { $path }에 브라우저 스킬을 설치했습니다
 window-notices-skill-installed-places = 브라우저 스킬을 { $count }곳에 설치했습니다
 window-notices-skill-offer-title = 에이전트가 페이지를 보여 주게 할까요?

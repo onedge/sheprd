@@ -51,6 +51,7 @@ menu-page-pull-request = 풀 리퀘스트
 menu-page-remote-control = 원격 제어
 menu-page-remote-control-phones = 원격 제어 휴대폰
 menu-page-pair-another-machine = 다른 머신 페어링
+menu-page-update-remote-sheprd = Sheprd 업데이트
 menu-page-remove-device = 기기 제거
 menu-page-remove-wsl-distribution = WSL 배포판 제거
 menu-page-rename-device = 기기 이름 바꾸기
