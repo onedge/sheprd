@@ -10,12 +10,19 @@ mod dialog_layout;
 mod dispatch;
 mod en_xa;
 mod issues;
+// Only POSIX clients script other hosts, so only they dispatch.
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+mod kept_dispatch;
+// Kept workspaces' worktrees run Git through host scripts.
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+mod kept_worktrees;
 mod left_checkout;
 mod left_checkout_lookup;
 mod merged_removal;
 mod mute;
 mod naming;
 mod pull_requests;
+mod remote_branches;
 #[cfg(all(feature = "container", any(target_os = "linux", target_os = "macos")))]
 mod sandbox_dispatch;
 #[cfg(all(

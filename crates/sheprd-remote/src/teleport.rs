@@ -7,8 +7,10 @@
 //! and the `herdr` CLI on the host concerned (locally, over SSH, or through a
 //! cloud provider's authenticated command).
 
+pub mod arrival;
 pub mod carry;
 mod core;
+pub(crate) use core::is_shell;
 mod credentials;
 pub mod error;
 mod fresh;
@@ -28,10 +30,11 @@ pub use {
     error::{Error, Step},
     fresh::{
         Created, Naming, NewCheckout, Origin as FreshOrigin, Prepared, base_commit,
-        dispatch_workspace, dispatch_worktree, prepare,
+        dispatch_kept_workspace, dispatch_kept_worktree, dispatch_workspace, dispatch_worktree,
+        prepare,
     },
     host::{Host, installed_programs_script},
-    job::{HostRepositories, Place, Retired, Source, open_repositories},
+    job::{HostRepositories, Keeping, Landed, Place, Retired, Source, open_repositories},
     launch::AgentKind,
     marks::{Mark, Marks},
     snapshot::{

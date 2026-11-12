@@ -9,7 +9,7 @@
 use super::{
     error::{Error, Step},
     git,
-    job::{self, Destination, HostRepositories, Place, Repository, Source, plan},
+    job::{self, Destination, HostRepositories, Keeping, Place, Repository, Source, plan},
     launch::{
         AgentKind, Work, command_line, handoff_path, handoff_prompt, handoff_resume_prompt, remap,
         remap_argv,
@@ -151,6 +151,7 @@ fn review_repository(
                     workspace_id: space.workspace_id.clone(),
                 }]),
                 retired: Vec::new(),
+                lands_in: destination.lands_in,
             };
             &narrowed
         }
@@ -159,6 +160,7 @@ fn review_repository(
     let source = Source {
         place: origin.place.clone(),
         workspace_id: origin.workspace_id.clone(),
+        keeping: Keeping::Herdr1,
         custom_label: None,
         repo_key: worktree.repo_key.clone(),
         repo_label: worktree.repo_name.clone(),
@@ -674,6 +676,7 @@ fn destination_argv(
                 .and_then(|cwd| remap(cwd, &review.checkout, path))
                 .unwrap_or_else(|| path.to_owned());
             let route = Route {
+                environment: None,
                 source: from,
                 destination: &review.destination.host,
                 from: &review.checkout,
@@ -710,7 +713,9 @@ fn resume_session(
     cancelled: &AtomicBool,
 ) -> Result<Vec<String>> {
     let reference = move_session(agent, session, route, cancelled)?;
-    Ok(agent.resume_argv(&reference, flags))
+    Ok(super::launch::resume_command(
+        agent, &reference, flags, route.from, route.to,
+    ))
 }
 
 /// A review of an idle shell into a new worktree on `destination`, for

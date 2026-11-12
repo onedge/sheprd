@@ -20,6 +20,7 @@ mod rich;
 pub(crate) mod running;
 pub(crate) mod selection;
 mod settings;
+mod shortcuts;
 mod summary;
 mod text;
 pub(super) mod viewer;
@@ -300,8 +301,10 @@ impl SheprdWindow {
             let pane_id = pane_id.clone();
             list(
                 chat.list.clone(),
-                cx.processor(move |this, index: usize, _, cx| {
-                    this.render_chat_entry(&pane_id, index, cx)
+                cx.processor(move |this, index: usize, window, cx| {
+                    let entry = this.render_chat_entry(&pane_id, index, cx);
+                    this.load_queued_pages(&pane_id, window, cx);
+                    entry
                 }),
             )
             .flex_1()
@@ -604,6 +607,7 @@ impl SheprdWindow {
         {
             pane.menu = None;
             pane.menu_search = None;
+            pane.shortcuts.set(false, crate::motion::now(), false);
             cx.notify();
         }
     }

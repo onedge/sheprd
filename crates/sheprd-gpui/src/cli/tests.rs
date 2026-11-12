@@ -4,6 +4,7 @@ use control::BrowserCommand;
 mod automation;
 mod browser_zoom;
 mod chat;
+mod chat_shortcuts;
 mod cloud_batch;
 mod cloud_exec;
 mod cloud_images;
@@ -18,9 +19,11 @@ mod open_command;
 mod px0;
 mod quota;
 mod remote;
+mod remote_update;
 mod security;
 mod ui_agent_group;
 mod ui_panel;
+mod worktrees;
 
 #[test]
 fn build_info_is_an_informational_mode() {

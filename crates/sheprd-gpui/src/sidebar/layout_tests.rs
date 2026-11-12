@@ -23,6 +23,8 @@ mod agent_groups;
 #[cfg(test)]
 mod agent_menu;
 #[cfg(test)]
+mod agent_row_rescroll;
+#[cfg(test)]
 mod agent_rows;
 #[cfg(test)]
 mod agents_header;
@@ -30,6 +32,8 @@ mod agents_header;
 mod coder_dialog;
 #[cfg(test)]
 mod configured_rows;
+#[cfg(test)]
+mod core_agents;
 #[cfg(test)]
 mod device_footer;
 #[cfg(test)]
@@ -600,6 +604,7 @@ pub(crate) fn fixture_window(window: &mut Window, cx: &mut Context<SheprdWindow>
     SheprdWindow {
         _terminal_focus: terminal_focus,
         chrome_region: None,
+        hosted: false,
         chats: Default::default(),
         sound: Default::default(),
         bell: Default::default(),
@@ -630,7 +635,7 @@ pub(crate) fn fixture_window(window: &mut Window, cx: &mut Context<SheprdWindow>
         selection_follow: Default::default(),
         find: None,
         copy_mode: None,
-        core_terminals: Default::default(),
+        core_terminals: crate::core_terminals::CoreTerminals::shared(cx),
         find_memory: Default::default(),
         flash: None,
         flash_motion: Default::default(),
@@ -685,6 +690,7 @@ pub(crate) fn fixture_window(window: &mut Window, cx: &mut Context<SheprdWindow>
         checkpoints: Default::default(),
         port_forwards: Default::default(),
         remote_browser: Vec::new(),
+        remote_updates: Default::default(),
         #[cfg(feature = "cloud")]
         cloud_jobs: Default::default(),
         #[cfg(feature = "cloud")]
@@ -780,6 +786,8 @@ pub(crate) fn fixture_window(window: &mut Window, cx: &mut Context<SheprdWindow>
         menu: crate::menu::MenuState::new(cx),
         settings: Default::default(),
         integrations: Default::default(),
+        kept_scripts: Default::default(),
+        kept_worktree_done: Vec::new(),
         install_warning_shown: false,
         version_notice_shown: false,
         collapsed_repos: Default::default(),

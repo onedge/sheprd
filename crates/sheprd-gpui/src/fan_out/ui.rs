@@ -9,7 +9,7 @@ use super::{
     FanOut, Journal,
     journal::Resume,
     plan::MAX_LANES,
-    state::{LaneState, Stage, agent_status, seed},
+    state::{Kept, LaneState, Shown, Stage, agent_status, seed, status_text},
 };
 use crate::{
     SheprdWindow,
@@ -61,10 +61,17 @@ impl SheprdWindow {
             let Some(checkout) = &lane.checkout else {
                 return true;
             };
+            // Herdr 2 has no daemon workspace identity. Its saved folder,
+            // repository and branch are verified with Git by the removal
+            // worker before anything is discarded, rather than from this
+            // window's possibly stale checkout cache.
+            let Some(workspace_id) = checkout.workspace_id() else {
+                return true;
+            };
             self.fan_out_snapshot(&checkout.endpoint_id)
                 .is_some_and(|snapshot| {
                     snapshot.workspaces.iter().any(|workspace| {
-                        workspace.workspace_id == checkout.workspace_id
+                        workspace.workspace_id == workspace_id
                             && workspace.branch.as_deref() == Some(lane.lane.branch.as_str())
                     })
                 })
@@ -74,11 +81,16 @@ impl SheprdWindow {
     /// Show a journaled fan-out this window has room for: one the app
     /// stopped partway, or a comparison never settled.
     fn restore_fan_out(&mut self, cx: &mut Context<Self>) {
-        let host = |endpoint_id: &str| {
+        let host = |endpoint_id: &str, keeper| {
             self.endpoints
                 .iter()
                 .find(|endpoint| endpoint.id == endpoint_id)
-                .and_then(|endpoint| host_for(&endpoint.connection.target).ok())
+                .and_then(|endpoint| match keeper {
+                    sheprd_session::Keeper::App => {
+                        sheprd_remote::work::host_for_kept(&endpoint.connection.target).ok()
+                    }
+                    sheprd_session::Keeper::Herdr1 => host_for(&endpoint.connection.target).ok(),
+                })
         };
         let Some(fan_out) = FanOut::reclaim(&Journal::get(cx), host) else {
             return;
@@ -109,7 +121,24 @@ impl SheprdWindow {
             fan_out.stop_probe();
         }
         let was_launching = matches!(fan_out.stage, Stage::Launching);
+        let reconnected = fan_out.reconnect(|id, keeper| {
+            self.endpoints
+                .iter()
+                .find(|endpoint| endpoint.id == id)
+                .and_then(|endpoint| match keeper {
+                    sheprd_session::Keeper::App => {
+                        sheprd_remote::work::host_for_kept(&endpoint.connection.target).ok()
+                    }
+                    sheprd_session::Keeper::Herdr1 => host_for(&endpoint.connection.target).ok(),
+                })
+        });
         let (mut changed, kept) = fan_out.poll();
+        changed |= reconnected;
+        let (shown, closed) = fan_out.take_kept();
+        self.show_fan_out_lanes(shown, closed, window, cx);
+        let Some(fan_out) = &mut self.fan_out else {
+            return;
+        };
         if open {
             changed |= fan_out.refresh(Instant::now());
         }
@@ -129,13 +158,26 @@ impl SheprdWindow {
             self.show_flash(flash, cx);
             return cx.notify();
         }
-        if let Some((endpoint, workspace)) = kept {
+        if let Some(kept) = kept {
             self.fan_out = None;
             if open {
                 self.dismiss_menu(window, cx);
             }
             self.show_flash(Flash::success(fl!("fan-out-kept")), cx);
-            self.teleport_follow = Some(Follow::new(endpoint, workspace));
+            match kept {
+                Kept::Herdr1 {
+                    endpoint,
+                    workspace,
+                } => self.teleport_follow = Some(Follow::new(endpoint, workspace)),
+                Kept::Herdr2 {
+                    endpoint,
+                    host,
+                    label,
+                    path,
+                } => {
+                    self.open_fan_out_folder(&endpoint, &host, &label, &path, cx);
+                }
+            }
             return;
         }
         if changed {
@@ -246,12 +288,69 @@ impl SheprdWindow {
         let Some(fan_out) = &self.fan_out else {
             return;
         };
-        let Some(checkout) = fan_out.lanes.get(index).and_then(|l| l.checkout.as_ref()) else {
+        let Some(lane) = fan_out.lanes.get(index) else {
             return;
         };
-        let follow = Follow::new(checkout.endpoint_id.clone(), checkout.workspace_id.clone());
+        let Some(checkout) = &lane.checkout else {
+            return;
+        };
+        let Some(workspace) = checkout.workspace_id() else {
+            let (endpoint, label, path) = (
+                checkout.endpoint_id.clone(),
+                lane.lane.branch.clone(),
+                checkout.path().to_owned(),
+            );
+            let terminal = checkout.terminal.clone();
+            let host = checkout.host.clone();
+            self.dismiss_menu(window, cx);
+            if let Some(terminal) =
+                terminal.and_then(|terminal| sheprd_backend::TerminalId::new(terminal).ok())
+            {
+                let location = crate::browser::Location::core_terminal(
+                    crate::core_terminals::panes::Panes::single(terminal),
+                    false,
+                );
+                self.show_fan_out_terminal(&endpoint, &host, &label, &path, location, cx);
+            }
+            self.open_fan_out_folder(&endpoint, &host, &label, &path, cx);
+            return;
+        };
+        let follow = Follow::new(checkout.endpoint_id.clone(), workspace.to_owned());
         self.dismiss_menu(window, cx);
         self.teleport_follow = Some(follow);
+    }
+
+    /// Shows each Herdr 2 lane's agent shell in a workspace the app keeps
+    /// for its checkout, behind whatever is in front, as Herdr 1 opens a
+    /// lane's workspace without focusing it; closes the kept workspaces of
+    /// lanes removed.
+    fn show_fan_out_lanes(
+        &mut self,
+        shown: Vec<Shown>,
+        closed: Vec<super::job::Checkout>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        for Shown {
+            endpoint,
+            host,
+            label,
+            path,
+            terminal,
+        } in shown
+        {
+            let Ok(terminal) = sheprd_backend::TerminalId::new(terminal) else {
+                continue;
+            };
+            let location = crate::browser::Location::core_terminal(
+                crate::core_terminals::panes::Panes::single(terminal),
+                false,
+            );
+            self.show_fan_out_terminal(&endpoint, &host, &label, &path, location, cx);
+        }
+        for checkout in closed {
+            self.close_fan_out_folder(&checkout, window, cx);
+        }
     }
 
     pub(crate) fn render_fan_out(&self, cx: &mut Context<Self>) -> Div {
@@ -420,10 +519,36 @@ impl SheprdWindow {
                     let failed =
                         matches!(lane.state, LaneState::Failed(_) | LaneState::Interrupted(_));
                     let mut status = match (&lane.state, &lane.checkout) {
-                        (LaneState::Running, Some(checkout)) if comparing => agent_status(
-                            self.fan_out_snapshot(&checkout.endpoint_id),
-                            &checkout.workspace_id,
-                        ),
+                        (LaneState::Running, Some(checkout)) if comparing => {
+                            match checkout.workspace_id() {
+                                Some(workspace) => agent_status(
+                                    self.fan_out_snapshot(&checkout.endpoint_id),
+                                    workspace,
+                                ),
+                                // herdr-core reports a terminal's agent
+                                // while a tab of this computer's core shows.
+                                None => checkout
+                                    .terminal
+                                    .clone()
+                                    .and_then(|t| sheprd_backend::TerminalId::new(t).ok())
+                                    .and_then(|t| {
+                                        if !self.fan_out_host_matches(
+                                            &checkout.endpoint_id,
+                                            &checkout.host,
+                                        ) {
+                                            return None;
+                                        }
+                                        self.core_terminals.reported(
+                                            &self.fan_out_core_host(&checkout.endpoint_id)?,
+                                            &t,
+                                        )
+                                    })
+                                    .map_or_else(
+                                        || lane.state.label(),
+                                        |info| status_text(info.agent),
+                                    ),
+                            }
+                        }
                         (state, _) => state.label(),
                     };
                     // A lane elsewhere says where it runs.
@@ -467,7 +592,7 @@ impl SheprdWindow {
                     // No lane is kept while another is still being finished.
                     let keepable = actionable && settled;
                     let resume = fan_out.resumable(index).map(|from| match from {
-                        Resume::Start => fl!("fan-out-start-agent"),
+                        Resume::Creation | Resume::Start => fl!("fan-out-start-agent"),
                         Resume::Prompt => fl!("fan-out-send-prompt"),
                     });
                     body = body.child(

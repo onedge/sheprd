@@ -1,5 +1,6 @@
 mod accessibility;
 mod adopt;
+mod agent_row_rescroll;
 mod chats;
 mod clear;
 mod close;
@@ -8,8 +9,11 @@ mod context;
 mod control_holder;
 mod copy_mode;
 mod copy_mode_relink;
+mod cross_workspace;
 mod effects;
+mod fall_through;
 mod fallback_bells;
+mod file_images;
 mod focus;
 mod folders;
 mod history;
@@ -18,15 +22,21 @@ mod kept_checkouts;
 mod kept_ports;
 mod kept_workspaces;
 mod keys;
+mod link_handlers;
 mod links;
 mod menus;
 mod moves;
+mod mutes;
+mod note_targets;
 mod open_terminal;
 mod pane_keys;
 mod paste;
 mod phone;
+mod processes;
+mod programs;
 mod quote;
 mod refresh;
+mod remote_workspaces;
 mod requests;
 mod resize;
 mod restore;
@@ -42,6 +52,7 @@ mod stale;
 mod tab_status;
 mod unended;
 mod wanted;
+mod window_asks;
 mod worker;
 mod zoom_drawn;
 
@@ -52,6 +63,8 @@ impl crate::SheprdWindow {
         scope: crate::browser::Scope,
         session: sheprd_session::Session,
     ) {
-        self.core_terminals.session = Some((scope, std::sync::Arc::new(session)));
+        let sessions = &mut self.core_terminals.sessions;
+        sessions.retain(|(known, _)| *known != scope);
+        sessions.push((scope, std::sync::Arc::new(session)));
     }
 }

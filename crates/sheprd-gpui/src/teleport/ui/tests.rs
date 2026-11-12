@@ -1,10 +1,14 @@
 //! A Teleport dialog at each stage, with what the stage shows as data.
 use super::*;
-use crate::teleport::{Host, Node, Repository, SourceState, TabPlan, launch::Work};
+use crate::teleport::{
+    Host, Keeping, Landed, Node, Repository, SourceState, TabPlan, launch::Work,
+};
 use sheprd_client::ConnectTarget;
 
+mod arrival;
 mod closing;
 mod en_xa;
+mod kept;
 mod opening;
 
 fn place(label: &str) -> Place {
@@ -19,6 +23,7 @@ fn source() -> Source {
     Source {
         place: place("laptop"),
         workspace_id: "w1".into(),
+        keeping: Keeping::Herdr1,
         custom_label: None,
         repo_key: "repo".into(),
         repo_label: "herdr".into(),
@@ -41,11 +46,13 @@ fn candidate() -> Candidate {
             reason: MatchReason::Name,
         },
         origin: None,
+        lands_in: Keeper::Herdr1,
     }
 }
 
 fn review(github: GitHubAccess) -> Review {
     let pane = |id: &str, action: Action| job::PanePlan {
+        binding: None,
         pane_id: id.into(),
         cwd: None,
         work: Work::Shell,
@@ -98,11 +105,13 @@ pub(super) fn stages() -> Vec<(&'static str, Teleport)> {
             place: place("buildbox"),
             repositories: Some(Vec::new()),
             retired: Vec::new(),
+            lands_in: Keeper::Herdr1,
         },
         HostRepositories {
             place: place("nas"),
             repositories: None,
             retired: Vec::new(),
+            lands_in: Keeper::Herdr1,
         },
     ];
     vec![

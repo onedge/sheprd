@@ -35,6 +35,7 @@ mod keymap;
 #[cfg(windows)]
 mod launch_at_login;
 mod link;
+mod link_handlers;
 mod listening_ports;
 mod local_ports;
 mod mods;
@@ -52,6 +53,7 @@ mod protocol;
 mod px0;
 mod remote;
 mod remote_control;
+mod remote_update;
 mod review;
 mod root;
 mod security;

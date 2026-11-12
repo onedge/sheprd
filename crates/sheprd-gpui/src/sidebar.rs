@@ -9,6 +9,7 @@ mod animated;
 mod cell;
 mod device_drag;
 mod host_row;
+pub(crate) mod hosted;
 mod hover;
 mod layout;
 mod layouts;
@@ -24,6 +25,7 @@ pub(crate) mod slide;
 mod sticky;
 mod tag_groups;
 mod tokens;
+mod update_pill;
 mod view;
 mod wash;
 mod workspaces;
@@ -38,7 +40,7 @@ pub(crate) mod layout_tests;
 pub(crate) mod native_tests;
 
 pub(crate) use {
-    activity::{Activity, ActivityPanel, BUTTON as BAR_BUTTON, ICON as BAR_ICON},
+    activity::{Activity, ActivityPanel, BAR_WIDTH, BUTTON as BAR_BUTTON, ICON as BAR_ICON},
     agents::{Indicators, agent_name, pane_name, state_label, status_indicator, status_text},
     device_drag::DeviceDrag,
     hover::{HoverMenu, HoverRest},
@@ -61,6 +63,7 @@ pub(crate) use metrics::LABEL_WIDTH;
 pub(crate) use view::cached as cached_view;
 
 use agents::agents_sort;
+pub(crate) use agents::listed::{CoreAgent, CoreAgents, Listed, Target as AgentTarget};
 pub(crate) use agents::status_priority;
 use metrics::*;
 use row::{RowBadge, first_text};

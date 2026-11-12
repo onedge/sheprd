@@ -28,7 +28,7 @@ fn journal_until(path: &Path, reports: Vec<Report>) {
 /// The next launch: a fresh journal from the same file, restored.
 fn restart(path: &Path) -> (Journal, Option<FanOut>) {
     let journal = Journal::at(Some(path.to_owned()));
-    let restored = FanOut::reclaim(&journal, |_| Some(origin().host));
+    let restored = FanOut::reclaim(&journal, |_, _| Some(origin().host));
     (journal, restored)
 }
 
@@ -40,7 +40,7 @@ fn lane(progress: Progress) -> Report {
 fn steps(through: usize) -> Vec<Report> {
     let all = vec![
         lane(Progress::CreatingWorktree),
-        lane(Progress::Created(checkout(0))),
+        lane(Progress::Created(Box::new(checkout(0)))),
         lane(Progress::StartingAgent),
         lane(Progress::Prompting),
         lane(Progress::Running),
@@ -104,7 +104,7 @@ fn interrupted_after_creating_the_worktree_offers_to_start_the_agent() {
     assert_eq!(lane.state, LaneState::Interrupted(Checkpoint::Created));
     assert_eq!(lane.checkout, Some(checkout(0)));
     assert_eq!(fan_out.resumable(0), Some(Resume::Start));
-    assert_eq!(fan_out.doomed(1), vec![(0, "w0".to_owned())]);
+    assert_eq!(fan_out.doomed(1), vec![(0, checkout(0).worktree)]);
 }
 
 #[test]
@@ -118,12 +118,12 @@ fn interrupted_starting_the_agent_only_offers_the_prompt() {
 }
 
 #[test]
-fn interrupted_sending_the_prompt_waits_for_the_user_to_resend_it() {
+fn interrupted_sending_the_prompt_does_not_offer_a_duplicate_submission() {
     let fan_out = interrupted_after(4);
     let lane = &fan_out.lanes[0];
     assert_eq!(lane.state, LaneState::Interrupted(Checkpoint::Prompting));
     assert!(lane.state.label().contains("may not have arrived"));
-    assert_eq!(fan_out.resumable(0), Some(Resume::Prompt));
+    assert_eq!(fan_out.resumable(0), None);
     assert_eq!(fan_out.interrupted(), 2);
 }
 
@@ -142,7 +142,7 @@ fn a_restored_fan_out_is_shown_by_one_window_only() {
     journal_until(&path, steps(2));
     let (journal, restored) = restart(&path);
     assert!(restored.is_some());
-    assert!(FanOut::reclaim(&journal, |_| Some(origin().host)).is_none());
+    assert!(FanOut::reclaim(&journal, |_, _| Some(origin().host)).is_none());
 }
 
 #[test]
@@ -151,9 +151,9 @@ fn a_fan_out_on_an_unknown_host_waits_for_a_window_that_knows_it() {
     let path = dir.path().join("fan-outs.json");
     journal_until(&path, steps(2));
     let journal = Journal::at(Some(path));
-    assert!(FanOut::reclaim(&journal, |_| None).is_none());
+    assert!(FanOut::reclaim(&journal, |_, _| None).is_none());
     assert_eq!(journal.records().len(), 1, "kept for another window");
-    assert!(FanOut::reclaim(&journal, |_| Some(origin().host)).is_some());
+    assert!(FanOut::reclaim(&journal, |_, _| Some(origin().host)).is_some());
 }
 
 #[test]
@@ -164,7 +164,7 @@ fn a_lane_on_a_host_no_longer_set_up_says_where_its_worktree_stays() {
     let journal = Journal::at(Some(path));
     let mut record = journal.claim(|_| true).unwrap();
     record.lanes[0].checkout.as_mut().unwrap().endpoint_id = "gone".into();
-    let host = |endpoint: &str| (endpoint == "local").then(|| origin().host);
+    let host = |endpoint: &str, _| (endpoint == "local").then(|| origin().host);
     let fan_out = FanOut::restore(record, journal, host).unwrap();
     assert!(
         matches!(&fan_out.lanes[0].state, LaneState::Failed(text) if text.contains("/tmp/lane-0"))
@@ -179,8 +179,8 @@ fn an_unkept_prompt_cannot_be_resent() {
     let lanes = plan::lanes(&launched().picks, 7);
     let mut record = Record::new(ID, &origin(), "go", &lanes);
     record.prompt = None;
-    record.advance(&Report::Lane(0, Progress::Created(checkout(0))));
-    let fan_out = FanOut::restore(record, journal, |_| Some(origin().host)).unwrap();
+    record.advance(&Report::Lane(0, Progress::Created(Box::new(checkout(0)))));
+    let fan_out = FanOut::restore(record, journal, |_, _| Some(origin().host)).unwrap();
     assert_eq!(fan_out.resumable(0), None);
     assert!(fan_out.error.as_deref().unwrap().contains("too long"));
 }
@@ -202,9 +202,9 @@ fn forgetting_leaves_the_worktrees_and_drops_the_record() {
     let journal = Journal::default();
     let lanes = plan::lanes(&launched().picks, 7);
     let mut record = Record::new(ID, &origin(), "go", &lanes);
-    record.advance(&Report::Lane(0, Progress::Created(checkout(0))));
+    record.advance(&Report::Lane(0, Progress::Created(Box::new(checkout(0)))));
     let _ = journal.begin(record.clone());
-    let mut fan_out = FanOut::restore(record, journal.clone(), |_| Some(origin().host)).unwrap();
+    let mut fan_out = FanOut::restore(record, journal.clone(), |_, _| Some(origin().host)).unwrap();
     assert!(fan_out.forget());
     assert!(journal.records().is_empty());
     assert_eq!(fan_out.poll(), (false, None), "nothing was removed");
@@ -248,7 +248,7 @@ fn a_failed_resume_is_offered_again_without_a_second_agent() {
     assert_eq!(fan_out.resumable(0), Some(Resume::Prompt));
     let mut fan_out = interrupted_after(4);
     fan_out.lanes[0].state = LaneState::Failed("connection lost".into());
-    assert_eq!(fan_out.resumable(0), Some(Resume::Prompt));
+    assert_eq!(fan_out.resumable(0), None);
 }
 
 #[test]
@@ -256,11 +256,11 @@ fn keeping_a_lane_keeps_the_record_of_a_worktree_no_host_can_remove() {
     let journal = Journal::default();
     let lanes = plan::lanes(&launched().picks, 7)[..2].to_vec();
     let mut record = Record::new(ID, &origin(), "go", &lanes);
-    record.advance(&Report::Lane(0, Progress::Created(checkout(0))));
-    record.advance(&Report::Lane(1, Progress::Created(checkout(1))));
+    record.advance(&Report::Lane(0, Progress::Created(Box::new(checkout(0)))));
+    record.advance(&Report::Lane(1, Progress::Created(Box::new(checkout(1)))));
     record.lanes[0].checkout.as_mut().unwrap().endpoint_id = "gone".into();
     let _ = journal.begin(record.clone());
-    let host = |endpoint: &str| (endpoint == "local").then(|| origin().host);
+    let host = |endpoint: &str, _| (endpoint == "local").then(|| origin().host);
     let mut fan_out = FanOut::restore(record, journal.clone(), host).unwrap();
     assert!(fan_out.doomed(1).is_empty(), "lane 0 cannot be scripted");
     fan_out.stage = Stage::Confirm(1);
@@ -272,7 +272,13 @@ fn keeping_a_lane_keeps_the_record_of_a_worktree_no_host_can_remove() {
     send(&fan_out, event);
     assert_eq!(
         fan_out.poll(),
-        (true, Some(("local".to_owned(), "w1".to_owned())))
+        (
+            true,
+            Some(Kept::Herdr1 {
+                endpoint: "local".to_owned(),
+                workspace: "w1".to_owned()
+            })
+        )
     );
     let records = journal.records();
     assert_eq!(records.len(), 1, "the unreachable worktree is remembered");
@@ -288,9 +294,9 @@ fn keeping_a_lane_once_every_other_is_removed_forgets_the_fan_out() {
     let journal = Journal::default();
     let lanes = plan::lanes(&launched().picks, 7)[..1].to_vec();
     let mut record = Record::new(ID, &origin(), "go", &lanes);
-    record.advance(&Report::Lane(0, Progress::Created(checkout(0))));
+    record.advance(&Report::Lane(0, Progress::Created(Box::new(checkout(0)))));
     let _ = journal.begin(record.clone());
-    let mut fan_out = FanOut::restore(record, journal.clone(), |_| Some(origin().host)).unwrap();
+    let mut fan_out = FanOut::restore(record, journal.clone(), |_, _| Some(origin().host)).unwrap();
     fan_out.stage = Stage::Confirm(0);
     assert!(fan_out.keep(0));
     let event = fan_out
@@ -300,7 +306,10 @@ fn keeping_a_lane_once_every_other_is_removed_forgets_the_fan_out() {
     send(&fan_out, event);
     assert_eq!(
         fan_out.poll().1,
-        Some(("local".to_owned(), "w0".to_owned()))
+        Some(Kept::Herdr1 {
+            endpoint: "local".to_owned(),
+            workspace: "w0".to_owned()
+        })
     );
     assert!(journal.records().is_empty());
 }
@@ -314,7 +323,7 @@ fn a_step_that_cannot_be_saved_stops_its_lane_before_its_script() {
     std::fs::write(&blocker, b"").unwrap();
     let lanes = plan::lanes(&launched().picks, 7)[..1].to_vec();
     let mut record = Record::new(ID, &origin(), "go", &lanes);
-    record.advance(&Report::Lane(0, Progress::Created(checkout(0))));
+    record.advance(&Report::Lane(0, Progress::Created(Box::new(checkout(0)))));
     assert!(journal.begin(record).unwrap().unwrap().write().is_err());
     let (sender, events) = mpsc::channel();
     let fan_out_journal = journal.clone();
@@ -354,12 +363,12 @@ fn another_daemon_behind_the_same_endpoint_is_never_scripted() {
     })
     .unwrap();
     assert_ne!(other.identity(), origin().host.identity());
-    assert!(FanOut::reclaim(&journal, |_| Some(other.clone())).is_none());
+    assert!(FanOut::reclaim(&journal, |_, _| Some(other.clone())).is_none());
     assert_eq!(journal.records().len(), 1, "kept for its own daemon");
     // The origin matches but the lane's checkout was made elsewhere.
     let mut record = journal.claim(|_| true).unwrap();
     record.lanes[0].checkout.as_mut().unwrap().host = other.identity();
-    let fan_out = FanOut::restore(record, journal, |_| Some(origin().host)).unwrap();
+    let fan_out = FanOut::restore(record, journal, |_, _| Some(origin().host)).unwrap();
     assert!(matches!(&fan_out.lanes[0].state, LaneState::Failed(_)));
     assert_eq!(fan_out.lanes[0].checkout, None);
     assert!(fan_out.doomed(1).is_empty(), "nothing is removed there");

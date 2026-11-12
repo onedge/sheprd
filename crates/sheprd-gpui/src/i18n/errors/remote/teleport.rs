@@ -29,6 +29,18 @@ fn step(step: Step) -> &'static str {
 impl Localize for Error {
     fn localize(&self) -> String {
         match self {
+            Self::Arrival(error) => {
+                use sheprd_remote::teleport::arrival::Error;
+                let reason = match error {
+                    Error::Full => "full",
+                    Error::Io(_) => "io",
+                    Error::Json(_) => "json",
+                    Error::TooLarge => "size",
+                    Error::Unavailable => "unavailable",
+                    Error::Version => "version",
+                };
+                fl!("error-teleport-session-arrival", reason = reason)
+            }
             Self::Script { step: at, source } => fl!(
                 "error-remote-teleport-script",
                 step = step(*at),
@@ -54,6 +66,9 @@ impl Localize for Error {
                     path = path.as_str()
                 )
             }
+            Self::CoreMissing { host } => {
+                fl!("error-remote-teleport-core-missing", host = host.as_str())
+            }
             Self::DestinationDirectoryMissing { path } => fl!(
                 "error-remote-teleport-destination-directory-missing",
                 path = path.as_str()
@@ -62,6 +77,9 @@ impl Localize for Error {
                 fl!("error-remote-teleport-outside-home", path = path.as_str())
             }
             Self::SessionAgentWorking => fl!("error-remote-teleport-session-agent-working"),
+            Self::SessionConfiguration { agent } => {
+                fl!("error-teleport-session-configuration", agent = *agent)
+            }
             Self::SessionCwdUnavailable => fl!("error-remote-teleport-session-cwd-unavailable"),
             Self::SessionNotStarted { agent, host } => fl!(
                 "error-remote-teleport-session-not-started",
@@ -74,6 +92,11 @@ impl Localize for Error {
                 host = host.as_str()
             ),
             Self::SessionRequired => fl!("error-remote-teleport-session-required"),
+            Self::SessionResumeUnconfirmed { agent, host } => fl!(
+                "error-teleport-session-resume-unconfirmed",
+                agent = *agent,
+                host = host.as_str()
+            ),
             Self::SessionWorkspaceLeftBehind {
                 workspace_id,
                 cause,
@@ -83,6 +106,11 @@ impl Localize for Error {
                 workspace = workspace_id.as_str()
             ),
             Self::SourceSessionChanged => fl!("error-remote-teleport-source-session-changed"),
+            Self::TabTooLarge { panes, most } => fl!(
+                "error-remote-teleport-tab-too-large",
+                panes = *panes,
+                most = *most
+            ),
             Self::WorkerStopped => fl!("error-remote-teleport-worker-stopped"),
             Self::SpaceGone { host } => {
                 fl!("error-remote-teleport-space-gone", host = host.as_str())
@@ -122,6 +150,7 @@ impl Localize for Error {
             }
             Self::LocalFile(_) => fl!("error-remote-teleport-local-file"),
             Self::InvalidToken => fl!("error-remote-teleport-invalid-token"),
+            Self::Work(error) => error.localize(),
             Self::Cancelled => fl!("error-remote-teleport-cancelled"),
         }
     }

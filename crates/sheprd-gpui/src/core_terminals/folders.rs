@@ -45,24 +45,25 @@ impl CoreTerminals {
         self.tabs.get(&tab)?.workspace.as_ref()
     }
 
-    /// Each terminal of this computer's core the window shows and the
-    /// workspace it is in, by address, for what names a terminal but not
-    /// its workspace: the terminals of its tabs, and the shell shown in
-    /// place of Herdr 1, in the workspace that stands in for Herdr's. A
-    /// saved host's terminals run elsewhere, and their addresses mean
-    /// nothing here.
+    /// Each terminal the window shows, by its core and its address there,
+    /// and the workspace it is in, for what names a terminal but not its
+    /// workspace: the terminals of its tabs, and the shell shown in place of
+    /// Herdr 1, in the workspace that stands in for Herdr's. A saved host's
+    /// terminals are named with that host, as the same address there is
+    /// another terminal than here.
     ///
     /// Each workspace is named with the daemon whose tabs hold it, and the
     /// shell's with `fallback`, the daemon of the host the window shows.
     pub(crate) fn terminal_workspaces(
         &self,
         fallback: Option<Scope>,
-    ) -> Vec<(String, crate::listening_ports::Place)> {
+    ) -> Vec<(super::Host, String, crate::listening_ports::Place)> {
         let fallback = self
             .fallback_terminal()
             .zip(fallback)
             .map(|(terminal, scope)| {
                 (
+                    super::Host::Local,
                     terminal.as_str().to_owned(),
                     (scope, super::WORKSPACE.to_owned()),
                 )
@@ -73,7 +74,6 @@ impl CoreTerminals {
         let mut tabs: Vec<_> = self
             .tabs
             .iter()
-            .filter(|(_, shown)| shown.host == super::Host::Local)
             .filter_map(|(id, shown)| Some((shown.observe, *id, shown, shown.workspace.as_ref()?)))
             .collect();
         tabs.sort_unstable_by_key(|(observe, id, ..)| (*observe, *id));
@@ -84,7 +84,11 @@ impl CoreTerminals {
                 places.push(shell);
             }
             for terminal in shown.panes.terminals() {
-                places.push((terminal.as_str().to_owned(), place.clone()));
+                places.push((
+                    shown.host.clone(),
+                    terminal.as_str().to_owned(),
+                    place.clone(),
+                ));
             }
         }
         places.extend(fallback);
@@ -112,16 +116,31 @@ impl SheprdWindow {
     /// last tick, once Git named its branch. `None` when no herdr-core tab
     /// is shown, or its pane is in no checkout or on a detached head.
     pub(crate) fn core_git_input(&self) -> Option<crate::pull_request::Input> {
+        let (tab, _) = self.core_terminals.shown.as_ref()?;
+        let host = self.core_terminals.host_of(*tab);
+        if host
+            != super::Host::of(&crate::browser::scope(
+                &self.endpoints[self.selected_endpoint],
+            ))
+        {
+            return None;
+        }
         let checkout = self.shown_core_folder()?;
-        let branch = self
-            .core_terminals
-            .checkouts
-            .get(&checkout)?
-            .branch
-            .clone()?;
+        let checkouts = match &host {
+            super::Host::Local => &self.core_terminals.checkouts,
+            super::Host::Remote(scope) => {
+                let remote = self.core_terminals.remote.get(scope)?;
+                if remote.target != self.endpoints[self.selected_endpoint].connection.target {
+                    return None;
+                }
+                &remote.checkouts
+            }
+        };
+        let identity = checkouts.get(&checkout)?;
+        let branch = identity.branch.clone()?;
         Some(crate::pull_request::Input {
             checkout: Some(checkout),
-            repo_key: None,
+            repo_key: (host != super::Host::Local).then(|| identity.key.clone()),
             branch,
         })
     }
@@ -130,7 +149,10 @@ impl SheprdWindow {
     /// last tick.
     pub(super) fn shown_core_folder(&self) -> Option<String> {
         let (tab, terminal) = self.core_terminals.shown.as_ref()?;
-        self.core_folder(*tab, terminal)?
+        self.core_terminals
+            .info(*tab, terminal)?
+            .cwd
+            .clone()?
             .into_os_string()
             .into_string()
             .ok()

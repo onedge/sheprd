@@ -11,10 +11,31 @@ Commands reach the app over a socket of its own,
 `$XDG_STATE_HOME/herdr/gpui/control.sock` (default `~/.local/state/`), which
 only your user can open; on Windows, over a named pipe (see
 [Windows](#windows)). An agent on an SSH host has no path to it; there,
-the app's shim at `~/.local/state/herdr/gpui/bin/sheprd` offers
+the app's managed shim at `~/.local/state/herdr/gpui/bin/herdr-gpui` offers
 `browser open` and `browser reload` through Herdr workspace metadata (see
 [remote agents](../crates/sheprd-gpui/README.md#letting-agents-open-pages)),
-and every other command exits 8. A few commands work from files alone and
+and every other command exits 8 for Herdr 1 callers. Remote Herdr 2 callers
+use terminal labels over the existing core bridge for `browser open`,
+`browser reload`, and `browser feedback [--wait SECONDS]` (also `feedback`).
+Feedback requires Python 3 on the remote host, waits up to 600 seconds, and
+returns exit 4 when there are no notes. The window must remain connected and
+hold a driving tab for the caller. Host-qualified terminal identity isolates
+same-named terminals on different machines; requests cannot select another
+pane. At most eight feedback calls are pending. Replies are bounded by the
+normal notes budget and acknowledged after printing; cancellation, timeout,
+or disconnect returns unacknowledged notes to the queue. A lost acknowledgement
+can cause a duplicate on retry. Existing labels at first connection and requests
+on unshown terminals remain intentionally non-replayable. No browser server is
+started remotely. Cloud and WSL use the same core reply route; cloud loopback
+URLs still need a separately reachable address, while SSH uses the existing
+port forward and WSL uses localhost integration.
+Annotation screenshots are transferred to that caller's host before delivery,
+with caller/connection revalidation and cleanup of unaccepted uploads. A failed
+or unsupported transfer warns in the app and returns text without local paths.
+SSH/cloud screenshot transfer requires a Linux/macOS desktop; WSL mapping is
+supported by the Windows desktop.
+
+A few commands work from files alone and
 need no running app; they say so below.
 
 On Windows, `sheprd.exe` is a console program, so a shell waits for it and
@@ -42,9 +63,14 @@ Every command accepts:
   to it as they would to a Herdr pane. When no window shows it, as for a
   session the app does not show, the command exits 5 rather than act on
   another session's window. Outside both, it acts in the frontmost window.
-  Commands that keep Herdr's workspace state (`work` notes, mutes, restore,
-  scripts, Teleport, fan-out) exit 8 from a herdr-core terminal in no Herdr
-  workspace.
+  From a herdr-core terminal in a workspace Sheprd keeps for Herdr 2, `work`
+  notes, mutes, scripts, fan-out, `checkpoint restore`, and `host pr` target
+  that workspace without requiring a Herdr 1 snapshot. Scripts and fan-out
+  use the same host capabilities and trust/confirmation flow as its menu;
+  dialogs refuse a caller on a host the window is not currently showing.
+  A terminal in no workspace the window keeps cannot use these workspace commands.
+  Teleport works from a workspace the app keeps for Herdr 2 on this
+  computer, as its menu does.
 
 | Exit | Meaning |
 | --- | --- |
@@ -114,6 +140,8 @@ Sheprd** entry, which both Windows installers add, runs this command through
 | `code edit FILE[:LINE]` | Your terminal editor, in a new pane beside yours |
 | `devices` | The Devices overview |
 | `orchestrator [--repo PATH]` | Show the Issues section narrowed to your checkout's project, or PATH's |
+| `orchestrator restart RUN [--repo PATH]` | Open the user's confirmation to restart a loaded, owned Herdr 2 run in this project with its saved prompt/model and existing checkout; requires the running app |
+| `orchestrator adopt RUN [--repo PATH]` | Read the current process of a loaded legacy run and prepare the user's adoption confirmation; grants no authority until confirmed and revalidated |
 | `orchestrator items\|issues\|prs\|tasks` | What it last synced, from its local database (no app needed); `tasks` is the repository's Beads tasks, with each one's assignee, priority, and blockers in `--json` |
 | `review` | The review of your workspace's uncommitted changes |
 | `px0 [open]` | Open or focus px0 on your local workspace's checkout (macOS and Windows) |
@@ -132,17 +160,20 @@ and builds without embedded pages return exit 8. See [px0](../crates/sheprd-gpui
 | `notes [list]` | Every worktree note |
 | `notes get\|clear`, `notes set TEXT` | The note on your checkout (its repository and branch) |
 | `worktree [status]`, `worktree mute\|unmute` | Whether your worktree's notifications are muted; silence them or let them through again |
+| `worktree list` | List app-kept Git workspaces on the caller's host, with host, workspace, path, branch and linked-checkout status; unopened Git checkouts are in the Existing picker |
+| `worktree create [BRANCH]`, `worktree open`, `worktree delete` | Open the caller's Herdr 2 new-worktree, existing-checkout, or deletion dialog; the user confirms in the app. Host identity follows the caller, including SSH, cloud and WSL devices |
 | `feedback [--wait S]` | Notes the user sent your pane from pages, reviews, or terminals |
 | `checkpoint [list]` | Checkpoints of the current directory's checkout, newest first (no app needed) |
 | `checkpoint create [LABEL]` | Take one now (no app needed) |
 | `checkpoint diff A [B]` | What changed between two, or since one (no app needed) |
 | `checkpoint restore [ID]` | Open the checkpoints dialog; you confirm there |
 | `scripts [list]` | The repository's `.herdr/worktree.toml` scripts (no app needed) |
-| `scripts setup\|run` | Run one in a new tab; an unseen script still asks first. Archive removes the worktree, so it stays behind the app's delete dialog |
+| `scripts setup\|run` | Run one in a new tab; an unseen script still asks first. Setup first copies the ignored files `.worktreeinclude` names from the main checkout. Archive removes the worktree, so it stays behind the app's delete dialog |
 | `teleport --to HOST` | Open the teleport dialog for your linked worktree, reviewing HOST; you confirm there |
 | `fan-out PROMPT [--agent KIND[:N]]...` | Open the fan-out dialog prefilled; you start it there |
 | `chat [status]` | The `sheprd-acp` chat panes of the window's host, this machine or an SSH host: agent, status, model, context window use, and whether the chat view or the terminal shows |
-| `chat convert [--pane ID]` | Move the terminal agent in your pane (or ID, else the focused one) into a `sheprd-acp` chat in the same pane, keeping its conversation (see [Moving a terminal agent into a chat](rich-chat.md#moving-a-terminal-agent-into-a-chat)). Returns once the move has started; `chat` shows the chat when it attaches. Exits 6 while the agent works, 5 when the pane has no terminal agent, and 8 for an agent or pane that cannot move |
+| `chat convert [--pane ID]` | Move the terminal agent in your pane (or ID, else the focused one) into a `sheprd-acp` chat in the same pane, keeping its conversation. From a Herdr 2 pane, your pane is your terminal (`HC_TERMINAL_ID`), whose id in `chat` is `core:` and the terminal's (see [Moving a terminal agent into a chat](rich-chat.md#moving-a-terminal-agent-into-a-chat)). Returns once the move has started; `chat` shows the chat when it attaches. Exits 6 while the agent works, 5 when the pane has no terminal agent, and 8 for an agent or pane that cannot move |
+| `chat shortcuts` | Your text shortcuts, the prompts every chat's composer offers (type `/`, or use the shortcuts button beside +), in order: each label and its text. `--json` adds each one's `id` and `title`, the list's `updated_ms`, and `complete`, false when the list holds more text than one answer carries. The list is the same on this computer, every connected SSH host with `sheprd-remote-control`, and the phones paired with them; Settings > Text Shortcuts edits it. Exits 4 when there are none |
 | `chat show\|hide\|toggle [--pane ID]` | Show the native chat view over your pane (or ID, else the focused one), or its terminal |
 | `chat new AGENT [--pane ID]` | Open a tab running a `sheprd-acp` chat with a built-in agent (`claude`, `codex`, `copilot`, `gemini`, `opencode`, `pi`) in the workspace and folder of your pane (or ID). On an SSH host the tab runs that host's `sheprd-acp` (see [Chats on SSH hosts](#chats-on-ssh-hosts)). With no Herdr pane to go by, as when called from a Herdr 2 pane, a Herdr 2 tab in the active group splits its pane in use with the chat instead (see [Chats in Herdr 2 panes](rich-chat.md#chats-in-herdr-2-panes)); its pane id in `chat` is `core:` and the terminal's. Exits 8 when `sheprd-acp` is missing here, the host cannot be reached, or the agent is not installed on it (`sheprd-acp agents` lists those that are) |
 
@@ -162,9 +193,10 @@ not take it either.
 
 | Command | What it does |
 | --- | --- |
-| `host [list]`, `host select ID` | The window's hosts, with their tags; show another one |
+| `host [list]`, `host select ID` | The window's hosts, with their tags and, for an SSH or cloud host whose own Sheprd offers a newer release, that release (`update` in `--json`); show another one |
 | `host mute\|unmute [HOST]` | Silence a host's notifications as a whole, or let them through again, by ID or label; absent, your host. Works while it is offline |
 | `host tag ID [TAG...]` | Replace the tags that group a host in the sidebar and on paired phones; with no tags, clear them. Each computer's daemon keeps its own tags, so a host away gets the edit once it is back |
+| `host update [HOST]` | Ask in the app to update the Sheprd app running on an SSH or cloud host, by ID or label (default: your workspace's host), as its header's Update pill does; the user confirms there (see [Updating Sheprd on other machines](#updating-sheprd-on-other-machines)). Exits 4 with the reason when it offers no newer release, 5 when no connected host has that name, 6 while a dialog is open, 8 for this computer, which `update` covers |
 | `pr [status]\|checks\|comments\|open` | Your branch's pull request, on the window's selected host. `comments` needs your workspace focused |
 | `pr quota` | Last reported GraphQL points used, limit, and remaining, plus rate-limit retry delays for the window's GitHub accounts. `--json` returns records merged by login: known observations are preferred, then the latest reset window and greatest usage within it; retry delays retain the longest pause. Usage is never summed across credentials. Unavailable quotas are `null`. No network request is made. |
 | `ports [list]` | Ports your workspace listens on, and forwards |
@@ -197,6 +229,8 @@ not take it either.
 | `config [path]` | The settings files (no app needed) |
 | `config get\|set\|unset KEY [VALUE]` | Read or change `config-gpui.local.toml`, keeping its comments. A value that would not load, or an unknown key, is refused and nothing is written; the app applies the rest at once (no app needed) |
 | `config check` | Report invalid settings, exit 1 if any |
+| `config get\|set\|unset link_handlers [ARRAY]` | Read or configure explicit [Herdr 2 link-handler adapters](link-handlers.md); execution still requires a terminal link click |
+| `config get\|set\|unset link_plugins [ARRAY]` | Opt in to installed plugin directories on exact hosts; read only link actions with manifest platform filtering, never startup/build/event hooks |
 | `config reload` | Reread Herdr's config and this app's |
 | `theme [list]`, `theme set NAME` | The app theme. A device's terminal theme is `config set devices.ID.theme NAME`, with the ID from `host list` minus its `ssh:` prefix |
 | `font [list]`, `font set NAME`, `font reset` | |
@@ -204,7 +238,8 @@ not take it either.
 | `keybinds [list]`, `keybinds check` | Shortcuts; custom Herdr commands this client cannot reach |
 | `caffeine [status]`, `caffeine on\|off\|toggle [--for 30m]` | Keep the machine awake |
 | `sound [list]`, `sound play [done\|request]`, `bell` | Sounds play at `sound.volume` percent (`config set sound.volume 30`) |
-| `update [status]`, `update check` | Never downloads or installs |
+| `update [status]`, `update check` | Never downloads or installs. `--json` adds the running app's `current` version |
+| `update install [--confirmed]` | Open the app's update dialog; the user installs there. `--confirmed` is how another Sheprd that reaches this machine over SSH hands over an update its user approved there: the app downloads, verifies, installs, and restarts as for a paired phone. It is refused from this app's own panes and terminals |
 | `integrations [list]` | What Herdr offers the selected host |
 | `integrations install-skill` | Install the agent skill (no app needed) |
 | `logs [--lines N] [--path]` | The app's log (no app needed) |
@@ -325,6 +360,14 @@ While it is off, `remote status` says so and exits 0; `pair`, `devices`,
 for `status`, where `status` is the daemon's own report, and
 `{"devices": [...]}` for `devices`.
 
+Standalone phone PR/check/log reads are opt-in per computer. After signing in
+with `gh auth login` on that host, set `[remote] github_cli = true` and restart
+its remote-control service. The foreground daemon accepts
+`sheprd-remote-control serve --state-dir DIR --github-cli`. This permits paired
+phones to read the listed workspaces using that host's GitHub CLI credential;
+pairing never copies the desktop's credential. See the
+[scope, cache and access policy](../crates/sheprd-remote-control/README.md#workspace-pull-requests-and-titles).
+
 ```sh
 sheprd remote status --json
 sheprd remote revoke d_6f1c
@@ -369,6 +412,40 @@ sheprd wait tab-closed 12 --timeout 600
 sheprd wait window            # also waits for the app to start
 ```
 
+## Updating Sheprd on other machines
+
+When a machine you reach over SSH (or a cloud device) runs its own Sheprd app,
+this app reads that app's update state every 30 minutes by running
+`sheprd update status --json` there, through the same connection the
+Automations section uses. It looks for `sheprd` or `herdr-gpui` on the
+machine's `PATH` (Homebrew's, `~/.local/bin`, packages), then in
+`/Applications/Sheprd.app` and `~/Applications/Sheprd.app`. A machine without
+Sheprd is looked at again every six hours, and one whose app is not running
+shows nothing.
+
+When that app offers a newer release, the host's sidebar header shows an
+**Update** pill. Clicking it, or `sheprd host update HOST`, opens a
+confirmation naming the machine and both versions. `HOST` accepts any enabled
+saved profile's ID or label from `host list`; profiles for different sessions on
+the same SSH machine share its update state. Confirming runs
+`sheprd update install --confirmed --json` there. The remote app's own
+updater then downloads the release, checks it against the key that build
+embeds, installs it, and restarts, as it does for a paired phone. Its
+daemons, terminals, and agents keep running. The pill shows **Updating…**
+until the machine reports the new version, and **Update failed**, with the
+reason and a retry, if it reports an error or takes longer than 20
+minutes. Temporary terminal disconnects preserve the confirmed update and its
+deadline; removing or disabling the machine stops tracking it. If a later read
+shows the new running version, an earlier failure clears automatically. A machine
+whose Sheprd predates `update install` says so; update it there once.
+
+The remote app refuses `--confirmed` from callers that report a Herdr pane
+or terminal, so an agent there cannot pass for the user. That identity is
+whatever the caller reports, so it is a guard, not a security boundary.
+Anything that can run commands as that user on the machine could start the
+update anyway, but only a release signed by the app's update key is ever
+installed.
+
 ## What stays in the app
 
 Commands never bypass a confirmation. Restoring a checkpoint, teleporting a
@@ -382,7 +459,9 @@ confirms there.
 work, run on a machine the user saved. Launching the app or requesting a new
 terminal can start the appropriate local daemon: installed Herdr 1, or a
 user-installed/bundled herdr-core. Existing Herdr 1 sessions are not migrated,
-and no command upgrades a personal daemon. `update` never installs the app;
+and no command upgrades a personal daemon. `update` never installs the app
+without the user: `update install` opens its dialog, and `--confirmed` comes
+only from another Sheprd whose user approved it in that app's dialog;
 `cloud create` installs Herdr only on the machines the user confirmed, as
 creating them in Settings does.
 
@@ -460,7 +539,7 @@ is off, chat panes show their terminal and `chat new` exits 8.
 
 Set the reading width with `sheprd config set chat.max_width 1200`, or use
 `0` for the full available width. Bounded widths range from 320 to 4000 logical
-pixels; the default is 800. Settings > General offers the same width slider and
+pixels; the default is 800. Settings > Chat offers the same width slider and
 **Full-width chat** switch.
 
 A chat on an SSH host shows in the native chat view like a local one. Sheprd
@@ -480,6 +559,20 @@ download first is left out.
 
 Files dropped on a remote chat are copied to the host first, into private
 temporary files under its `${TMPDIR:-/tmp}`, and the copies are attached.
+
+Herdr 2 chats also use saved cloud connectors and, on Windows, the selected
+WSL distribution. ACP installed for phone pairing by this release is reused
+before searching user bins, app bundles and PATH. An empty app-kept workspace
+opens a new core chat tab rather than falling back to Herdr 1.
+
+`chat status --json` returns opaque pane keys. Local core keys remain
+`core:TERMINAL`; remote core keys include their host scope. Pass the returned
+key unchanged to `chat new --pane`, `chat convert --pane`, or
+`chat show|hide|toggle --pane`. An explicit unknown core key is refused rather
+than targeting a Herdr 1 pane. `chat new --pane` splits the named core pane,
+even when another pane in that tab is active. See
+[remote core chat acceptance](remote-core-chats.md) for platform prerequisites
+and pending runtime checks.
 
 ### Existing agent rendering
 

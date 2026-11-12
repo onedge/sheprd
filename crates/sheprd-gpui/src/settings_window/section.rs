@@ -13,9 +13,11 @@ pub(super) enum Section {
     Indicators,
     Fonts,
     StatusBar,
+    Chat,
     Tabs,
     Code,
     Notifications,
+    TextShortcuts,
     Integrations,
     Plugins,
     #[cfg(feature = "cloud")]
@@ -76,9 +78,11 @@ impl Section {
         Self::Indicators,
         Self::Fonts,
         Self::StatusBar,
+        Self::Chat,
         Self::Tabs,
         Self::Code,
         Self::Notifications,
+        Self::TextShortcuts,
         Self::Integrations,
         Self::Plugins,
         #[cfg(feature = "cloud")]
@@ -101,8 +105,10 @@ impl Section {
             Self::StatusBar => "settings-section-status-bar",
             Self::General => "settings-section-general",
             Self::Tabs => "settings-section-tabs-and-panes",
+            Self::Chat => "settings-section-chat",
             Self::Code => "settings-section-code",
             Self::Notifications => "settings-section-notifications",
+            Self::TextShortcuts => "settings-text-shortcuts-section",
             Self::Integrations => "settings-section-integrations",
             Self::Plugins => "settings-section-plugins",
             #[cfg(feature = "cloud")]
@@ -119,9 +125,11 @@ impl Section {
             Self::Indicators => "settings-lead-indicators",
             Self::Fonts => "settings-lead-fonts",
             Self::StatusBar => "settings-lead-status-bar",
+            Self::Chat => "settings-lead-chat",
             Self::Code => "settings-lead-code",
             Self::Integrations => "settings-lead-integrations",
             Self::Plugins => "settings-lead-plugins",
+            Self::TextShortcuts => "settings-text-shortcuts-lead",
             #[cfg(feature = "cloud")]
             Self::CloudDevices => "settings-lead-cloud-devices",
             Self::RemoteControl => "settings-lead-remote-control",
@@ -136,10 +144,15 @@ impl Section {
     pub(super) fn group(self) -> Option<Group> {
         match self {
             Self::General => None,
-            Self::Theme | Self::Sidebar | Self::Indicators | Self::Fonts | Self::StatusBar => {
-                Some(Group::Appearance)
+            Self::Theme
+            | Self::Sidebar
+            | Self::Indicators
+            | Self::Fonts
+            | Self::StatusBar
+            | Self::Chat => Some(Group::Appearance),
+            Self::Tabs | Self::Code | Self::Notifications | Self::TextShortcuts => {
+                Some(Group::Behaviour)
             }
-            Self::Tabs | Self::Code | Self::Notifications => Some(Group::Behaviour),
             Self::Integrations | Self::Plugins => Some(Group::Connect),
             #[cfg(feature = "cloud")]
             Self::CloudDevices => Some(Group::Connect),
@@ -157,8 +170,10 @@ impl Section {
             Self::StatusBar => "icons/status-bar.svg",
             Self::General => "icons/settings.svg",
             Self::Tabs => "icons/tabs.svg",
+            Self::Chat => "icons/chat.svg",
             Self::Code => "icons/vscode.svg",
             Self::Notifications => "icons/bell.svg",
+            Self::TextShortcuts => "icons/note.svg",
             Self::Integrations => "icons/agent-generic.svg",
             Self::Plugins => "icons/plug.svg",
             #[cfg(feature = "cloud")]

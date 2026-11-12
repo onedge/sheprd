@@ -4,7 +4,9 @@ use super::*;
 mod core_terminals;
 mod editors;
 mod kept;
+mod move_workspace;
 mod orchestrator_tabs;
+mod ownership;
 mod px0;
 
 fn url(value: &str) -> Option<Location> {

@@ -11,7 +11,7 @@ on Herdr 1's snapshot and a new backend costs an adapter rather than a rewrite.
 | --- | --- | --- |
 | Terminals (`sheprd-backend`) | Not implemented; `sheprd-client` talks to the daemon | `CoreBackend` |
 | Tab and pane layout | The daemon's snapshot | `sheprd_session::panes`, saved with the tab |
-| Workspaces | The daemon's snapshot | Kept by the app beside its tabs (`browser-tabs.json`'s `workspaces`, read by `SavedTabs::workspaces`), listed after Herdr 1's; with no Herdr 1 installed, the first is `core_terminals::WORKSPACE`. A terminal started outside the app for a workspace, as by a phone, carries `sheprd_session::WORKSPACE_LABEL` and gets a tab there (`core_terminals::adopt`) |
+| Workspaces | The daemon's snapshot | Kept by the app beside its tabs (`browser-tabs.json`'s `workspaces`, read by `SavedTabs::workspaces`), under the scope of the host whose core runs them (this computer, or a saved SSH, cloud, or WSL host), listed after Herdr 1's; with no Herdr 1 installed, the first is `core_terminals::WORKSPACE`. A terminal started outside the app for a workspace, as by a phone, carries `sheprd_session::WORKSPACE_LABEL` and gets a tab there (`core_terminals::adopt`) |
 | Agents | The daemon's snapshot | `TerminalInfo::agent`, per terminal; which agent by `sheprd_core_client::agent_kind` |
 | Commands | 43 `sheprd_client::Method` variants | Handled per feature in `core_terminals` |
 | `Session` | `session_model::of_snapshot`, cached per snapshot in `LiveState::session` | `Session::core`, rebuilt on the window tick from the app's tabs and the core's terminals |
@@ -22,8 +22,9 @@ and `Session`: workspaces, their tabs, and agents, each workspace marked with th
 `Keeper` that carries out what is asked of it. A test in the app reads what the
 app saves through the saved tabs reader, so the two cannot drift apart.
 
-`SheprdWindow::sessions` gives a host's sessions together: Herdr 1's, and on
-this computer the one over herdr-core. Readers walk both, so a reader moved onto
+`SheprdWindow::sessions` gives a host's sessions together: Herdr 1's, and the
+one over herdr-core, on this computer and on each saved host whose workspaces
+the app keeps. Readers walk both, so a reader moved onto
 it lists Herdr 2 work beside Herdr 1's.
 
 | Reader | On `Session` |
@@ -33,7 +34,9 @@ it lists Herdr 2 work beside Herdr 1's.
 | Window title | Yes |
 | Tab strip | Herdr 1's tabs only while its workspace is in front (`herdr_workspace_in_front`) |
 | Palette Go To and jump list | Kept workspaces added beside Herdr 1's rows |
-| Workspace menu | Kept workspaces: rename, close, and a note once Git names the checkout |
+| Workspace menu | Kept workspaces: rename, close, a note once Git names the checkout, new and deleted worktrees, which the app makes with Git (`sheprd_remote::work`), fan-out, and worktree scripts, which run in herdr-core tabs (`worktree_scripts::kept`) |
+| Fan-out, smart dispatch, orchestrator | Kept workspaces on this computer: Git makes the worktree and the agent starts in a herdr-core shell (`sheprd_remote::work`); the app keeps a workspace for each checkout |
+| Merged cleanup | Kept linked checkouts whose cached pull request merged (`merged_cleanup::kept`), with host-scoped repository, branch, HEAD, dirty-state and archive-script revalidation; PR discovery is still limited to the origins supported by the GitHub cache |
 | Git status, pull request prefetch, worktree rule, notes | Kept workspaces whose folder Git names (`core_terminals::checkouts`) |
 | Agent checkpoints | Yes: `sheprd_vcs::checkpoint::Checkpoints::observe` takes a `Session`; Herdr 2's is watched as its own endpoint |
 | Mods state: workspaces, agents, focus | Yes |
@@ -41,6 +44,12 @@ it lists Herdr 2 work beside Herdr 1's.
 herdr-core reports no Git facts, so the app asks Git for each kept workspace's
 folder on a worker (`sheprd_vcs::git::identity`): its branch, its repository's
 common directory as the worktree key, and whether it is a linked worktree.
+
+Remote kept workspaces read their Git identity on their own SSH, cloud or WSL
+host and keep separate metadata caches, even when paths coincide. Worktree
+creation, opening, deletion and setup/run/archive scripts use that same route.
+Archive terminal completion is scoped to its core; switching devices cannot
+turn another core's exit into permission to delete a checkout.
 
 The app still reads `ClientShell*` types directly in about 67 files. That is the
 work left.

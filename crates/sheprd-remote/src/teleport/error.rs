@@ -32,10 +32,10 @@ const MOVE: [Step; 13] = [
     Step::CreateWorktree,
     Step::Restore,
     Step::Tabs,
-    Step::Retire,
     Step::Sessions,
     Step::Credentials,
     Step::Launch,
+    Step::Retire,
 ];
 
 impl Step {
@@ -104,6 +104,12 @@ pub enum Error {
     #[error("The pane is in {path}, outside its space's checkout; change back into it first")]
     OutsideCheckout { path: String },
     // keep-sorted start
+    #[error(transparent)]
+    Arrival(#[from] super::arrival::Error),
+    /// The destination opens new workspaces in Herdr 2, whose core did not
+    /// answer there.
+    #[error("Herdr 2 is not running on {host}, where the work would open")]
+    CoreMissing { host: String },
     #[error(
         "The directory {path} is missing on the destination; create it there before moving (no files are copied)"
     )]
@@ -114,6 +120,10 @@ pub enum Error {
     OutsideHome { path: String },
     #[error("The agent is working. Move it once it is idle.")]
     SessionAgentWorking,
+    #[error(
+        "{agent} uses a custom session configuration path; Teleport needs an explicit destination mapping"
+    )]
+    SessionConfiguration { agent: &'static str },
     #[error("The pane's working directory could not be read")]
     SessionCwdUnavailable,
     /// `pane run` was accepted, but the agent never became the destination
@@ -124,6 +134,10 @@ pub enum Error {
     SessionProgramMissing { agent: &'static str, host: String },
     #[error("Only an agent with a transferable session can move without a Git repository")]
     SessionRequired,
+    #[error(
+        "{agent} did not acknowledge the transferred session on {host}; the source keeps running"
+    )]
+    SessionResumeUnconfirmed { agent: &'static str, host: String },
     #[error("{cause}; the new workspace {workspace_id} could not be closed")]
     SessionWorkspaceLeftBehind {
         workspace_id: String,
@@ -132,6 +146,9 @@ pub enum Error {
     },
     #[error("The pane's session or directory changed since the review; review the move again")]
     SourceSessionChanged,
+    /// A tab lands in Herdr 2, whose tabs hold at most `most` panes.
+    #[error("A tab of {panes} panes cannot open in Herdr 2, which holds {most} in a tab")]
+    TabTooLarge { panes: usize, most: usize },
     // keep-sorted end
     #[error("The worker running this move stopped before it finished")]
     WorkerStopped,
@@ -164,6 +181,19 @@ pub enum Error {
     InvalidToken,
     #[error("Teleport cancelled")]
     Cancelled,
+    /// A worktree made through `work`, as smart dispatch makes them.
+    #[error(transparent)]
+    Work(crate::work::Error),
+}
+
+/// A cancelled `work` script is the teleport's own cancellation.
+impl From<crate::work::Error> for Error {
+    fn from(error: crate::work::Error) -> Self {
+        match error {
+            crate::work::Error::Cancelled => Self::Cancelled,
+            error => Self::Work(error),
+        }
+    }
 }
 
 pub type Result<T, E = Error> = std::result::Result<T, E>;
@@ -213,5 +243,16 @@ mod tests {
             script(Step::Tabs)(sheprd_client::Error::ScriptCancelled),
             Error::Cancelled
         ));
+    }
+
+    #[test]
+    fn work_failures_keep_their_cause_and_cancel_as_teleport() {
+        assert!(matches!(
+            Error::from(crate::work::Error::Cancelled),
+            Error::Cancelled
+        ));
+        let error = Error::from(crate::work::Error::Dirty);
+        assert!(matches!(error, Error::Work(crate::work::Error::Dirty)));
+        assert_eq!(error.to_string(), "The worktree has uncommitted changes");
     }
 }

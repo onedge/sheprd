@@ -50,6 +50,18 @@ pub(crate) fn connect(
             target.pane_id.clone(),
         ];
         let command = match &target.route {
+            super::Route::Remote(host) => {
+                let args = args
+                    .iter()
+                    .map(|arg| sheprd_client::shell_quote(arg))
+                    .collect::<Vec<_>>()
+                    .join(" ");
+                return Link::start(
+                    Dial::Remote(host.clone(), super::remote_program_script(&args)),
+                    since,
+                    resend,
+                );
+            }
             super::Route::Local => {
                 // Unlike a missing socket directory, this is not permanent:
                 // the lookup started this tick may still be running.
@@ -70,6 +82,10 @@ pub(crate) fn connect(
         return Link::start(Dial::Process(command), since, resend);
     }
     let dial = match &target.route {
+        super::Route::Remote(host) => Dial::Remote(
+            host.clone(),
+            super::remote_program_script(&format!("connect {}", target.endpoint)),
+        ),
         super::Route::Local => Dial::Socket(
             sheprd_chat_protocol::endpoint_address(&target.endpoint).ok_or(Error::NoEndpointDir)?,
         ),
@@ -90,6 +106,8 @@ pub(crate) enum Menu {
     Setting(String),
     /// Every setting the header has no button for.
     Settings,
+    /// The person's text shortcuts, from the composer's button.
+    Shortcuts,
 }
 
 /// What takes the user's typing in a chat.
@@ -119,6 +137,8 @@ pub(crate) enum SendButton {
 pub(crate) struct ChatPane {
     /// Files the next prompt carries, in the order they were added.
     pub(crate) attachments: Vec<std::path::PathBuf>,
+    /// What this chat's buttons chose for its code blocks and HTML fences.
+    pub(crate) code: super::code_choices::CodeChoices,
     /// Which slash-command completion is selected.
     pub(crate) completion: usize,
     pub(crate) composer: Option<Entity<MultilineInput>>,
@@ -162,6 +182,9 @@ pub(crate) struct ChatPane {
     /// the composer changes, since typing does not redraw the window.
     pub(crate) send: SendButton,
     pub(crate) session: Session,
+    /// How much of the text shortcuts' popover shows, as it opens and
+    /// closes with [`Menu::Shortcuts`].
+    pub(crate) shortcuts: crate::motion::Toggle,
     /// Whether the steps running now show in full under the working row.
     pub(crate) steps: crate::motion::Toggle,
     pub(crate) target: Target,
@@ -242,6 +265,7 @@ impl ChatPane {
         prepared.set_remote_links(!target.is_local());
         Self {
             attachments: Vec::new(),
+            code: Default::default(),
             completion: 0,
             composer: None,
             error: None,
@@ -269,6 +293,7 @@ impl ChatPane {
             selection: Default::default(),
             send: SendButton::Off,
             session: Session::default(),
+            shortcuts: Default::default(),
             steps: Default::default(),
             target,
             terminal_size: Default::default(),
@@ -543,6 +568,9 @@ pub(crate) struct Chats {
     pub(crate) launcher_deck: Option<LauncherDeck>,
     /// The layout the lists' rows were last measured in.
     measured: crate::config::ChatLayoutMode,
+    /// The `[chat]` code defaults that change a row's height, as the lists'
+    /// rows were last measured with: wrapping, line numbers, HTML fences.
+    measured_code: (bool, bool, crate::config::HtmlRender),
     /// The locale the panes' prepared text was last drawn in.
     measured_locale: Option<sheprd_i18n::Locale>,
     measured_width: u16,
@@ -616,6 +644,20 @@ impl Chats {
             return false;
         }
         self.measured = layout;
+        for pane in &self.panes {
+            pane.list.remeasure();
+        }
+        true
+    }
+
+    /// Measures every list's rows again once a code default that changes
+    /// their height changed. Says whether it did.
+    pub(crate) fn recode(&mut self, chat: &crate::config::chat::ChatConfig) -> bool {
+        let code = (chat.wrap_code, chat.code_line_numbers, chat.render_html);
+        if self.measured_code == code {
+            return false;
+        }
+        self.measured_code = code;
         for pane in &self.panes {
             pane.list.remeasure();
         }

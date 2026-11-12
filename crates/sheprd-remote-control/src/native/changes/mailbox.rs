@@ -52,6 +52,18 @@ pub(crate) struct Pending<'a, T = Answer> {
 }
 
 impl<T> Pending<'_, T> {
+    /// Withdraw only an intent the desktop has not taken. Once handed over,
+    /// a lost answer cannot establish whether it was applied: never replay it.
+    pub(crate) fn withdraw_layout(&self) -> bool {
+        let mut inner = self.mailbox.inner();
+        if !inner.layout.iter().any(|ask| ask.id == self.id) {
+            return false;
+        }
+        inner.layout.retain(|ask| ask.id != self.id);
+        inner.waiting.remove(&self.id);
+        true
+    }
+
     /// Sheprd's answer; `None` if the mailbox dropped the question.
     pub(crate) async fn answer(&mut self) -> Option<T> {
         (&mut self.answer).await.ok()
@@ -75,6 +87,11 @@ impl Mailbox {
     /// Sheprd is open now.
     pub(crate) fn seen(&self) {
         self.seen_at(Instant::now());
+    }
+
+    /// Whether Sheprd is open: it was heard from lately.
+    pub(crate) fn open(&self) -> bool {
+        open_at(self.inner().seen, Instant::now())
     }
 
     fn seen_at(&self, now: Instant) {
@@ -180,10 +197,7 @@ impl Mailbox {
 impl Inner {
     /// A new question's id, while Sheprd is open and the queue has room.
     fn admit(&mut self, now: Instant) -> Result<AskId, Error> {
-        if self
-            .seen
-            .is_none_or(|seen| now.saturating_duration_since(seen) >= OPEN_FOR)
-        {
+        if !open_at(self.seen, now) {
             return Err(Error::NoDesktop);
         }
         if self.waiting.len() >= MAX_WAITING {
@@ -193,6 +207,10 @@ impl Inner {
         self.next += 1;
         Ok(id)
     }
+}
+
+fn open_at(seen: Option<Instant>, now: Instant) -> bool {
+    seen.is_some_and(|seen| now.saturating_duration_since(seen) < OPEN_FOR)
 }
 
 #[cfg(test)]

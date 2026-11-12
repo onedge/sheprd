@@ -18,6 +18,9 @@ use sheprd_client::shell_quote;
 use sheprd_session::panes::{Axis, Node as PaneNode, Panes, Share};
 use std::{collections::HashMap, sync::atomic::AtomicBool, time::Duration};
 
+mod sessions;
+pub(super) use sessions::{sessions, work};
+
 /// How long past a handoff's own timeout its script may stay quiet.
 const PROMPT_GRACE: Duration = Duration::from_secs(30);
 
@@ -64,9 +67,20 @@ pub(super) struct Foreground {
 pub(super) struct Status {
     #[serde(default)]
     pub app: Option<String>,
+    #[serde(default)]
+    pub state: Option<sheprd_core_client::wire::StatusState>,
 }
 
 impl Terminal {
+    pub(super) fn idle(&self) -> bool {
+        matches!(
+            self.status.as_ref().and_then(|status| status.state),
+            Some(
+                sheprd_core_client::wire::StatusState::Idle
+                    | sheprd_core_client::wire::StatusState::Done
+            )
+        )
+    }
     /// Where its program works: the foreground process's folder, else the
     /// terminal's.
     pub(super) fn cwd(&self) -> Option<String> {
@@ -77,8 +91,8 @@ impl Terminal {
     }
 
     /// What the terminal runs, as a Herdr 1 pane's process info would say.
-    /// herdr-core reports no agent session, so an agent is started afresh
-    /// with a handoff note rather than resumed.
+    /// herdr-core reports no agent session, so an agent is one to start
+    /// afresh with a handoff note, unless [`work`] finds its session.
     pub(super) fn work(&self) -> Work {
         let Some(foreground) = self.foreground.as_ref().filter(|f| !f.argv.is_empty()) else {
             return Work::Shell;
@@ -101,6 +115,12 @@ impl Terminal {
             None => Work::Command(argv.clone()),
         }
     }
+}
+
+/// Whether `program`, a process name or path (a login shell's leading `-`
+/// allowed), is a shell a terminal opens with.
+pub(crate) fn is_shell(program: &str) -> bool {
+    SHELLS.contains(&basename(program).trim_start_matches('-'))
 }
 
 fn basename(path: &str) -> &str {
@@ -252,6 +272,7 @@ pub(super) fn type_line(
 pub(super) struct Spawned<'a> {
     host: &'a Host,
     ids: Vec<String>,
+    tabs: Vec<String>,
 }
 
 impl<'a> Spawned<'a> {
@@ -259,6 +280,7 @@ impl<'a> Spawned<'a> {
         Self {
             host,
             ids: Vec::new(),
+            tabs: Vec::new(),
         }
     }
 
@@ -266,20 +288,32 @@ impl<'a> Spawned<'a> {
         self.ids.push(id);
     }
 
+    pub(super) fn push_tab(&mut self, id: String) {
+        self.tabs.push(id);
+    }
+
     /// The move finished: the app opens their tabs.
     pub(super) fn keep(mut self) {
         self.ids.clear();
+        self.tabs.clear();
     }
 }
 
 impl Drop for Spawned<'_> {
     fn drop(&mut self) {
-        if self.ids.is_empty() {
-            return;
-        }
         // Even a cancelled move ends what it started.
-        if let Err(error) = stop(self.host, &self.ids, &AtomicBool::new(false)) {
+        if !self.ids.is_empty()
+            && let Err(error) = stop(self.host, &self.ids, &AtomicBool::new(false))
+        {
             tracing::warn!(%error, "Could not end the Herdr 2 terminals of a failed teleport");
+        }
+        for tab in &self.tabs {
+            if let Err(error) =
+                self.host
+                    .herdr_ok(Step::Tabs, &["tab", "close", tab], &AtomicBool::new(false))
+            {
+                tracing::warn!(%error, %tab, "Could not close a destination tab of a failed teleport");
+            }
         }
     }
 }

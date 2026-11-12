@@ -1,4 +1,4 @@
-//! `chat status`, `chat show`, `chat hide`, and `chat toggle`.
+//! `chat status`, `chat shortcuts`, `chat show`, `chat hide`, and `chat toggle`.
 use crate::control::protocol::{Call, ErrorCode, Response, chat::ChatOp};
 use gpui::App;
 
@@ -31,9 +31,19 @@ pub(super) fn serve(call: Call<ChatOp>, cx: &mut App) -> Response {
                     .is_none()
                     .then(|| view.core_chat_group_tab(None, cx))
                     .flatten();
-                let started = match core {
-                    Some(tab) => view.start_core_chat(agent, tab, cx),
-                    None => view.start_chat(agent, beside.as_deref()),
+                let started = if let Some(key) = beside
+                    .as_deref()
+                    .filter(|key| key.starts_with("core:") || key.starts_with("core@"))
+                {
+                    view.start_core_chat_beside(agent, key, cx)
+                } else {
+                    match core {
+                        Some(tab) => view.start_core_chat(agent, tab, cx),
+                        None if beside.is_none() && view.kept_in_front().is_some() => {
+                            view.start_kept_core_chat(agent, cx)
+                        }
+                        None => view.start_chat(agent, beside.as_deref()),
+                    }
                 };
                 match started {
                     Ok(()) => {
@@ -49,7 +59,7 @@ pub(super) fn serve(call: Call<ChatOp>, cx: &mut App) -> Response {
             })
         }
         ChatOp::Convert { pane } => {
-            let pane = pane.or_else(|| caller.pane_id.clone());
+            let pane = pane.or_else(|| callers_pane(&caller));
             in_window(&caller, cx, move |view, _, cx| {
                 match view.convert_to_chat(pane.as_deref()) {
                     Ok((pane_id, agent)) => {
@@ -65,11 +75,30 @@ pub(super) fn serve(call: Call<ChatOp>, cx: &mut App) -> Response {
                 }
             })
         }
+        ChatOp::Shortcuts => in_window(&caller, cx, |_, _, cx| {
+            let list = crate::text_shortcuts::Store::current(cx);
+            let (shortcuts, complete) =
+                crate::control::protocol::chat::bounded_shortcuts(list.shortcuts.iter().map(
+                    |shortcut| crate::control::protocol::chat::ShortcutInfo {
+                        id: shortcut.id.clone(),
+                        label: shortcut.label(),
+                        title: shortcut.title.clone(),
+                        text: shortcut.text.clone(),
+                    },
+                ));
+            Response::Chat {
+                reply: Reply::Shortcuts {
+                    shortcuts,
+                    updated_ms: list.updated_ms,
+                    complete,
+                },
+            }
+        }),
         ChatOp::View { switch, pane } => in_window(&caller, cx, |view, window, cx| {
             // A herdr-core pane is nobody's Herdr pane: the one holding the
             // keyboard comes before Herdr's focused pane.
             let pane = pane
-                .or_else(|| caller.pane_id.clone())
+                .or_else(|| callers_pane(&caller))
                 .or_else(|| view.focused_core_chat_key(window, cx))
                 .or_else(|| {
                     view.live
@@ -93,6 +122,14 @@ pub(super) fn serve(call: Call<ChatOp>, cx: &mut App) -> Response {
             }
         }),
     }
+}
+
+/// The caller's own pane, as chats key it: its Herdr pane, or its
+/// herdr-core terminal as `core:t7`, so a caller in one moves its own
+/// terminal's agent rather than Herdr 1's focused pane.
+fn callers_pane(caller: &crate::control::protocol::Caller) -> Option<String> {
+    crate::control::origin(caller.pane_id.as_deref(), caller.terminal_id.as_deref())
+        .map(std::borrow::Cow::into_owned)
 }
 
 /// How a chat that did not start is reported to the caller.
@@ -131,7 +168,10 @@ fn convert_code(error: &crate::chat::ConvertError) -> ErrorCode {
         | ConvertError::NoHome
         | ConvertError::NotReachable => ErrorCode::Unsupported,
         ConvertError::Convert(
-            convert::Error::AlreadyChat | convert::Error::NoAgent | convert::Error::NotRunning(_),
+            convert::Error::AlreadyChat
+            | convert::Error::FolderGone(_)
+            | convert::Error::NoAgent
+            | convert::Error::NotRunning(_),
         ) => ErrorCode::NotFound,
         ConvertError::AlreadyConverting | ConvertError::Convert(convert::Error::Busy(_)) => {
             ErrorCode::Busy
@@ -143,6 +183,7 @@ fn convert_code(error: &crate::chat::ConvertError) -> ErrorCode {
         | ConvertError::Core(_)
         | ConvertError::Existing(_)
         | ConvertError::NotConnected
+        | ConvertError::Remote(_)
         | ConvertError::Stale
         | ConvertError::Type(_)
         | ConvertError::Worker(_) => ErrorCode::Failed,

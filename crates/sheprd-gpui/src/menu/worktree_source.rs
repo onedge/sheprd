@@ -16,6 +16,10 @@ use crate::{
 use gpui::{Entity, Subscription, Task, UniformListScrollHandle, prelude::*};
 use sheprd_client::Method;
 
+mod note;
+
+pub(in crate::menu) use note::{Note, write_note};
+
 /// Which part of the new worktree dialog is showing. A closed set: the tab
 /// strip, the key routing, and the panel geometry all match on it.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -409,7 +413,7 @@ impl SheprdWindow {
         // opened; GitHub waits for its tab or the first search. Without a
         // GitHub account the listing starts now: a GitLab project lists its
         // issues without one, and its tab can only open once that is known.
-        self.list_checkouts();
+        self.list_checkouts(cx);
         self.list_branches(cx);
         if self.pr_profile().is_none() {
             self.list_repo_items();
@@ -484,7 +488,7 @@ impl SheprdWindow {
             .flatten();
         if searching {
             if !source.checkouts.listed {
-                self.list_checkouts();
+                self.list_checkouts(cx);
             }
             if self.pr_profile().is_some() || self.worktree_on_gitlab() {
                 self.list_repo_items();
@@ -498,6 +502,14 @@ impl SheprdWindow {
 
     /// Move to `tab`, focusing whichever field that tab types into and starting
     /// its listing if it has none yet.
+    pub(crate) fn show_existing_worktrees(
+        &mut self,
+        window: &mut gpui::Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.select_worktree_tab(Tab::Existing, window, cx);
+    }
+
     pub(super) fn select_worktree_tab(
         &mut self,
         tab: Tab,
@@ -522,7 +534,7 @@ impl SheprdWindow {
             Tab::New => window.focus(&self.menu.focus, cx),
             Tab::Existing => {
                 if list_checkouts {
-                    self.list_checkouts();
+                    self.list_checkouts(cx);
                 }
                 window.focus(&search.read(cx).focus.clone(), cx);
             }
@@ -543,7 +555,12 @@ impl SheprdWindow {
     /// Ask the daemon for the repository's checkouts. The answer comes through
     /// the window's one correlated dialog slot, so nothing is asked while a
     /// creation or a removal is still waiting on it.
-    fn list_checkouts(&mut self) {
+    fn list_checkouts(&mut self, cx: &mut Context<Self>) {
+        // Git keeps a kept workspace's checkouts; the app lists them itself.
+        if self.kept_checkout().is_some() {
+            self.list_kept_checkouts(cx);
+            return;
+        }
         if self.menu.creation.is_some()
             || self
                 .removal
@@ -599,11 +616,14 @@ impl SheprdWindow {
         cx.notify();
     }
 
-    /// Read the repository's branches off the UI thread. Local Git only reads
-    /// a repository on this machine, so it is limited to the owned local
-    /// daemon.
+    /// Read branches on the selected host off the UI thread.
     fn list_branches(&mut self, cx: &mut Context<Self>) {
-        let input = self.local_repository_input();
+        let input = self.branch_repository_input();
+        let target = self.endpoints[self.selected_endpoint]
+            .connection
+            .target
+            .clone();
+        let endpoint = self.menu.endpoint_target;
         let Some(source) = &mut self.menu.worktree else {
             return;
         };
@@ -614,15 +634,28 @@ impl SheprdWindow {
                 return;
             }
         };
-        let work = cx
-            .background_executor()
-            .spawn(async move { repo_items::list_branches(&input, &|| false) });
+        let work = cx.background_executor().spawn(async move {
+            repo_items::list_branches_on(
+                &target,
+                &input,
+                &std::sync::atomic::AtomicBool::new(false),
+            )
+        });
+        let request = source.search.entity_id();
         source.branches.loading = true;
         source.branches.message = None;
         source.branches.task = Some(cx.spawn(async move |this, cx| {
             let result = work.await;
             let _ = this.update(cx, |this, cx| {
-                let Some(source) = &mut this.menu.worktree else {
+                if this.menu.endpoint_target != endpoint {
+                    return;
+                }
+                let Some(source) = this
+                    .menu
+                    .worktree
+                    .as_mut()
+                    .filter(|source| source.search.entity_id() == request)
+                else {
                     return;
                 };
                 let branches = &mut source.branches;
@@ -663,12 +696,30 @@ impl SheprdWindow {
         }
     }
 
-    /// The repository to read locally, under the same endpoint and staleness
-    /// rules the PR section already enforces. A workspace the daemon has no
-    /// worktree metadata for is read from its own directory.
-    fn local_repository_input(&self) -> crate::Result<crate::pull_request::Input> {
+    /// The repository for the host-scoped branch reader. Herdr 1 retains its
+    /// verified local route; app-kept folders can be on any supported host.
+    pub(in crate::menu) fn branch_repository_input(
+        &self,
+    ) -> crate::Result<crate::pull_request::Input> {
         if self.menu.target.is_none() || !self.menu_target_current() {
             return Err(crate::Error::StaleWorkspace);
+        }
+        if let Some(checkout) = self.kept_checkout() {
+            let target = self
+                .menu
+                .target
+                .as_ref()
+                .ok_or(crate::Error::StaleWorkspace)?;
+            let sessions = self.sessions(self.selected_endpoint);
+            let workspace = sessions
+                .core
+                .as_ref()
+                .and_then(|session| session.workspace(&target.id))
+                .ok_or(crate::Error::StaleWorkspace)?;
+            let mut input = crate::pull_request::kept_input(workspace, self.selected_is_remote())
+                .ok_or(crate::Error::StaleWorkspace)?;
+            input.checkout = Some(checkout);
+            return Ok(input);
         }
         if self.selected_endpoint != 0 || !self.live.local_daemon_peer {
             return Err(sheprd_github::pull_request::Error::UntrustedEndpoint.into());
@@ -685,7 +736,8 @@ impl SheprdWindow {
         if !self.menu_target_current() {
             return Err(crate::Error::StaleWorkspace);
         }
-        if !self.live.status.is_connected() {
+        // A kept workspace needs no daemon: its repository is read here.
+        if self.kept_checkout().is_none() && !self.live.status.is_connected() {
             return Err(crate::Error::NotConnected);
         }
         let host = self
@@ -759,6 +811,26 @@ impl SheprdWindow {
     /// Queue the daemon request for a picked row, under the same fences a
     /// typed branch submission uses.
     fn submit_pick(&mut self, pending: &Pending, cx: &mut Context<Self>) {
+        if self.kept_checkout().is_some() {
+            let ask = self
+                .menu
+                .target
+                .as_ref()
+                .ok_or(crate::Error::StaleWorkspace)
+                .and_then(|target| target.base_ref())
+                .and_then(|base| super::workspace::Ask::of(pending, base));
+            match ask {
+                Ok(ask) => self.submit_kept_checkout(ask, cx),
+                Err(error) => {
+                    if let Some(source) = &mut self.menu.worktree {
+                        source.pending = None;
+                    }
+                    self.menu.error = Some(error.to_string());
+                    cx.notify();
+                }
+            }
+            return;
+        }
         let result = (|| {
             if !self.menu_target_current() {
                 return Err(crate::Error::StaleConnection);
@@ -845,47 +917,6 @@ impl SheprdWindow {
             Some(pending) => self.submit_pick(&pending, cx),
             None => cx.notify(),
         }
-    }
-
-    /// Write the note naming what the created checkout is for. The daemon owns
-    /// the checkout, so its own reported path is used rather than a guess, and
-    /// the write itself is file I/O and never runs on the UI thread.
-    pub(super) fn write_worktree_note(
-        &mut self,
-        response: &serde_json::Value,
-        cx: &mut Context<Self>,
-    ) {
-        let Some(host) = self.pr_origin() else {
-            return;
-        };
-        let Some(source) = &mut self.menu.worktree else {
-            return;
-        };
-        let (Some(Pending::Item(item)), Some(origin)) =
-            (source.pending.take(), source.lookup.origin.clone())
-        else {
-            return;
-        };
-        let Some(checkout) = response["workspace"]["worktree"]["checkout_path"]
-            .as_str()
-            .map(str::to_owned)
-        else {
-            self.local_error = Some(fl!("worktree-source-no-checkout-path"));
-            return;
-        };
-        let write = cx
-            .background_executor()
-            .spawn(async move { repo_items::write_context(&host, &checkout, &item, &origin) });
-        cx.spawn(async move |this, cx| {
-            let result = write.await;
-            let _ = this.update(cx, |this, cx| {
-                if let Err(error) = result {
-                    this.local_error = Some(error.to_string());
-                    cx.notify();
-                }
-            });
-        })
-        .detach();
     }
 }
 

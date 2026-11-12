@@ -80,6 +80,11 @@
             "label": "zsh",
             "cwd": "/work",
             "zoomed": false,
+            "actions": [
+              "rename",
+              "split",
+              "zoom"
+            ],
             "panes": [
               {
                 "pane": "p2",
@@ -132,6 +137,7 @@
         "work"
       ],
       "updated_ms": 1770000000000
-    }
+    },
+    "shortcuts_ms": 1770000000000
   }
 }

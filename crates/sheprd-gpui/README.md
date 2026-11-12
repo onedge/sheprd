@@ -157,7 +157,7 @@ The panel shows archive download progress and an animated bar for work without a
 known percentage. Homebrew-managed installs use `brew upgrade --cask` on their cask;
 if the installed version is behind the offer, `brew update` refreshes metadata
 before one retry. Linux distribution installs download the signed package matching
-the owning package manager and invoke APT, DNF, or pacman through PolicyKit.
+the owning package manager and invoke APT, DNF, zypper, or pacman through PolicyKit.
 Package-manager upgrades cannot be cancelled mid-install and offer **Restart**
 on completion. Standalone installs restart as part of installation.
 The existing UI timer polls the updater mailbox; workers own blocking work, and
@@ -432,6 +432,9 @@ never installs or starts anything while checking:
   checks the host again. A still-running host that passes the app's compatibility
   probe is saved locally with a warning about version/startup differences and
   SSH recovery. Adding it does not require restarting the server or its panes.
+- herdr-core (Herdr 2) installed with no compatible Herdr: the device is
+  saved as it is, without `herdr machine add`, and its terminals run in
+  herdr-core.
 - Herdr missing: the dialog asks "Herdr was not detected on the host. Should we
   install it?" An outdated Herdr asks to update it instead.
 - SSH needs a prompt (unknown host key, password, passphrase), the check failed,
@@ -514,7 +517,11 @@ switch, on by default, is the approval to run Herdr's published installer
 verifies the release checksum and installs to `~/.local/bin`. This is the only
 remote installation the GUI performs, and only with that approval; reconnects
 never install anything. With the switch off, a workspace without Herdr is not
-added. A workspace without `curl` must get Herdr another way.
+added. A workspace without `curl` must get Herdr another way. A machine that
+already has herdr-core (Herdr 2) needs no Herdr 1: it is added as it is.
+With the switch on, setup also adds the pinned herdr-core beside Herdr, and a
+core that cannot be added fails the setup with what its installer printed,
+as it does for every provider.
 
 Cloud devices, from every provider, are stored in the GUI's own
 `cloud-devices.json` in its state directory, because Herdr's `endpoints.json`
@@ -1160,6 +1167,24 @@ from its menu without the dialog, and `show_agents = false` to hide the Agents
 section and give Spaces the full sidebar height. All four default to `true`.
 A workspace close still asks when its Git check finds uncommitted files or
 unpushed commits, whatever `confirm_close_workspace` says.
+
+**Reopen Closed Tab** (`cmd-shift-t` on macOS, `ctrl-alt-shift-t` elsewhere)
+brings back the focused workspace's most recently closed tab. A terminal tab
+comes back as a new shell in the folder the closed one was in, since Herdr
+ends a tab's programs as it closes it. Turn on **Settings > Tabs & panes >
+Undo closing a tab**, or set `enabled = true` under `[undo_close_tab]`, to
+bring back the same tab instead: a closed terminal tab then stays open in
+Herdr, hidden in this window, for `seconds` (10 by default, 1 to 60) before
+Herdr closes it, and Reopen Closed Tab within that time shows it again with
+its programs still running and its scrollback intact. Herdr's other clients,
+such as another window, the `herdr` TUI, or a phone, still list the tab until
+it closes. A tab focused again in the meantime, as by Next Tab, is shown and
+kept rather than closed. A workspace's last tab closes at once, since Herdr
+closes the workspace with it, and so does a tab alone in a split group, which
+has nothing to show in its place. Quitting the app, or closing the window,
+sends the waiting closes at once, but the connection stops with the window:
+a close still queued behind another request, or on a connection already
+gone, leaves its tab open in Herdr.
 Set `remove_merged_worktrees = true` (**Settings > General > Remove worktrees
 of merged PRs**) to remove a linked worktree's checkout, and close its
 workspace and terminals, once its GitHub pull request is merged. It is off by
@@ -1841,10 +1866,18 @@ Herdr 1 tabs, and nothing moves from one to the other.
 
 - **Opening one:** **New Herdr 2 Terminal** in the command palette, or
   `sheprd run new_core_terminal`. With `herdr_2_terminals = true`
-  (**Settings > Tabs > New terminals use Herdr 2**), every new tab on this
-  computer is one. herdr-core runs only on this computer, so a new tab in a
-  workspace on an SSH, WSL, or cloud host stays a Herdr tab on that host, and
-  **New Herdr 2 Terminal** is refused there.
+  (**Settings > Tabs > New terminals use Herdr 2**), every new tab is one,
+  on this computer and on an SSH, WSL, or cloud host, in that host's own
+  herdr-core and folders. A host found to have no herdr-core keeps its new tabs
+  in its Herdr; **Install Herdr 2** in the host's menu adds it.
+- **Workspaces:** herdr-core keeps no workspaces, so with Herdr 2 chosen, or
+  on a host with no Herdr 1, a new workspace is one Sheprd keeps beside its
+  tabs, per host. It lists, renames, moves, and closes like a Herdr
+  workspace, and closing it ends its terminals.
+- **A host with herdr-core alone:** Add Device saves an SSH host or WSL
+  distribution that has herdr-core and no Herdr 1 as it is, and cloud setup
+  accepts such a machine. Its window keeps a workspace with a Herdr 2 shell
+  in place of Herdr's.
 - **Starting herdr-core:** the app joins a core that already runs. Otherwise
   it starts the user's own `herdr-core`, or the pinned one every release
   bundles beside the app, and only when a Herdr 2 terminal is asked for.
@@ -2046,6 +2079,19 @@ forcibly interrupted. A copy stalls out after 30 seconds without progress.
 
 ## Worktree Scripts
 
+Herdr 2 workspaces kept by the app can create, open, list and delete linked
+checkouts on the selected SSH, cloud or WSL host as well as this computer.
+Git metadata and scripts are read on that host. A completed operation keeps
+its originating host even if you switch devices; an edited or removed device
+is refused rather than applying its paths on another machine. The
+`sheprd worktree` commands open the same confirmation dialogs.
+
+Saved SSH hosts also prefetch desktop pull requests for kept and shown Herdr 2
+checkouts without Herdr 1, using the device's GitHub account selection. See
+[desktop SSH pull requests](../../docs/desktop-ssh-pull-requests.md) for cache
+isolation, merged-checkout discovery, and the remaining cloud/WSL PR-origin
+limitation shared by both terminal backends.
+
 A repository can commit scripts that prepare, start, and clean up its
 worktrees, in `.herdr/worktree.toml` at the repository root:
 
@@ -2072,9 +2118,10 @@ for, so each branch can carry its own.
 - **run** starts from **Run script** in the menu of any Git checkout. A
   repository without one says so.
 - **archive** runs when you confirm **Delete worktree checkout**. Its tab
-  removes the checkout with the pane's own `herdr worktree remove` only if
-  the script succeeds; if it fails, the tab stays open on its output and the
-  checkout stays in place.
+  removes the checkout only if the script succeeds: through the pane's own
+  `herdr worktree remove` for Herdr 1, or host-scoped Git for Herdr 2. A
+  failed or closed archive tab leaves the checkout in place. Terminal IDs
+  on another host cannot satisfy an archive's completion.
 
 Each script runs in a new, focused tab labelled `setup`, `run`, or
 `archive` in the checkout's workspace, never in the background, as
@@ -2084,8 +2131,10 @@ the checkout. `HERDR_WORKTREE_PATH` names that checkout and
 as an environment variable, and the line typed into the tab's shell is
 fixed, so the file's contents never pass through your interactive shell.
 Scripts need `sh` on the daemon's host: a remote host's checkout is read and
-run there, not on this machine. WSL distributions are not supported yet: Run
-script says so, and creating or deleting a worktree there runs no script.
+run there, not on this machine. WSL scripts run through the named distribution
+from a Windows client. Local Windows worktree scripts still require a POSIX
+host. Queued setup scripts wait until their own device is shown and never
+run in a similarly named local checkout.
 
 **Trust.** The file is repository content, so nothing in it runs until you
 trust it. The first time a script would run, a dialog shows every script in
@@ -2103,6 +2152,36 @@ The repository file, rather than this client's configuration, holds the
 scripts, so a team shares them and they follow the branch, as Conductor's
 `.conductor/settings.toml` and Superset's `.superset/config.json` do. Only
 the trust decision is local.
+
+**Copying ignored files.** A new worktree is a clean checkout, so it lacks
+the main checkout's ignored files, such as `.env`, `CLAUDE.local.md`, or a
+personal `.herdr/worktree.toml` kept out of Git. List them in
+`.worktreeinclude` at the root of the main checkout, in `.gitignore` syntax,
+as Conductor, Orca, and Claude Code also read it:
+
+```gitignore
+.herdr/worktree.toml
+CLAUDE.local.md
+.claude/settings.local.json
+.env*
+```
+
+Before a setup script's file is read, after a worktree is created or from
+**Run setup script**, Sheprd copies every file from the main checkout that
+matches the list and that Git ignores there; tracked and merely untracked
+files are not copied. A file the worktree already has is never
+overwritten, missing files are skipped, symbolic links are copied as links,
+directories the copy creates are private to you, a file that a private
+directory protects in the main checkout loses the access the worktree's
+directories would give others, and nothing is written below a worktree
+directory that leads outside it.
+The copy happens before the trust question and whether or not the file has a
+setup script, so a copied `.herdr/worktree.toml` is the one read. The list
+is read from the main checkout, so it can itself be ignored. Git runs the
+match on the daemon's host, over SSH for a remote one; it needs `sh`, `git`,
+and `xargs` there. WSL distributions, cloud machines, and a local daemon on
+a Windows client are not supported yet, and a worktree created outside
+Sheprd gets the files only when you run its setup script from Sheprd.
 
 ## Worktree Notes
 
@@ -2386,13 +2465,20 @@ seconds, then holds still so the tiles do not move under the pointer.
 Choosing another host creates the checkout there through the same scripts as
 Teleport: the repository is found by remote (or opened, or cloned, as Teleport
 does), the base commit is resolved here and shipped as a Git bundle only when
-that host lacks it, and that host's own daemon creates the worktree from it.
+that host lacks it, and the selected backend creates the worktree from it.
+Herdr 2 destinations use Git directly and keep their workspace in the app;
+they do not need a Herdr 1 snapshot or workspace. The picker connects to saved
+hosts' cores and samples their working agents even without an open terminal
+tab. Checkouts already open in either backend can be reused. Hosts whose core
+is disconnected stay unavailable until it answers.
 Closing the dialog does not stop it; the result arrives as a flash, and the
 window switches to the new workspace. Once it is shown, a new worktree runs the
 repository's setup script there, asking for trust as a local creation does.
 Setups of several such worktrees wait their turn; one whose host is not shown
 within two minutes is given up on, with a warning. A
-new workspace opens the repository's main checkout on that host.
+new workspace opens the repository's main checkout on that host. Completion
+checks the captured host identity before opening a folder: if the saved device
+changed, the checkout stays on its original host and the app reports its path.
 
 Once you have a container device (see [Containers](#containers-docker-or-podman)),
 a Daytona sandbox, a sprite, or an OpenSandbox sandbox, the dialogs also offer
@@ -2400,13 +2486,25 @@ a **New container**, **New sprite**, or **New sandbox** tile, even with one
 host connected. A container or Daytona sandbox starts from the repository's
 [sandbox image](#sandbox-images) when it has a recipe, building it first if
 needed.
-Creating with it makes a container with the `[container]` settings and Herdr
-installed, starts Herdr's server in it, saves it as a device, then creates the
+Creating with it makes a container with the `[container]` settings and the
+chosen terminal backend installed, saves it as a device, then creates the
 checkout there as above, cloning the repository first; the dialog shows each
-step. The container stays a device if a later step fails, so you can retry on
+step. With Herdr 2 selected for new workspaces, provisioning requires herdr-core
+and neither installs nor starts Herdr 1. Project images get a required-core
+layer with a separate content key; a failed core installation fails setup.
+The container stays a device if a later step fails, so you can retry on
 it or remove it. It runs the cloud setup script once it is shown, like one made
 in Settings. Fan-out lanes are not offered new containers yet: a new container
 has no signed-in agent to start.
+
+On Windows, dispatch between SSH and WSL hosts uses their POSIX shells. A native
+Windows local checkout cannot be a dispatch source or destination because the
+Git transfer scripts require a POSIX shell. Cloud provisioning remains subject
+to each platform's cloud-device availability.
+With a custom Herdr 1 socket, app-kept Herdr 2 workspaces still use this
+computer's core and files on POSIX clients. Herdr 1 workspaces reached through
+that socket remain ineligible for scripted dispatch; their paths are not
+assumed to belong to this computer.
 
 The fan-out dialog offers Spread agents across hosts. Each lane then goes to
 the host with the most room left, a lane counting as a core, and its host chip
@@ -2415,6 +2513,13 @@ before its lanes, and a lane whose agent is not installed there fails with a
 reason. Lanes on another host show it next to their status, and Open, Keep and
 the comparison work across hosts; a host that cannot be read marks only its
 own lanes, keeping the changes read before.
+
+Herdr 2 origins use the same host picker, including Herdr 2-only destinations
+and mixed Herdr 1/2 destinations. The destination's backend creates its lanes:
+Herdr 1 through its daemon, Herdr 2 through Git and labelled core agent runs.
+Each lane retains its endpoint when the selected host changes; its kept
+workspace, status, Open and Keep actions follow that endpoint. A failed tab
+presentation leaves the running agent intact.
 
 Each fan-out's lanes and the last step each one reached are kept in
 `fan-outs.json` in the state directory, written before and after every step,
@@ -2425,7 +2530,31 @@ warning, and each lane says where it stopped: while creating its worktree (the
 branch may exist), before its agent started, while the agent was starting, or
 while the prompt was being sent. Nothing runs by itself. Start agent or Send
 prompt finishes a lane only when clicked, and Send prompt never starts a second
-agent. A lane that fails, finishing included, offers the same button again.
+agent. New Herdr 2 lanes save the exact destination before creation and write
+an ownership receipt after Git succeeds. Start agent recovers an interrupted
+creation only when that receipt, linked checkout root and branch still match.
+If creation stopped before the receipt was written, the checkout stays for
+inspection; a matching path or branch alone never grants ownership.
+
+Herdr 2 agent runs carry an atomic ownership label. After a lost run reply,
+Send prompt recovers only one live terminal matching that label, the saved
+checkout, original agent command and any saved terminal address. It never
+starts a replacement agent. Old journals without labels cannot recover a
+missing terminal address. Once a prompt send has been attempted, interrupted
+or failed delivery remains explicitly uncertain and is not offered for replay:
+neither backend provides an idempotency key that could prove exactly-once
+delivery after a lost acknowledgement. Inspect the retained agent instead.
+Recovery also checks the live foreground process: a replacement shell does
+not inherit the departed agent's ownership. If a removed device is configured
+again with the same host/session identity, its saved lanes rejoin the open
+comparison without replaying creation, launch or prompts.
+Before discarding a newly owned Herdr 2 lane, the worker verifies its receipt,
+disables terminal keep, ends the owned agent and checks the resulting inventory.
+A live replacement, unreadable result or unrelated program in the checkout
+keeps the checkout intact. Closing its removed workspace then only drops the
+presentation, without sending a second kill through a stale terminal address.
+These checks do not make ownership validation and terminal control atomic.
+
 Keep removes the other worktrees after its usual confirmation; a lane whose
 worktree may exist or sits on a host no longer set up stays saved until Forget,
 which lets the fan-out go and leaves every worktree as it is. Up to four
@@ -2526,7 +2655,8 @@ restart an agent already waiting on you counts as new once.
 ## Orchestrator
 
 The activity bar's **Pull requests**, **Issues**, and **Tasks** sections list,
-across the window, every repository the workspaces of every connected local or SSH host
+across the window, every repository the workspaces of every connected local, SSH,
+cloud, or WSL host
 hold: their GitHub issues and pull requests or GitLab issues, their
 [Beads](https://github.com/steveyegge/beads) issues when a main checkout has a
 `.beads` folder, and the agent runs dispatched for them. Folders outside Git
@@ -2614,7 +2744,29 @@ the issue or PR identifier and title, so long-paste transport markers do not
 replace that task context. With more than one host connected, the
 dialog also ranks the hosts as [Smart Dispatch](#smart-dispatch) does; picking
 another one sets the repository up there the same way and starts the agent
-there, and its run card then acts on that host. A pull
+there, and its run card then acts on that host. Herdr 2 destinations use Git
+for the checkout and herdr-core for the agent, without needing Herdr 1. The
+recorded destination and terminal identity survive an app restart: opening,
+messaging, stopping, and removing the run keep targeting that host, even when
+another host has a checkout at the same path. Removing a run closes only its
+host's saved workspace after checkout removal succeeds. A run can also be
+**Restarted** after confirmation: its checkout and
+uncommitted files stay, while a new owned agent receives the saved model and
+initial prompt. Opening a run whose launch reply was lost first looks up its
+unique ownership receipt; it never resends the initial prompt. The CLI
+`sheprd orchestrator restart RUN` opens the same confirmation for a loaded run.
+Legacy Herdr 2 runs created before ownership receipts require **Adopt current
+process** before reply/stop controls work. The read-only preview shows the host,
+terminal, checkout and current process. Confirmation grants new authority over
+that displayed process, not proof that it was the original agent; cancel changes
+nothing. The worker revalidates the process, adds an ownership label, and saves
+the receipt. A replaced process is refused until explicitly adopted again.
+Legacy runs have no saved initial prompt, so their restart action is unavailable.
+New dispatches require a fresh branch; use Restart to reuse an existing run's
+checkout. Each newly created checkout carries a receipt in its Git metadata.
+Recreating the same path and branch does not transfer the old run's authority.
+Uncertain creation without that receipt remains for manual inspection.
+A pull
 request's **Review with agent** does the same on an `agent/review-…` branch with a
 read-only prompt: the agent verifies the pull request, reads its diff, and
 reports findings without writing to GitHub. A run's card sends it messages, stops
@@ -2869,6 +3021,12 @@ included, first goes to the daemon so a plugin's `[[link_handlers]]` entry can
 claim it; see [Herdr Plugins](#herdr-plugins).
 
 ## Herdr Plugins
+
+Herdr 2 desktop panes support explicitly configured [link-handler
+adapters](../../docs/link-handlers.md), independently of a Herdr 1 daemon.
+These run compatible commands on the clicked pane's host; they do not load
+Herdr's registry or emulate its plugin API. The daemon contract below applies
+to Herdr 1.
 
 Herdr runs plugins; this client never reads plugin manifests, runs plugin
 commands, or touches the plugin registry. It works with the parts of a plugin
@@ -3517,7 +3675,10 @@ pane's folder, and runs the program there; `sheprd chat new AGENT` does
 the same from a pane. The rows show once the app has found `sheprd-acp`,
 first beside its own executable (the app bundle, `cargo build`'s target
 directory, or where `just install` puts both) and then on the login shell's
-`PATH`, and only for the Herdr on this machine. Each agent has to be
+`PATH`. A Herdr 2 tab starts a chat beside its active pane, including on
+saved SSH, cloud, and WSL hosts; an empty app-kept workspace starts a new
+Herdr 2 chat tab. Remote launches find the remote host's own program rather
+than using the desktop executable's path. Each agent has to be
 installed: `claude`, `codex` and `pi` (which `sheprd-acp` drives without an
 ACP adapter), `copilot --acp`, `gemini --acp`, or `opencode acp`. The program can
 also be started by hand in any pane: `sheprd-acp claude`.
@@ -3585,8 +3746,25 @@ on Windows reachable by this user alone. A chat on a saved SSH host attaches
 through `sheprd-acp connect` run on that host over SSH, using the `sheprd-acp`
 (or an older host's `herdr-acp`) found in `~/.herdr/bin`, `~/.cargo/bin`,
 `~/.local/bin`, a Mac's installed app, or the host's `PATH`; without one its
-pane keeps the program's terminal view. The view is not offered for WSL or
-cloud hosts. See `crates/sheprd-acp/README.md` for the program itself.
+pane keeps the program's terminal view. Cloud hosts use their existing
+authenticated provider connector, and WSL uses the selected distribution's
+shell on Windows. ACP opens the private endpoint on the owning host: the app
+never interprets a remote endpoint token as a local socket path. Remote
+Herdr 2 panes retain their host, tab, and split identity, so two hosts with
+the same terminal ID do not share a conversation. Mirrors stay read-only
+terminal views. Reattaching resumes the existing ACP stream; it does not
+restart an agent or reopen an intentionally closed chat.
+
+Remote ACP and the chosen agent must already be installed on the host. ACP
+installed for phone pairing by this release is reused before searching the
+host's user bins, app bundles and PATH.
+These launch and attach scripts require a POSIX shell; a Windows SSH host
+without one is not supported by this chat route. Remote conversion also
+requires `sheprd-acp session-convert` and the process-bound session evidence
+described in [agent session evidence](../../docs/agent-session-evidence.md).
+See `crates/sheprd-acp/README.md` for the program itself and
+[remote core chat acceptance](../../docs/remote-core-chats.md) for validation
+and remaining runtime checks.
 
 ## VS Code
 
@@ -5120,7 +5298,7 @@ In-app updates download the release's signed per-user installer, check it
 against `windows-manifest.json` and its Authenticode publisher, and run it
 silently; Setup restarts the app (see
 [App Updates](../../docs/updating.md#windows-installers)). Only the copy in
-`%LOCALAPPDATA%\Programs\Herdr UI` updates itself. The app registers with Restart
+`%LOCALAPPDATA%\Programs\Sheprd` updates itself. The app registers with Restart
 Manager, never after a crash or hang; the `herdr-gpui.exe --restart-manager`
 Windows starts hands off to the launcher (`src/restart_manager.rs`). A crash
 leaves a minidump and a report beside the log; see [crash reports](#crash-reports).

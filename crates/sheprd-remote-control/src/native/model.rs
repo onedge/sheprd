@@ -30,6 +30,10 @@ pub(crate) struct Home {
     pub(crate) api: Option<u32>,
     pub(crate) computer: String,
     pub(crate) fingerprint: String,
+    /// Host-local standalone GitHub reads were explicitly enabled. Not a
+    /// promise of network reachability or repository authorization.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(crate) github: Option<bool>,
     /// Whether the Herdr daemon is reachable now.
     pub(crate) connected: bool,
     /// Agents that need an answer or finished unseen: the app's badge.
@@ -49,6 +53,11 @@ pub(crate) struct Home {
     /// The tags this computer carries; older servers leave them out.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(crate) tags: Option<ComputerTags>,
+    /// When this computer's text shortcuts were last edited; a phone reads
+    /// them (`/api/v2/shortcuts`) when it changes, so a home stays small.
+    /// Older servers leave it out.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(crate) shortcuts_ms: Option<u64>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -115,6 +124,11 @@ pub(crate) struct Terminal {
     pub(crate) label: String,
     pub(crate) cwd: Option<String>,
     pub(crate) zoomed: bool,
+    /// What its menu may do besides closing: a Herdr desktop space's tab
+    /// keeps its layout and names in that app. Older servers send none and
+    /// allow every one.
+    #[serde(default = "TabAction::all")]
+    pub(crate) actions: Vec<TabAction>,
     pub(crate) panes: Vec<Pane>,
     /// The agent Herdr detects in the tab, the most pressing first.
     pub(crate) agent: Option<TerminalAgent>,
@@ -123,6 +137,32 @@ pub(crate) struct Terminal {
     /// from older servers.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(crate) convert: Option<ConvertOffer>,
+}
+
+/// What a terminal tab's menu may do with it.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub(crate) enum TabAction {
+    // keep-sorted start
+    Rename,
+    Split,
+    Zoom,
+    // keep-sorted end
+}
+
+impl TabAction {
+    pub(crate) fn all() -> Vec<Self> {
+        vec![Self::Rename, Self::Split, Self::Zoom]
+    }
+
+    /// What a phone may do with the tab `tab`.
+    fn of(tab: &str) -> Vec<Self> {
+        if hub::arrangeable(tab) {
+            Self::all()
+        } else {
+            Vec::new()
+        }
+    }
 }
 
 /// A terminal agent a phone may move into a chat: its pane, and the agent
@@ -322,6 +362,7 @@ fn terminal(terminal: &hub::Terminal) -> Terminal {
         label: terminal.label.clone(),
         cwd: terminal.cwd.clone(),
         zoomed: terminal.zoomed,
+        actions: TabAction::of(&terminal.tab),
         panes: terminal
             .panes
             .iter()
@@ -355,6 +396,7 @@ pub(crate) struct Sources<'a> {
     pub(crate) load: Option<Load>,
     pub(crate) summaries: HashMap<String, Summary>,
     pub(crate) pull_requests: &'a PullRequests,
+    pub(crate) shortcuts_ms: u64,
     pub(crate) tags: ComputerTags,
     pub(crate) version: &'a str,
     /// The panes wanting the user, from [`crate::web::State::attention`].
@@ -370,6 +412,7 @@ impl Home {
             load,
             mut summaries,
             pull_requests,
+            shortcuts_ms,
             tags,
             version,
             waiting,
@@ -404,11 +447,13 @@ impl Home {
             api: Some(API_LEVEL),
             computer: computer.to_owned(),
             fingerprint: fingerprint.to_owned(),
+            github: None,
             connected: layout.connected,
             waiting,
             load,
             working: Some(layout.working),
             tags: Some(tags),
+            shortcuts_ms: Some(shortcuts_ms),
             version: Some(version.to_owned()),
             workspaces,
         }

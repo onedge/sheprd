@@ -2,7 +2,13 @@ use super::*;
 use crate::fan_out::error::Step;
 
 mod compare;
+mod crash_recovery;
+mod discard_identity;
+mod herdr_2;
+mod hosts;
 mod interrupt;
+#[cfg(unix)]
+mod owned_removal;
 mod spread;
 mod wanted;
 
@@ -15,6 +21,7 @@ fn origin() -> Origin {
         repo_key: "/tmp/repo/.git".into(),
         repo_label: "repo".into(),
         base: "HEAD".into(),
+        checkout: None,
     }
 }
 
@@ -42,6 +49,8 @@ fn idle() -> FanOut {
         id: 0,
         restored: false,
         wanted: Vec::new(),
+        shown: Vec::new(),
+        closed: Vec::new(),
     }
 }
 
@@ -49,9 +58,15 @@ fn checkout(n: usize) -> Checkout {
     Checkout {
         endpoint_id: "local".into(),
         host: origin().host,
-        workspace_id: format!("w{n}"),
-        path: format!("/tmp/lane-{n}"),
-        pane_id: format!("p{n}"),
+        worktree: work::Worktree {
+            path: format!("/tmp/lane-{n}"),
+            opened: work::Opened::Herdr1 {
+                workspace_id: format!("w{n}"),
+                pane_id: format!("p{n}"),
+            },
+        },
+        terminal: None,
+        recoverable: false,
     }
 }
 
@@ -112,7 +127,7 @@ fn lane_progress_settles_into_a_comparison() {
     );
     send(
         &fan_out,
-        Event::Report(Report::Lane(0, Progress::Created(checkout(0)))),
+        Event::Report(Report::Lane(0, Progress::Created(Box::new(checkout(0))))),
     );
     send(&fan_out, Event::Report(Report::Base("c0ffee".into())));
     send(&fan_out, Event::Report(Report::Lane(0, Progress::Running)));
@@ -121,14 +136,14 @@ fn lane_progress_settles_into_a_comparison() {
         Event::Report(Report::Lane(
             1,
             Progress::Failed(Error::Script {
-                step: Step::CreateWorktree,
+                step: Step::StartAgent,
                 source: sheprd_client::Error::ScriptTimeout,
             }),
         )),
     );
     send(
         &fan_out,
-        Event::Report(Report::Lane(2, Progress::Created(checkout(2)))),
+        Event::Report(Report::Lane(2, Progress::Created(Box::new(checkout(2))))),
     );
     send(
         &fan_out,
@@ -142,7 +157,7 @@ fn lane_progress_settles_into_a_comparison() {
     assert_eq!(fan_out.lanes[0].state, LaneState::Running);
     assert_eq!(fan_out.lanes[0].checkout, Some(checkout(0)));
     assert!(
-        matches!(&fan_out.lanes[1].state, LaneState::Failed(e) if e.starts_with("creating the worktree failed"))
+        matches!(&fan_out.lanes[1].state, LaneState::Failed(e) if e.starts_with("starting the agent failed"))
     );
     assert_eq!(fan_out.lanes[1].checkout, None);
 
@@ -205,7 +220,7 @@ fn keeping_a_lane_needs_its_confirmation_and_removes_only_the_others() {
     assert!(!fan_out.keep(0), "only the confirmed lane is kept");
     assert_eq!(
         fan_out.doomed(2),
-        [(0, "w0".to_owned())],
+        [(0, checkout(0).worktree)],
         "lane 1 never got a checkout, and the winner stays"
     );
     // The removal's answer is fed by hand instead of running it.
@@ -214,7 +229,13 @@ fn keeping_a_lane_needs_its_confirmation_and_removes_only_the_others() {
     send(&fan_out, Event::Removed(vec![(0, Ok(()))]));
     assert_eq!(
         fan_out.poll(),
-        (true, Some(("local".to_owned(), "w2".to_owned())))
+        (
+            true,
+            Some(Kept::Herdr1 {
+                endpoint: "local".to_owned(),
+                workspace: "w2".to_owned()
+            })
+        )
     );
 }
 
@@ -232,7 +253,7 @@ fn a_failed_removal_returns_to_the_confirmation_without_removed_lanes() {
             (
                 1,
                 Err(Error::Script {
-                    step: Step::Remove,
+                    step: Step::Compare,
                     source: sheprd_client::Error::ScriptTimeout,
                 }),
             ),
@@ -245,8 +266,8 @@ fn a_failed_removal_returns_to_the_confirmation_without_removed_lanes() {
         "the winner moved up"
     );
     assert_eq!(
-        fan_out.lanes[1].checkout.as_ref().unwrap().workspace_id,
-        "w2"
+        fan_out.lanes[1].checkout.as_ref().unwrap().workspace_id(),
+        Some("w2")
     );
     assert!(
         fan_out

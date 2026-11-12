@@ -221,6 +221,9 @@ pub(crate) struct Store {
     next: u64,
     pub(super) closed: super::closed::ClosedTabs,
     writer: Option<state_file::Writer<Saved>>,
+    /// Held from before the tabs are read until the app quits, so the
+    /// remote control daemon never edits them under it.
+    _owner: Option<std::fs::File>,
     quitting: bool,
     /// herdr-core terminals of closed tabs and the core each runs in, for a
     /// window connected to that core to end.
@@ -254,6 +257,42 @@ fn parse(bytes: &[u8]) -> crate::Result<Saved> {
     Ok(saved)
 }
 
+/// How long the app waits at launch for the remote control daemon to finish
+/// an edit of the saved tabs it made while the app was closed.
+const OWN_WAIT: std::time::Duration = std::time::Duration::from_secs(2);
+
+/// Takes ownership before reading or starting a writer. A slow phone split
+/// can outlast the startup budget; failing to acquire must never fall through
+/// to unlocked reads/writes that could erase its eventual commit.
+fn own(path: &std::path::Path, wait: std::time::Duration) -> std::io::Result<std::fs::File> {
+    let lock = sheprd_session::saved::lock_path(path);
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent)?;
+    }
+    let file = std::fs::OpenOptions::new()
+        .create(true)
+        .truncate(false)
+        .write(true)
+        .open(&lock)?;
+    let started = std::time::Instant::now();
+    loop {
+        match file.try_lock() {
+            Ok(()) => return Ok(file),
+            Err(std::fs::TryLockError::WouldBlock) if started.elapsed() < wait => {
+                std::thread::sleep(std::time::Duration::from_millis(20));
+            }
+            Err(std::fs::TryLockError::WouldBlock) => {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::WouldBlock,
+                    // i18n: data
+                    "Saved tabs are being changed by another client; try opening Sheprd again shortly",
+                ));
+            }
+            Err(std::fs::TryLockError::Error(error)) => return Err(error),
+        }
+    }
+}
+
 impl Store {
     pub(crate) fn path() -> Option<PathBuf> {
         crate::preferences::state_dir().map(|dir| dir.join("browser-tabs.json"))
@@ -261,8 +300,12 @@ impl Store {
 
     /// Called before starting GPUI, like the window state. A missing or
     /// damaged file starts with no tabs.
-    pub(crate) fn load() -> Self {
-        let path = Self::path();
+    pub(crate) fn load() -> std::io::Result<Self> {
+        Self::load_at(Self::path(), OWN_WAIT)
+    }
+
+    fn load_at(path: Option<PathBuf>, wait: std::time::Duration) -> std::io::Result<Self> {
+        let owner = path.as_deref().map(|path| own(path, wait)).transpose()?;
         let saved = path
             .as_deref()
             .map(|path| {
@@ -294,7 +337,8 @@ impl Store {
         );
         let mut store = Self::with_tabs(tabs, writer);
         store.workspaces = workspaces;
-        store
+        store._owner = owner;
+        Ok(store)
     }
 
     fn with_tabs(mut tabs: Vec<Tab>, writer: Option<state_file::Writer<Saved>>) -> Self {
@@ -303,6 +347,7 @@ impl Store {
         tabs.retain(|tab| !matches!(tab.location, Some(Location::Orchestrator { .. })));
         let next = tabs.iter().map(|tab| tab.id.0 + 1).max().unwrap_or(0);
         Self {
+            _owner: None,
             tabs,
             workspaces: Vec::new(),
             last_kept: 0,
@@ -597,6 +642,22 @@ impl Store {
         let tab = self.tabs.remove(index);
         self.save();
         Some(tab)
+    }
+
+    /// Moves a tab to `workspace_id`, another workspace of its daemon, after
+    /// that workspace's tabs. Returns whether it moved.
+    pub(crate) fn move_to_workspace(&mut self, id: TabId, workspace_id: &str) -> bool {
+        let Some(index) = self.tabs.iter().position(|tab| tab.id == id) else {
+            return false;
+        };
+        if self.tabs[index].workspace_id == workspace_id || workspace_id.is_empty() {
+            return false;
+        }
+        let mut tab = self.tabs.remove(index);
+        tab.workspace_id = workspace_id.to_owned();
+        self.tabs.push(tab);
+        self.save();
+        true
     }
 
     /// Records where a page went and what it calls itself. Returns whether

@@ -1,25 +1,26 @@
 //! The blocking work behind a fan-out. Every function here runs host scripts
 //! and must only be called from a background worker, never the UI thread.
+//!
+//! Worktrees and agents are made through `sheprd_remote::work`, so a lane
+//! is the same new work on Herdr 1, through its CLI, and on Herdr 2, through
+//! Git and a herdr-core shell.
 
 use super::{
     error::{Error, Result, Step, script},
     journal::Resume,
     plan::{DiffStat, Lane, parse_stats, stats_script},
 };
-use crate::teleport::{
-    self, AgentKind, Envelope, FreshOrigin, Host, HostRepositories, Prepared, WorktreeCreated,
-};
+use crate::teleport::{self, AgentKind, FreshOrigin, Host, HostRepositories, Prepared};
+use sheprd_remote::work;
 use std::sync::atomic::{AtomicBool, Ordering};
-
-/// How long `herdr agent start` may wait for each agent to be ready. Agents
-/// starting side by side on one machine are slower than one alone.
-const AGENT_START_TIMEOUT_MS: &str = "90000";
 
 /// What a fan-out launches.
 #[derive(Debug, Clone)]
 pub(crate) struct Request {
     /// The repository lanes branch from, through its main checkout.
     pub(crate) origin: FreshOrigin,
+    /// What makes the origin's lanes; see [`super::Origin::repository`].
+    pub(crate) repository: work::Repository,
     /// The ref every lane branches from, resolved once on the origin so
     /// every lane, on every host, starts from the same commit.
     pub(crate) base: String,
@@ -35,9 +36,41 @@ pub(crate) struct Request {
 pub(crate) struct Checkout {
     pub(crate) endpoint_id: String,
     pub(crate) host: Host,
-    pub(crate) workspace_id: String,
-    pub(crate) path: String,
-    pub(crate) pane_id: String,
+    /// Its folder, and Herdr 1's workspace and pane when Herdr 1 made it.
+    pub(crate) worktree: work::Worktree,
+    /// On Herdr 2, the owned core agent terminal once its address is known;
+    /// Herdr 1's agent runs in the worktree's own pane.
+    pub(crate) terminal: Option<String>,
+    /// New lanes carry an atomic core label for recovery after a lost run reply.
+    pub(crate) recoverable: bool,
+}
+
+impl Checkout {
+    pub(crate) fn path(&self) -> &str {
+        &self.worktree.path
+    }
+
+    /// Herdr 1's workspace for it; a Herdr 2 checkout's workspace is one
+    /// the app keeps, found by its folder.
+    pub(crate) fn workspace_id(&self) -> Option<&str> {
+        match &self.worktree.opened {
+            work::Opened::Herdr1 { workspace_id, .. } => Some(workspace_id),
+            work::Opened::Herdr2 => None,
+        }
+    }
+
+    /// Where its agent runs, once known.
+    pub(super) fn started(&self) -> Option<work::Started> {
+        match &self.worktree.opened {
+            work::Opened::Herdr1 { pane_id, .. } => Some(work::Started::Herdr1 {
+                pane_id: pane_id.clone(),
+            }),
+            work::Opened::Herdr2 => self
+                .terminal
+                .clone()
+                .map(|terminal| work::Started::Herdr2 { terminal }),
+        }
+    }
 }
 
 /// How far one lane has got.
@@ -46,8 +79,12 @@ pub(crate) enum Progress {
     /// Its host is getting the repository and the base commit.
     SettingUp,
     CreatingWorktree,
-    Created(Checkout),
+    /// The exact Herdr 2 destination, saved before Git creates anything.
+    CreatingOwned(Box<Checkout>),
+    Created(Box<Checkout>),
     StartingAgent,
+    /// The owned herdr-core terminal of a Herdr 2 lane.
+    Terminal(String),
     Prompting,
     /// The agent took the prompt and is working on it.
     Running,
@@ -67,7 +104,9 @@ struct Site {
     endpoint_id: String,
     label: String,
     host: Host,
-    workspace_id: String,
+    /// What makes its worktrees: Herdr 1's workspace of the repository, or
+    /// on Herdr 2 Git through a checkout of it.
+    repository: work::Repository,
     /// The agents installed on another host. The origin's were listed
     /// before anything was picked.
     agents: Option<Vec<AgentKind>>,
@@ -99,7 +138,7 @@ fn sites(
                 endpoint_id: origin.place.endpoint_id.clone(),
                 label: origin.place.label.clone(),
                 host: origin.place.host.clone(),
-                workspace_id: origin.workspace_id.clone(),
+                repository: request.repository.clone(),
                 agents: None,
             }));
             continue;
@@ -151,7 +190,7 @@ fn set_up_host(
         endpoint_id: destination.place.endpoint_id.clone(),
         label: destination.place.label.clone(),
         host: host.clone(),
-        workspace_id: prepared.repository.workspace_id.clone(),
+        repository: prepared.work_repository().clone(),
         agents: Some(agents),
     };
     Ok((site, prepared))
@@ -206,9 +245,17 @@ pub(crate) fn launch(
             let _ = report(Report::Lane(index, Progress::Failed(error)));
             continue;
         }
-        match create(site, lane, &commit, cancelled) {
+        match create(site, lane, &commit, cancelled, &|checkout| {
+            report(Report::Lane(
+                index,
+                Progress::CreatingOwned(Box::new(checkout)),
+            ))
+        }) {
             Ok(checkout) => {
-                let _ = report(Report::Lane(index, Progress::Created(checkout.clone())));
+                let _ = report(Report::Lane(
+                    index,
+                    Progress::Created(Box::new(checkout.clone())),
+                ));
                 created.push((index, lane, checkout));
             }
             Err(error) => {
@@ -247,39 +294,61 @@ pub(crate) fn launch(
     });
 }
 
-fn create(site: &Site, lane: &Lane, commit: &str, cancelled: &AtomicBool) -> Result<Checkout> {
-    let line = Host::herdr_line(&[
-        "worktree",
-        "create",
-        "--workspace",
-        &site.workspace_id,
-        "--branch",
-        &lane.branch,
-        "--base",
-        commit,
-        "--no-focus",
-    ]);
-    let output = site
-        .host
-        .capture(&line, cancelled)
-        .map_err(script(Step::CreateWorktree))?;
-    let created = serde_json::from_slice::<Envelope<WorktreeCreated>>(&output)
-        .map_err(|source| Error::Decode {
-            step: Step::CreateWorktree,
-            source,
-        })?
-        .result;
+fn create(
+    site: &Site,
+    lane: &Lane,
+    commit: &str,
+    cancelled: &AtomicBool,
+    planned: &impl Fn(Checkout) -> Result<()>,
+) -> Result<Checkout> {
+    let new = work::NewWorktree {
+        branch: &lane.branch,
+        base: commit,
+        label: None,
+    };
+    let worktree = match &site.repository {
+        work::Repository::Herdr2 { checkout } => {
+            let tree = work::fanout::checkouts::plan(&site.host, checkout, &lane.branch, cancelled)
+                .map_err(fanout_failed)?;
+            planned(Checkout {
+                endpoint_id: site.endpoint_id.clone(),
+                host: site.host.clone(),
+                worktree: tree.clone(),
+                terminal: None,
+                recoverable: true,
+            })?;
+            work::fanout::checkouts::create(
+                &site.host,
+                checkout,
+                &tree,
+                &new,
+                &lane.agent,
+                cancelled,
+            )
+            .map_err(fanout_failed)?;
+            tree
+        }
+        _ => work::create(&site.host, &site.repository, &new, cancelled).map_err(failed)?,
+    };
     Ok(Checkout {
         endpoint_id: site.endpoint_id.clone(),
         host: site.host.clone(),
-        workspace_id: created.workspace.workspace_id,
-        path: created.worktree.path,
-        pane_id: created.root_pane.pane_id,
+        worktree,
+        terminal: None,
+        recoverable: true,
     })
 }
 
-/// Start the lane's agent in its first pane and, once it is ready, send it
-/// the prompt.
+/// A cancelled script is the fan-out's own cancellation.
+fn failed(error: work::Error) -> Error {
+    match error {
+        work::Error::Cancelled => Error::Cancelled,
+        error => Error::Work(Box::new(error)),
+    }
+}
+
+/// Start the lane's agent in its first pane, or on Herdr 2 a herdr-core
+/// shell in its folder, and once it is ready send it the prompt.
 fn start(
     index: usize,
     lane: &Lane,
@@ -288,41 +357,66 @@ fn start(
     report: &impl Fn(Report) -> Result<()>,
     cancelled: &AtomicBool,
 ) -> Result<()> {
+    if checkout.recoverable && checkout.workspace_id().is_none() {
+        work::fanout::checkouts::verify(
+            &checkout.host,
+            &checkout.worktree,
+            &lane.branch,
+            &lane.agent,
+            cancelled,
+        )
+        .map_err(fanout_failed)?;
+    }
     // Unsaved, a crash after the agent starts would offer to start it again.
     report(Report::Lane(index, Progress::StartingAgent))?;
-    let start = Host::herdr_line(&[
-        "agent",
-        "start",
-        &lane.agent,
-        "--kind",
-        lane.kind.name(),
-        "--pane",
-        &checkout.pane_id,
-        "--timeout",
-        AGENT_START_TIMEOUT_MS,
-    ]);
-    checkout
-        .host
-        .capture(&start, cancelled)
-        .map_err(script(Step::StartAgent))?;
-    send_prompt(index, checkout, prompt, report, cancelled)
+    let agent = work::Agent {
+        kind: lane.kind,
+        name: &lane.agent,
+        model: None,
+        prompt: None,
+    };
+    let owner = work::owned_agent::Owner {
+        key: "sheprd.fanout.lane",
+        value: &lane.agent,
+    };
+    let started = retain_started(
+        work::owned_agent::start(&checkout.host, &checkout.worktree, &agent, owner, cancelled),
+        index,
+        report,
+    )?;
+    send_prompt(index, checkout, &started, prompt, report, cancelled)
+}
+
+/// A failed acknowledgement can still identify a live terminal. Save and
+/// show it before reporting failure; neither retry its launch nor kill it.
+fn retain_started(
+    result: work::fanout::Result<work::Started>,
+    index: usize,
+    report: &impl Fn(Report) -> Result<()>,
+) -> Result<work::Started> {
+    let known = match &result {
+        Ok(started) | Err(work::fanout::Error::Work(work::Error::Unprompted { started, .. })) => {
+            Some(started)
+        }
+        _ => None,
+    };
+    if let Some(work::Started::Herdr2 { terminal }) = known {
+        // The shell is kept even if this cannot be saved: it is started.
+        let _ = report(Report::Lane(index, Progress::Terminal(terminal.clone())));
+    }
+    result.map_err(fanout_failed)
 }
 
 fn send_prompt(
     index: usize,
     checkout: &Checkout,
+    started: &work::Started,
     prompt: &str,
     report: &impl Fn(Report) -> Result<()>,
     cancelled: &AtomicBool,
 ) -> Result<()> {
     report(Report::Lane(index, Progress::Prompting))?;
-    // The pane is the target: an agent name could match one started elsewhere.
-    let prompt = Host::herdr_line(&["agent", "prompt", &checkout.pane_id, prompt]);
-    checkout
-        .host
-        .capture(&prompt, cancelled)
-        .map_err(script(Step::Prompt))?;
-    Ok(())
+    work::prompt(&checkout.host, started, prompt, cancelled).map_err(failed)
 }
 
 /// Finish lane `index` of an interrupted fan-out, which the user asked for:
@@ -336,15 +430,73 @@ pub(crate) fn resume(
     report: &impl Fn(Report) -> Result<()>,
     cancelled: &AtomicBool,
 ) {
-    let result = match from {
-        Resume::Start => start(index, lane, checkout, prompt, report, cancelled),
-        Resume::Prompt => send_prompt(index, checkout, prompt, report, cancelled),
+    let started =
+        if from == Resume::Prompt && checkout.recoverable && checkout.workspace_id().is_none() {
+            match work::owned_agent::recover(
+                &checkout.host,
+                &checkout.worktree,
+                work::owned_agent::Owner {
+                    key: "sheprd.fanout.lane",
+                    value: &lane.agent,
+                },
+                &work::Agent {
+                    kind: lane.kind,
+                    name: &lane.agent,
+                    model: None,
+                    prompt: None,
+                },
+                checkout.terminal.as_deref(),
+                cancelled,
+            ) {
+                Ok(started) => {
+                    if let work::Started::Herdr2 { terminal } = &started {
+                        let _ = report(Report::Lane(index, Progress::Terminal(terminal.clone())));
+                    }
+                    Some(started)
+                }
+                Err(error) => {
+                    let _ = report(Report::Lane(index, Progress::Failed(fanout_failed(error))));
+                    return;
+                }
+            }
+        } else {
+            checkout.started()
+        };
+    let result = match (from, started) {
+        (Resume::Creation, _) => work::fanout::checkouts::verify(
+            &checkout.host,
+            &checkout.worktree,
+            &lane.branch,
+            &lane.agent,
+            cancelled,
+        )
+        .map_err(fanout_failed)
+        .and_then(|()| {
+            report(Report::Lane(
+                index,
+                Progress::Created(Box::new(checkout.clone())),
+            ))
+        })
+        .and_then(|()| start(index, lane, checkout, prompt, report, cancelled)),
+        (Resume::Prompt, Some(started)) => {
+            send_prompt(index, checkout, &started, prompt, report, cancelled)
+        }
+        // Missing persistence is not evidence that the agent never ran.
+        (Resume::Prompt, None) => Err(Error::AgentUncertain),
+        (Resume::Start, _) => start(index, lane, checkout, prompt, report, cancelled),
     };
     let progress = match result {
         Ok(()) => Progress::Running,
         Err(error) => Progress::Failed(error),
     };
     let _ = report(Report::Lane(index, progress));
+}
+
+fn fanout_failed(error: work::fanout::Error) -> Error {
+    match error {
+        work::fanout::Error::Uncertain => Error::AgentUncertain,
+        work::fanout::Error::Work(error) => failed(error),
+    }
 }
 
 /// The agent kinds installed on `host`, in [`AgentKind::ALL`] order.
@@ -401,11 +553,69 @@ pub(crate) fn stats(
         .collect()
 }
 
-/// Remove a lane's worktree and workspace, discarding uncommitted changes.
-/// Herdr keeps the branch, so committed work stays reachable.
-pub(crate) fn remove(host: &Host, workspace_id: &str, cancelled: &AtomicBool) -> Result<()> {
-    let line = Host::herdr_line(&["worktree", "remove", "--workspace", workspace_id, "--force"]);
-    host.capture(&line, cancelled)
-        .map(drop)
-        .map_err(script(Step::Remove))
+/// Remove a lane's worktree, and Herdr 1's workspace with it, discarding
+/// uncommitted changes. The branch stays, so committed work stays
+/// reachable; the app closes a Herdr 2 lane's kept workspace itself.
+pub(crate) fn remove(
+    host: &Host,
+    worktree: &work::Worktree,
+    repo_key: &str,
+    branch: &str,
+    owner: Option<&str>,
+    agent: Option<(AgentKind, Option<&str>)>,
+    cancelled: &AtomicBool,
+) -> Result<()> {
+    if matches!(worktree.opened, work::Opened::Herdr2) {
+        if let Some(owner) = owner {
+            work::fanout::checkouts::verify(host, worktree, branch, owner, cancelled)
+                .map_err(fanout_failed)?;
+            if let Some((kind, terminal)) = agent {
+                work::owned_agent::end(
+                    host,
+                    worktree,
+                    work::owned_agent::Owner {
+                        key: "sheprd.fanout.lane",
+                        value: owner,
+                    },
+                    &work::Agent {
+                        kind,
+                        name: owner,
+                        model: None,
+                        prompt: None,
+                    },
+                    terminal,
+                    cancelled,
+                )
+                .map_err(fanout_failed)?;
+            } else {
+                work::owned_agent::checkout_idle(host, worktree, cancelled)
+                    .map_err(fanout_failed)?;
+            }
+            return work::fanout::checkouts::discard(host, worktree, branch, owner, cancelled)
+                .map_err(fanout_failed);
+        }
+        if !host.is_local() {
+            return Err(Error::HostUnavailable {
+                host: host.identity(),
+            });
+        }
+        // A saved folder may now belong to another branch or repository.
+        // Check Git itself on this worker before any forced removal, even
+        // for a live lane: cached UI metadata cannot authorize discarding it.
+        let input = crate::pull_request::Input {
+            checkout: Some(worktree.path.clone()),
+            repo_key: Some(repo_key.to_owned()),
+            branch: branch.to_owned(),
+        };
+        crate::pull_request::local_checkout(
+            &input,
+            std::time::Instant::now() + std::time::Duration::from_secs(15),
+            &|| cancelled.load(Ordering::Acquire),
+        )?;
+    }
+    work::discard(host, worktree, cancelled).map_err(failed)
 }
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used)]
+mod tests;

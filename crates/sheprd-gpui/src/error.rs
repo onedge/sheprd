@@ -170,6 +170,8 @@ pub enum Error {
     LaunchAtLogin(#[from] crate::launch_at_login::Error),
     #[error("File not found: {}", path.display())]
     LinkedFileMissing { path: PathBuf },
+    #[error(transparent)]
+    LinkHandlers(#[from] crate::link_handlers::Error),
     #[error("This link names a file on another computer, {host}. It is not opened from here.")]
     LinkOnAnotherHost { host: String },
     #[error(transparent)]
@@ -264,6 +266,8 @@ pub enum Error {
     RemoteAgentTools(#[source] sheprd_client::Error),
     #[error(transparent)]
     RemoteControl(#[from] crate::remote::Error),
+    #[error(transparent)]
+    RemoteUpdate(#[from] crate::remote_update::Error),
     #[error("{method}: {source}")]
     Request {
         method: sheprd_client::Method,

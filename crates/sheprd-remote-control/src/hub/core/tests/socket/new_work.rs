@@ -27,6 +27,7 @@ fn committed_repository(parent: &Path) -> PathBuf {
 fn chat_record(address: &str, endpoint: &EndpointId) -> Value {
     let mut record = record(address);
     record["labels"] = json!({TOKEN: endpoint.to_string()});
+    record["foreground"] = json!({"pid":42,"name":"sheprd-acp","argv":["sheprd-acp"]});
     record
 }
 
@@ -413,5 +414,30 @@ fn a_saved_tab_names_its_id_and_the_panes_terminal() {
     assert_eq!(source.saved_target(&id("t1"), &id("t1")), None);
     assert_eq!(source.saved_target("core:tab:4", &id("t404")), None);
     drop(source);
+    fake.server.join().unwrap();
+}
+
+#[tokio::test]
+async fn a_named_herdr_1_session_is_refused_rather_than_ignored() {
+    let (source, fake) = fake_with_doc(false, Value::Null, vec![record("t1")]);
+    let layout = source.poll().unwrap();
+    let mut hub = hub_on(&source, layout);
+    hub.sessions = crate::hub::sessions::Sessions::offline_with(
+        "dev",
+        Layout::default(),
+        PathBuf::from("/nonexistent/herdr-client.sock"),
+    );
+    let refused = hub
+        .create_workspace("/code/one", None, Agent::Claude, Some("dev"))
+        .await;
+    assert!(
+        matches!(refused, Err(HubError::SessionOnHerdr2)),
+        "{refused:?}"
+    );
+    assert!(
+        fake.inputs.try_recv().is_err(),
+        "nothing started on Herdr 2"
+    );
+    drop((hub, source));
     fake.server.join().unwrap();
 }

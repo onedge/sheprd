@@ -6,7 +6,6 @@
 use crate::{
     Result,
     contrast::Contrast,
-    i18n::fl,
     keymap::{Binding, DaemonKeys, Keymap, PaneKeys},
 };
 mod accent;
@@ -22,9 +21,11 @@ mod cjk_fonts;
 mod cloud;
 mod coder;
 mod container;
+pub(crate) mod corners;
 mod daemon;
 mod daytona;
 mod devices;
+mod diagnostic;
 mod edit;
 mod error;
 pub(crate) mod favorite_themes;
@@ -33,6 +34,7 @@ mod files;
 mod font_weight;
 mod fonts;
 mod github;
+mod herdr_2;
 mod keybindings;
 mod layout;
 mod notifications;
@@ -63,6 +65,7 @@ pub(crate) mod tab_layout;
 mod table;
 pub(crate) use sidebar_style::parse_hex;
 mod theme;
+mod undo_close;
 mod updates;
 pub(crate) mod watch;
 mod worktrees;
@@ -72,7 +75,7 @@ pub use accent::Accent;
 pub use agent_skill::{AgentSkillConfig, SkillInstall};
 pub use agents_placement::AgentsPlacement;
 pub use backdrop::{Backdrop, Material};
-pub use chat::{ChatLauncher, ChatLayoutMode};
+pub use chat::{ChatLauncher, ChatLayoutMode, HtmlRender};
 pub use cloud::CloudConfig;
 #[cfg(test)]
 use daemon::MAX_DAEMON_CONFIG_BYTES;
@@ -92,6 +95,7 @@ pub use fonts::symbol_fallbacks;
 pub use fonts::{FONT_SIZE_RANGE, FONT_SIZE_STEP, FontConfig};
 pub(crate) use github::MAX_ACCOUNTS;
 pub use github::{GitHubAccount, GitHubConfig};
+pub(crate) use herdr_2::HERDR_2_SCROLLBACK;
 pub use layout::{Density, Layout, LayoutMode, Style};
 pub(crate) use notifications::NotificationDelivery;
 pub use notifications::{
@@ -149,6 +153,7 @@ pub use tab_layout::TabLayoutMode;
 pub use theme::Theme;
 pub(crate) use theme::ThemeName;
 pub(crate) use theme::mix;
+pub use undo_close::UndoCloseTab;
 pub use updates::{UpdateChannel, UpdatesConfig};
 pub use zen::{Zen, ZenWidth};
 
@@ -156,14 +161,6 @@ const DEFAULT_CONFIG: &str = include_str!("../config-gpui.example.toml");
 const MANAGED_HEADER: &str = sheprd_client::settings_files::MANAGED_HEADER;
 /// Seeds the overrides file on first launch only.
 const LOCAL_CONFIG: &str = sheprd_client::settings_files::OVERRIDES_SEED;
-
-/// Shared logical-pixel radii for native-style chrome, independent of the
-/// terminal grid. Small badges/keycaps retain a tighter curve than controls.
-pub(crate) mod corners {
-    pub(crate) const PANEL: f32 = 12.;
-    pub(crate) const CONTROL: f32 = 8.;
-    pub(crate) const SMALL: f32 = 4.;
-}
 
 #[derive(Clone, Debug)]
 pub struct Config {
@@ -221,6 +218,8 @@ pub struct Config {
     pub github: GitHubConfig,
     /// Where GitLab tokens pasted in the account menu are saved.
     pub gitlab: GitLabConfig,
+    /// Lines of output each Herdr 2 terminal keeps to scroll back through.
+    pub herdr_2_scrollback: usize,
     /// New tabs run in herdr-core (Herdr 2) rather than Herdr 1, for their
     /// native panes. Off by default while Herdr 1 holds the user's sessions;
     /// without Herdr 1 installed, terminals are Herdr 2's anyway.
@@ -239,6 +238,8 @@ pub struct Config {
     /// The language the app shows: `system`, or a BCP 47 tag (docs/i18n.md).
     pub language: sheprd_i18n::Language,
     pub layout: Layout,
+    pub(crate) link_handlers: crate::link_handlers::Handlers,
+    pub(crate) link_plugins: Vec<crate::link_handlers::Plugin>,
     /// Configured families, sorted, that font resolution found no installed
     /// family for; `diagnostic` reports them.
     pub(crate) missing_fonts: Vec<String>,
@@ -320,6 +321,7 @@ pub struct Config {
     pub terminal_padding: Padding,
     pub theme: String,
     pub ui: FontConfig,
+    pub undo_close_tab: UndoCloseTab,
     /// Keys the file names that this build does not know, sorted. They are
     /// ignored, as Herdr ignores its own, so a config written by a newer
     /// build or with a typo still loads; `diagnostic` reports them.
@@ -445,6 +447,7 @@ impl Default for Config {
             focus_follows_mouse: true,
             github: GitHubConfig::default(),
             gitlab: GitLabConfig::default(),
+            herdr_2_scrollback: HERDR_2_SCROLLBACK,
             herdr_2_terminals: false,
             icon_font_missing: false,
             keep_selection_after_copy: true,
@@ -452,6 +455,8 @@ impl Default for Config {
             keybindings: Keymap::default(),
             language: sheprd_i18n::Language::default(),
             layout: Layout::default(),
+            link_handlers: crate::link_handlers::Handlers::default(),
+            link_plugins: Vec::new(),
             missing_fonts: Vec::new(),
             missing_weight: None,
             mods: crate::mods::Config::default(),
@@ -496,6 +501,7 @@ impl Default for Config {
             terminal_padding: Padding::default(),
             theme: "Default".into(), // i18n: data
             ui: font(ui, 12.0),
+            undo_close_tab: UndoCloseTab::default(),
             unknown_keys: Vec::new(),
             updates: UpdatesConfig::default(),
             usage: crate::usage::UsageConfig::default(),
@@ -539,11 +545,14 @@ struct Settings {
     focus_follows_mouse: Option<bool>,
     github: GitHubConfig,
     gitlab: GitLabConfig,
+    herdr_2_scrollback: Option<usize>,
     herdr_2_terminals: Option<bool>,
     keep_selection_after_copy: Option<bool>,
     keybindings: BTreeMap<String, Binding>,
     language: Option<sheprd_i18n::Language>,
     layout: Layout,
+    link_handlers: Vec<crate::link_handlers::Handler>,
+    link_plugins: Vec<crate::link_handlers::Plugin>,
     mods: crate::mods::Config,
     notifications: NotificationSettings,
     open_files_in: FileTarget,
@@ -580,6 +589,7 @@ struct Settings {
     terminal: FontSettings,
     theme: Option<String>,
     ui: FontSettings,
+    undo_close_tab: undo_close::UndoCloseTabSettings,
     updates: UpdatesConfig,
     usage: crate::usage::UsageConfig,
     worktrees: worktrees::WorktreeSettings,
@@ -641,56 +651,6 @@ impl Config {
 
     pub fn local_path() -> Result<PathBuf> {
         Ok(Self::path()?.with_extension("local.toml"))
-    }
-
-    /// Warnings naming the keys this build ignored and the configured fonts
-    /// that are not installed, one line each, if any. Keys and families come
-    /// from the user's file, so each loses the characters untrusted text
-    /// does before it joins a message.
-    pub(crate) fn diagnostic(&self) -> Option<String> {
-        const LISTED: usize = 5;
-        const MAX_ITEM_CHARS: usize = 80;
-        let list = |items: &[String]| {
-            let listed: Vec<_> = items
-                .iter()
-                .take(LISTED)
-                .map(|item| sheprd_client::text::safe_text(item, MAX_ITEM_CHARS))
-                .collect();
-            (listed.join(", "), items.len().saturating_sub(LISTED))
-        };
-        let mut lines = Vec::new();
-        if !self.unknown_keys.is_empty() {
-            let (keys, more) = list(&self.unknown_keys);
-            lines.push(fl!(
-                "config-diagnostic-unknown-keys",
-                keys = keys,
-                more = more
-            ));
-        }
-        if self.layout.legacy_sidebar_gap.is_some() {
-            lines.push(fl!("config-diagnostic-sidebar-gap"));
-        }
-        if !self.missing_fonts.is_empty() {
-            let fonts: Vec<String> = self
-                .missing_fonts
-                .iter()
-                .map(|family| format!("\"{family}\""))
-                .collect();
-            let (fonts, more) = list(&fonts);
-            lines.push(fl!(
-                "config-diagnostic-missing-fonts",
-                fonts = fonts,
-                more = more
-            ));
-        }
-        if let Some(missing) = &self.missing_weight {
-            lines.push(fl!(
-                "config-diagnostic-missing-weight",
-                family = sheprd_client::text::safe_text(&missing.family, MAX_ITEM_CHARS),
-                weight = font_weight::describe(missing.weight)
-            ));
-        }
-        (!lines.is_empty()).then(|| lines.join("\n"))
     }
 
     pub fn load() -> Result<Self> {
@@ -965,6 +925,7 @@ impl Config {
         config.status_icons = status_icons;
         config.edge_rail = settings.edge_rail.unwrap_or(legacy_rail);
         config.zen = settings.zen.try_into()?;
+        config.undo_close_tab = settings.undo_close_tab.try_into()?;
         config.worktrees = settings.worktrees.resolve()?;
         settings.backdrop.validate()?;
         config.backdrop = settings.backdrop;
@@ -975,6 +936,9 @@ impl Config {
         config.usage = settings.usage;
         config.option_as_alt = settings.option_as_alt;
         config.open_links_in = settings.open_links_in;
+        config.link_handlers = crate::link_handlers::Handlers::compile(settings.link_handlers)?;
+        crate::link_handlers::validate_plugins(&settings.link_plugins)?;
+        config.link_plugins = settings.link_plugins;
         config.code = settings.code;
         settings.px0.check()?;
         config.px0 = settings.px0;
@@ -984,6 +948,7 @@ impl Config {
         config.editor_command = settings.editor_command;
         config.keep_selection_after_copy = settings.keep_selection_after_copy.unwrap_or(true);
         config.herdr_2_terminals = settings.herdr_2_terminals.unwrap_or(false);
+        config.herdr_2_scrollback = herdr_2::scrollback(settings.herdr_2_scrollback);
         for (name, font, settings) in [
             ("sidebar", &mut config.sidebar, settings.sidebar.font),
             ("tabs", &mut config.tabs, settings.tabs),

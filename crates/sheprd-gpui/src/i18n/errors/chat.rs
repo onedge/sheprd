@@ -65,6 +65,7 @@ impl Localize for ConvertError {
             Self::NotConnected => fl!("error-chat-start-not-connected"),
             Self::NotReachable => fl!("error-chat-convert-not-reachable"),
             Self::Program(error) => error.localize(),
+            Self::Remote(error) => fl!("error-chat-convert-core", error = error.to_string()),
             Self::Stale => fl!("error-chat-convert-stale"),
             Self::Type(error) => error.localize(),
             Self::Worker(_) => fl!("error-chat-convert-worker"),
@@ -79,6 +80,9 @@ impl Localize for sheprd_client::herdr::convert::Error {
             // keep-sorted start
             Self::AlreadyChat => fl!("error-chat-convert-already-chat"),
             Self::Busy(agent) => fl!("error-chat-convert-busy", agent = agent.display_name()),
+            Self::FolderGone(folder) => {
+                fl!("error-chat-convert-folder-gone", folder = folder.as_str())
+            }
             Self::Line => fl!("error-chat-convert-line"),
             Self::Moved => fl!("error-chat-convert-moved"),
             Self::NoAgent => fl!("error-chat-convert-no-agent"),
