@@ -1071,8 +1071,9 @@ by the next error too. The app does not change permissions automatically.
 Existing native theme selections remain overrides. Choose **Follow Herdr** to
 use the shared theme, all 18 upstream palettes, custom colors, and automatic
 light/dark selection. Selecting a shared theme disables upstream auto-switching,
-as in the TUI. Status indicators always use the shared status colors,
-independent of a native terminal theme override, drawn with the set picked on
+as in the TUI. Status indicators use the shared status colors; when Herdr's
+effective theme is `terminal`, they use the app theme's colors instead. They
+are drawn with the set picked on
 **Settings > Appearance > Indicators** and saved as `status_icons` in
 `config-gpui.local.toml`. This app draws only its own sets and ignores Herdr's
 `ui.status_indicators`, which the TUI keeps for itself; unset means **Dots**.
@@ -1305,6 +1306,8 @@ closes; a page reopened after a dropped tunnel keeps its address while that
 local port is free. Windows clients
 do not scan this machine. Set top-level `show_listening_ports = false`, or
 turn off **Show listening ports** in Settings, to hide them and stop scanning.
+Coding agents' own listeners, such as Claude Code's and Codex's, are left
+out; servers they start show under their own process names.
 
 Set top-level `show_network_quality = true` to show latency and packet loss
 from this machine in the status bar, after CPU and memory: `NET 31ms 0%`.
@@ -2613,6 +2616,14 @@ window at once, and `sheprd ui panel NAME` shows a section.
   hours or with delivery off; clicking one goes to its pane.
   **Notification History** in the palette opens it, and `sheprd window alerts`
   prints it. An alert about the tab you are looking at is not kept.
+  **Clear** on the shelf, or **Clear All Notifications** in the palette (no
+  default shortcut; bind `clear_all_notifications` under `[keybindings]`, or
+  run `sheprd run clear_all_notifications`), empties it in every window,
+  dismisses every toast, shown or waiting, and withdraws the app's OS
+  notifications (see [System notifications](#system-notifications)). Agents
+  keep their status: a finished agent's Done dot and the Dock badge clear as
+  the daemon acknowledges it, when you look at its pane, and an agent waiting
+  for you still waits.
 
   An agent whose pane closes or that exits, while its host stays up,
   waits under **Closed** at the bottom: **Reopen** starts it again in a new
@@ -3949,6 +3960,13 @@ only focuses the window when that connection has since reconnected, the daemon
 restarted, the target is gone, or a menu page is open. Clicks are handled only
 while the GUI runs: a click cannot reopen a closed window.
 
+**Clear All Notifications** withdraws the last 256 notifications the app posted
+in this run, Herdr 1 and Herdr 2 alike, including older ones a click no longer
+opens, and drops those still waiting out the delay or in a connection's queue. macOS removes them from Notification Center and Linux asks the
+notification service to close them; on Windows the app's toasts all leave the
+notification center, including those of an earlier run. On macOS and Linux a
+notification from before the app last started stays until you dismiss it.
+
 - **macOS** uses `UNUserNotificationCenter`, which works only from an app bundle
   with a bundle identifier: the release `Herdr.app` (`so.pen.herdr-gpui`) or the
   `just run`/`just run-debug` bundles (`so.pen.herdr-gpui.dev`), which the
@@ -3963,9 +3981,10 @@ while the GUI runs: a click cannot reopen a closed window.
 - **Linux** uses the freedesktop notification service on the session D-Bus;
   without a notification daemon nothing appears. Clicking requires a server that
   supports the default action, and raising the window depends on the
-  compositor's focus policy. Notifications are neither replaced nor retracted, so
-  each event shows separately, and each keeps a small waiting thread until the
-  server closes it.
+  compositor's focus policy. The app posts over one shared session-bus
+  connection, which also hears the clicks, sending one request at a time: a
+  newer event for the same pane replaces the earlier notification where the
+  server honours replacement. Only Clear All Notifications retracts them.
 - **Windows** uses WinRT toasts under the AppUserModelID `so.pen.herdr-gpui`,
   which the app sets at startup and registers, with its display name, under
   `HKCU\Software\Classes\AppUserModelId`. Once the installer has registered

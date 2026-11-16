@@ -50,6 +50,13 @@ sheprd COMMAND --help      # one command
 
 ## Options and output
 
+For app-kept work commands from remote Herdr 2 terminals, the managed shim
+supports notes, mute/status, worktree dialogs/listing, setup/run scripts,
+checkpoint restore, Teleport, and fan-out with scoped replies and the same
+confirmation policy. See [the remote work contract](remote-core-work.md) for
+host/window identity, bounds, cancellation, and the full-binary-only Git
+commands. Remote notes listings are restricted to the caller's host.
+
 Every command accepts:
 
 - `--json`: print one JSON document instead of text. Errors become
@@ -93,7 +100,7 @@ Every command accepts:
 | `status` | Whether the app runs, its version and control protocol, windows, and hosts |
 | `app focus\|hide\|quit` | Bring the app forward, hide it, or quit it (Herdr keeps running) |
 | `window [list]` | Windows with their IDs, size, workspace, and hosts |
-| `window alerts` | The alerts the window kept, newest first, including those held back by quiet hours |
+| `window alerts` | The alerts the window kept, newest first, including those held back by quiet hours; `run clear_all_notifications` empties them |
 | `window new [--session NAME]` | Another window, of your own Herdr session or a named local session |
 | `window focus ID` | Bring a window forward |
 | `window fullscreen [on\|off\|toggle]` | |
@@ -345,7 +352,7 @@ run `sheprd config set tab_labels.agent_title true`.
 
 | Command | What it does |
 | --- | --- |
-| `remote [status]` | Whether remote control is on and its daemon runs: its port, version, the addresses it serves with network labels and daemon-host interface names, its certificate authority fingerprint, and paired and connected devices. JSON includes optional `status.address_details` keyed by origin; older daemons omit it |
+| `remote [status]` | Whether remote control is on and its daemon runs: its port, version, the addresses it serves with network labels and daemon-host interface names, its certificate authority fingerprint, paired and connected devices, and each relay it listens on with whether it is listening (`[remote] relays`). JSON includes optional `status.address_details` keyed by origin, and `status.relays` keyed by relay with a `state` of `connecting`, `listening`, or `failed` (with its `error`); older daemons omit them |
 | `remote devices` | The paired devices with their IDs, when each was last seen, whether it gets notifications, and the other machines it was paired with from here or is being paired with. JSON includes each device's optional `via` (the computer that vouched for it) and `hosts`, each with a `state` of `offered`, `allowed`, `asking`, `pending`, `paired`, or `failed`. Exits 4 when there are none |
 | `remote pair [--address HTTPS_ORIGIN]` | Open the pairing dialog, preferring Tailscale by default. Choose an address in the dialog, or pass an exact origin from `remote status` (for example `https://100.101.102.103:7443`). The QR and its token show only there, and the user approves the phone there. An unavailable address is reported in the dialog |
 | `remote restart` | Restart the daemon from the binary beside the app, as after a rebuild or update; phones reconnect on their own. Exits 6 while the service is already changing |
@@ -530,6 +537,18 @@ A pipe has no receive or send timeout. Reads poll with `PeekNamedPipe`, as
 the daemon client does; writes have no deadline, so the app's out buffer
 holds a whole answer and the connection bound limits what a stalled caller
 can hold.
+
+## Recovering a kept Herdr 2 chat
+
+At the shell prompt core restored after unexpected chat loss, run
+`sheprd-acp restore "$HERDR_ACP_ENDPOINT"` (PowerShell:
+`sheprd-acp restore $env:HERDR_ACP_ENDPOINT`). This is the companion program's
+command, independent of the desktop control socket. It checks the original
+terminal/socket/endpoint/folder, claims the endpoint for the process lifetime,
+and resumes only the recorded agent session. Run it on the terminal's host;
+it never falls back to a local or Herdr 1 session. See
+[Herdr 2 recovery](rich-chat.md#herdr-2-recovery) for supported launches,
+automatic new-terminal recovery and its remaining limits.
 
 ## Chats on SSH hosts
 

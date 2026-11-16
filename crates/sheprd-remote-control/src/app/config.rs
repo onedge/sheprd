@@ -12,6 +12,7 @@
 //! live_activities = "detailed" # or "generic": no chat names or steps
 //! device_idle_days = 30         # 0 never forgets a device
 //! presence = false             # hold phone alerts while its owner is at this Mac
+//! relays = ["https://relay.example.org"]  # reach this computer from any network
 //! ```
 //!
 //! Secrets and device keys never go here: the daemon keeps them in its own
@@ -47,6 +48,9 @@ pub struct RemoteConfig {
     /// Whether paired iPhones near this Mac over Bluetooth hold their
     /// alerts while the desktop is in use (`herdr-nearby`, macOS only).
     pub presence: bool,
+    /// Relays the daemon listens on, so paired phones reach this computer
+    /// from any network (`docs/relay-plan.md`); none by default.
+    pub relays: Vec<String>,
     // keep-sorted end
 }
 
@@ -64,6 +68,7 @@ impl Default for RemoteConfig {
             notifications: Privacy::default(),
             port: DEFAULT_PORT,
             presence: false,
+            relays: Vec::new(),
             // keep-sorted end
         }
     }
@@ -77,6 +82,12 @@ impl RemoteConfig {
         }
         if !IDLE_DAYS.contains(&self.device_idle_days) {
             return Err(Error::IdleDays);
+        }
+        for relay in &self.relays {
+            sheprd_relay::Endpoint::parse(relay).map_err(|source| Error::Relay {
+                relay: relay.clone(),
+                source,
+            })?;
         }
         if let Certificate::Files { cert, key } = &self.certificate {
             for (which, path) in [("cert", cert), ("key", key)] {
@@ -227,6 +238,8 @@ pub enum Edit {
     Notifications(Privacy),
     Port(u16),
     Presence(bool),
+    /// The whole list, as Settings shows it after adding or removing one.
+    Relays(Vec<String>),
 }
 
 impl Edit {
@@ -260,6 +273,33 @@ impl Edit {
             Self::Port(0) => return Err(Error::Port),
             Self::Port(port) => ("port", i64::from(port).into()),
             Self::Presence(on) => ("presence", on.into()),
+            Self::Relays(relays) => {
+                // Written as the daemon names them, each once, so the
+                // list matches the relays its status reports.
+                let mut listed = toml_edit::Array::new();
+                let mut seen = Vec::new();
+                for relay in relays {
+                    let address = relay_address(&relay)?;
+                    if !seen.contains(&address) {
+                        listed.push(address.as_str());
+                        seen.push(address);
+                    }
+                }
+                ("relays", toml_edit::Value::Array(listed))
+            }
         })
     }
+}
+
+/// A relay's address as the daemon names it in its status and saves it:
+/// what was typed, trimmed, without the trailing slash of an empty path.
+/// Refuses what is not a relay address, as [`RemoteConfig::check`] does.
+pub fn relay_address(text: &str) -> Result<String, Error> {
+    let text = text.trim();
+    sheprd_relay::Endpoint::parse(text)
+        .map(|endpoint| endpoint.to_string())
+        .map_err(|source| Error::Relay {
+            relay: text.to_owned(),
+            source,
+        })
 }
