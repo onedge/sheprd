@@ -80,11 +80,11 @@ struct RelaysView: View {
             typing = false
         case .known:
             address = ""
-            problem = "That relay is already here."
+            problem = String(localized: "That relay is already here.")
         case .invalid:
-            problem = "That is not a relay's address. Type one such as https://relay.example.org."
+            problem = String(localized: "That is not a relay's address. Type one such as https://relay.example.org.")
         case .full:
-            problem = "Remove a relay before adding another: \(SavedRelays.limit) are kept at most."
+            problem = String(localized: "Remove a relay before adding another: \(SavedRelays.limit) are kept at most.")
         }
     }
 
@@ -131,11 +131,11 @@ private struct RelayRow: View {
 
     private var status: String {
         switch reach {
-        case .reachable: "Reachable"
-        case .noWebSocket: "No WebSocket, which this \(UIDevice.current.model) needs"
-        case .notARelay: "Not a relay"
-        case .unreachable: "No answer"
-        case nil: "Checking…"
+        case .reachable: String(localized: "Reachable")
+        case .noWebSocket: String(localized: "No WebSocket, which this \(UIDevice.current.model) needs")
+        case .notARelay: String(localized: "Not a relay")
+        case .unreachable: String(localized: "No answer")
+        case nil: String(localized: "Checking…")
         }
     }
 
