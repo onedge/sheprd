@@ -14,6 +14,8 @@ error-remote-control-pairing-url = 데몬이 올바르지 않은 페어링 URL�
 error-remote-control-path-text = { $path }은(는) 서비스 정의에 넣을 수 없습니다
 error-remote-control-port = remote.port는 1에서 65535 사이여야 합니다
 error-remote-control-program-missing = Sheprd 옆이나 PATH에서 sheprd-remote-control을 찾지 못했습니다
+# $relay는 사용자가 remote.relays에 쓴 항목 그대로입니다.
+error-remote-control-relay = remote.relays의 { $relay }은(는) 릴레이 주소가 아닙니다
 error-remote-control-qr = 페어링 링크가 QR 코드에 들어가지 않습니다
 # $program은 launchctl이나 systemctl 같은 서비스 관리자 명령입니다.
 error-remote-control-service = { $program } 실패({ $status }): { $stderr }

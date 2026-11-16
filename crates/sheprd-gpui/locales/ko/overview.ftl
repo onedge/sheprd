@@ -88,4 +88,9 @@ overview-reply-skipped = 선택한 행 중 { $count }개는 답장을 받을 수
 overview-reply-not-queued = 답장 { $count }개를 대기열에 넣지 못했습니다
 overview-alert-gone = 그 패인은 더 이상 없습니다
 overview-alerts-empty = 아직 알림이 없습니다
+# 최근 알림 선반의 버튼입니다. 모든 알림 지우기를 실행하며, 모든 창의 토스트와
+# 앱의 OS 알림도 닫습니다.
+overview-alerts-clear = 지우기
+# 그 버튼의 툴팁입니다.
+overview-alerts-clear-hint = 모든 창의 알림을 지웁니다: 알림, 토스트, 앱의 시스템 알림
 overview-core-host = 이 컴퓨터

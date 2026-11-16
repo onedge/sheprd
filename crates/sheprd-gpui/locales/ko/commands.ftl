@@ -4,6 +4,7 @@
 commands-about = Sheprd 정보
 commands-annotate-selection = 선택 영역에 에이전트용 주석 달기
 commands-back = 뒤로
+commands-clear-all-notifications = 모든 알림 지우기
 commands-clear-pane = 패인 지우기
 commands-close-pane = 패인 닫기
 commands-close-tab = 탭 닫기
