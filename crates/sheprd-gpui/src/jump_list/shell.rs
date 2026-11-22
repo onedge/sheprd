@@ -126,7 +126,7 @@ fn publish(entries: &Entries, exe: &Path) -> Result<Vec<Link>, Error> {
     let exe = HSTRING::from(exe.as_os_str());
     if let Some(recent) = collection(&exe, &entries.recent, &removed)? {
         // SAFETY: the name outlives the call.
-        match unsafe { list.AppendCategory(&HSTRING::from("Recent workspaces"), &recent) } {
+        match unsafe { list.AppendCategory(&HSTRING::from(entries.category.as_str()), &recent) } {
             Ok(()) => {}
             // The user turned off "Show recently opened items in Start, Jump
             // Lists, and File Explorer"; the shell then refuses categories,
@@ -187,6 +187,7 @@ fn shell_link(exe: &HSTRING, item: &Item) -> windows::core::Result<Option<IShell
         link.SetDescription(&HSTRING::from(item.link.to_url()))?;
         if matches!(item.link, Link::Open { .. }) {
             // The folder icon, as Explorer's own jump lists show.
+            // i18n: data
             link.SetIconLocation(&HSTRING::from(r"%SystemRoot%\System32\shell32.dll"), 3)?;
         }
         let store: IPropertyStore = link.cast()?;

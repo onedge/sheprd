@@ -1,5 +1,7 @@
 #![allow(clippy::unwrap_used)]
 
+mod language;
+
 use super::*;
 
 fn recent(path: &str) -> Recent {

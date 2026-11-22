@@ -11,12 +11,13 @@
 //! last given even while the app is closed. An entry the user removes from
 //! the list is forgotten. Building the list takes COM calls and disk writes,
 //! so it happens on a worker, and only when the entries change.
+// i18n: migrated
 
 mod shell;
 #[cfg(test)]
 mod tests;
 
-use crate::{SheprdWindow, endpoint::LOCAL, link::Link, state_file};
+use crate::{SheprdWindow, endpoint::LOCAL, i18n::fl, link::Link, state_file};
 use gpui::{App, Global, WindowId};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -49,8 +50,11 @@ pub(crate) struct Item {
 }
 
 /// Everything the jump list shows, compared before the shell is called.
+/// The heading is part of it, so a change of language sends the list again.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub(crate) struct Entries {
+    /// The heading over [`Entries::recent`], in the current language.
+    pub category: String,
     pub recent: Vec<Item>,
     pub devices: Vec<Item>,
 }
@@ -75,6 +79,7 @@ pub(crate) fn entries(recent: &[Recent], devices: &[(String, String)]) -> Entrie
     let mut devices: Vec<&(String, String)> = devices.iter().collect();
     devices.sort_by_cached_key(|(id, name)| (id != LOCAL, name.to_lowercase(), id.clone()));
     Entries {
+        category: label(&fl!("jump-list-recent")),
         recent: recent
             .iter()
             .map(|entry| Item {
@@ -88,7 +93,7 @@ pub(crate) fn entries(recent: &[Recent], devices: &[(String, String)]) -> Entrie
             .iter()
             .take(MAX_DEVICES)
             .map(|(id, name)| Item {
-                title: label(&format!("Show {name}")),
+                title: label(&fl!("jump-list-show-device", device = name.as_str())),
                 link: Link::Device { id: id.clone() },
             })
             .collect(),
