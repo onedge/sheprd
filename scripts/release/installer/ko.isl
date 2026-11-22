@@ -11,3 +11,5 @@ OpenIn=%1에서 열기
 ; %1은 herdr-automate.exe의 경로입니다.
 AutomateDidNotStop=%1의 자동화 데몬이 멈추지 않았습니다. herdr-automate stop으로 실행 중인 작업을 멈춘 뒤 설치 프로그램을 다시 실행하세요.
 AutomateStillRunning=%1의 자동화 데몬이 아직 실행 중입니다. 데몬을 종료한 뒤 설치 프로그램을 다시 실행하세요.
+; %1은 sheprd-remote-control.exe의 경로입니다.
+RemoteControlStillRunning=%1의 원격 제어 데몬이 아직 실행 중입니다. 작업 관리자에서 종료한 뒤 설치 프로그램을 다시 실행하세요.

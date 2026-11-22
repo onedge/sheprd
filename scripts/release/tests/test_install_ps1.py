@@ -153,6 +153,27 @@ class InstallScriptTests(unittest.TestCase):
             self.assertIn("StopAutomate()", body[:body.index("\nend;")], caller)
         self.assertIn('Parameters: "start"; WorkingDir: "{app}"; Flags: runhidden nowait; Check: AutomateStopped', iss)
 
+    def test_setup_ends_the_remote_control_task_before_replacing_its_files(self):
+        # The daemon keeps running after the app quits, and Restart Manager
+        # cannot close it, so a silent Setup run such as the in-app update
+        # would abort over sheprd-remote-control.exe.
+        iss = ISS.read_text(encoding="utf-8")
+        service = (ROOT / "crates/sheprd-remote-control/src/app/service.rs").read_text(encoding="utf-8")
+        task = re.search(r'pub const TASK: &str = "([^"]+)";', service).group(1)
+        self.assertIn(f'#define RemoteControlTask "{task}"', iss)
+        body = iss[iss.index("function PrepareToInstall("):]
+        self.assertIn("StopRemoteControl()", body[:body.index("\nend;")])
+        stop = iss[iss.index("function StopRemoteControlAt("):]
+        stop = stop[:stop.index("\nend;")]
+        self.assertIn("RunsFrom(Exe)", stop)
+        self.assertIn("'/End /TN \"{#RemoteControlTask}\"'", stop)
+        for name in ("{#RemoteControl}", "herdr-remote-control.exe"):
+            self.assertIn(f"StopRemoteControlAt(ExpandConstant('{{app}}\\{name}'))", iss)
+        self.assertIn('Filename: "{sys}\\schtasks.exe"; Parameters: "/Run /TN ""{#RemoteControlTask}""";'
+                      ' Flags: runhidden nowait; Check: RemoteControlStopped', iss)
+        for isl in (ISL, ISL.with_name("ko.isl")):
+            self.assertIn("RemoteControlStillRunning=", isl.read_text(encoding="utf-8"), isl.name)
+
     @unittest.skipUnless(sys.platform == "win32" and shutil.which("powershell.exe"), "needs Windows PowerShell")
     def test_links_open_the_launcher_as_setup_exe_registers_and_uninstall_removes_them(self):
         """Registers a throwaway scheme with the script's own lines, reads it

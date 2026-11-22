@@ -14,3 +14,5 @@ OpenIn=Open in %1
 ; %1 is the path of sheprd-automate.exe.
 AutomateDidNotStop=The automation daemon at %1 did not stop. Stop its runs with sheprd-automate stop, then run Setup again.
 AutomateStillRunning=The automation daemon at %1 is still running. Quit it, then run Setup again.
+; %1 is the path of sheprd-remote-control.exe.
+RemoteControlStillRunning=The remote control daemon at %1 is still running. End it in Task Manager, then run Setup again.

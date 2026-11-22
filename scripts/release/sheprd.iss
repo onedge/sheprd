@@ -7,9 +7,10 @@
 ; a scheduled task, sheprd-automate.exe, the automation daemon, sheprd-nearby.exe,
 ; the Bluetooth helper for nearby pairing and presence, and the licenses.
 ; Closing applications before replacing files also ends running chats, whose
-; agents' sessions can be resumed, and Remote control, which the app starts
-; again. It never installs, starts, or stops the Herdr daemon, and uninstalling
-; keeps settings and Herdr sessions.
+; agents' sessions can be resumed. Remote control, which Restart Manager cannot
+; close, Setup ends through its scheduled task and starts again once the new
+; copy is in place. It never installs, starts, or stops the Herdr daemon, and
+; uninstalling keeps settings and Herdr sessions.
 ; The directory and shortcut match site/install.ps1, so either replaces the other.
 
 #ifndef Version
@@ -37,6 +38,10 @@
 #define Launcher "sheprd-launcher.exe"
 ; The automation daemon the app finds beside its executable.
 #define Automate "sheprd-automate.exe"
+; The remote control daemon and the Task Scheduler task the app runs it as
+; (sheprd_remote_control::app::service::TASK).
+#define RemoteControl "sheprd-remote-control.exe"
+#define RemoteControlTask "Herdr UI Remote Control"
 ; The app's AppUserModelID (sheprd_updater::APP_ID), which each window carries with
 ; relaunch properties naming the launcher (src/taskbar.rs). Shortcuts carry it
 ; too, so a pinned shortcut and the window share one taskbar button.
@@ -174,6 +179,9 @@ Filename: "{app}\{#Launcher}"; Description: "{cm:LaunchProgram,{#AppName}}"; Fla
 Filename: "{app}\{#Launcher}"; WorkingDir: "{app}"; Flags: nowait; Check: RelaunchRequested
 ; The automation daemon Setup stopped to replace it, now the new copy.
 Filename: "{app}\{#Automate}"; Parameters: "start"; WorkingDir: "{app}"; Flags: runhidden nowait; Check: AutomateStopped
+; The remote control task Setup ended, now running the new copy; the app also
+; starts it when it next opens.
+Filename: "{sys}\schtasks.exe"; Parameters: "/Run /TN ""{#RemoteControlTask}"""; Flags: runhidden nowait; Check: RemoteControlStopped
 
 [Code]
 const
@@ -181,6 +189,7 @@ const
 
 var
   StoppedAutomate: Boolean;
+  StoppedRemoteControl: Boolean;
 
 { Set by the app's own updater, which has quit for the install. }
 function RelaunchRequested(): Boolean;
@@ -283,9 +292,9 @@ begin
   RenameLegacyShortcut(ExpandConstant('{userdesktop}'));
 end;
 
-{ Whether sheprd-automate.exe runs from Path. WQL strings escape backslashes
-  and quotes, and compare without case. }
-function AutomateRunsFrom(Path: String): Boolean;
+{ Whether a process runs from Path. WQL strings escape backslashes and quotes,
+  and compare without case. }
+function RunsFrom(Path: String): Boolean;
 var
   Locator, Service, Found: Variant;
 begin
@@ -297,7 +306,7 @@ begin
     Found := Service.ExecQuery('SELECT ProcessId FROM Win32_Process WHERE ExecutablePath = ''' + Path + '''');
     Result := Found.Count > 0;
   except
-    Log('Could not list running automation daemons: ' + GetExceptionMessage);
+    Log('Could not list running daemons: ' + GetExceptionMessage);
     Result := False;
   end;
 end;
@@ -312,7 +321,7 @@ var
   Code, Waited: Integer;
 begin
   Result := '';
-  if not FileExists(Exe) or not AutomateRunsFrom(Exe) then
+  if not FileExists(Exe) or not RunsFrom(Exe) then
     exit;
   if not Exec(Exe, 'shutdown', ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, Code) or (Code <> 0) then
   begin
@@ -320,7 +329,7 @@ begin
     exit;
   end;
   Waited := 0;
-  while AutomateRunsFrom(Exe) do
+  while RunsFrom(Exe) do
   begin
     if Waited >= 30000 then
     begin
@@ -340,14 +349,57 @@ begin
     Result := StopAutomateAt(ExpandConstant('{app}\{#Automate}'));
 end;
 
+{ The remote control daemon keeps running after the app quits, as a scheduled
+  task with no window, so Restart Manager cannot close it and a silent Setup
+  run, the in-app update among them, would abort over its executable. End the
+  task as the app does when it replaces the daemon, and wait for it to exit.
+  A daemon running from anywhere else is left alone. Returns an error message,
+  or '' once it is not running. }
+function StopRemoteControlAt(Exe: String): String;
+var
+  Code, Waited: Integer;
+begin
+  Result := '';
+  if not FileExists(Exe) or not RunsFrom(Exe) then
+    exit;
+  { A failure leaves the daemon running, which the wait below reports. }
+  Exec(ExpandConstant('{sys}\schtasks.exe'), '/End /TN "{#RemoteControlTask}"', '', SW_HIDE, ewWaitUntilTerminated, Code);
+  Waited := 0;
+  while RunsFrom(Exe) do
+  begin
+    if Waited >= 10000 then
+    begin
+      Result := FmtMessage(CustomMessage('RemoteControlStillRunning'), [Exe]);
+      exit;
+    end;
+    Sleep(200);
+    Waited := Waited + 200;
+  end;
+  StoppedRemoteControl := True;
+end;
+
+function StopRemoteControl(): String;
+begin
+  Result := StopRemoteControlAt(ExpandConstant('{app}\herdr-remote-control.exe'));
+  if Result = '' then
+    Result := StopRemoteControlAt(ExpandConstant('{app}\{#RemoteControl}'));
+end;
+
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 begin
   Result := StopAutomate();
+  if Result = '' then
+    Result := StopRemoteControl();
 end;
 
 function AutomateStopped(): Boolean;
 begin
   Result := StoppedAutomate;
+end;
+
+function RemoteControlStopped(): Boolean;
+begin
+  Result := StoppedRemoteControl;
 end;
 
 function InitializeUninstall(): Boolean;
