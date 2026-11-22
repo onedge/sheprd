@@ -1,7 +1,7 @@
 # 터미널 옆 사이드바: 제목, 행, 바닥글, 간결한 레일입니다.
 # 워크스페이스, 브랜치, 에이전트, 기기 이름은 사용자와 데몬의 것이라 번역하지 않습니다.
 
-sidebar-header-spaces = 워크스페이스
+sidebar-header-spaces = 스페이스
 sidebar-header-devices = 기기
 sidebar-header-agents = 에이전트
 sidebar-label = 사이드바
