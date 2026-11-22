@@ -3,15 +3,18 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{Attachment, Change, MAX_ATTACHMENTS, OptionValue, PermissionId, Transcript};
+use crate::{
+    Agent, Attachment, Change, MAX_ATTACHMENTS, OptionValue, Origin, PermissionId, Transcript,
+};
 
 /// The attach protocol version; a client and program must agree exactly.
 pub const VERSION: u32 = 1;
 
 /// Additions to [`VERSION`] a client declares it reads in its greeting:
-/// 1 is `Change::Activity`. A program sends a client of an earlier revision
+/// 1 is `Change::Activity`, 2 is `Change::Harnesses`, 3 is
+/// `Change::PullRequest`. A program sends a client of an earlier revision
 /// only what that client can decode.
-pub const REVISION: u32 = 1;
+pub const REVISION: u32 = 3;
 
 /// The longest prompt a client may send, in bytes.
 pub const MAX_PROMPT_SIZE: usize = 256 * 1024;
@@ -91,12 +94,21 @@ pub enum Command {
         /// Files sent with it, at most [`MAX_ATTACHMENTS`].
         #[serde(default)]
         attachments: Vec<Attachment>,
+        /// Where it was typed; none from clients that predate origins.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        origin: Option<Origin>,
     },
     /// Ends the running turn, declines its pending permission requests, and
     /// drops queued prompts.
     Cancel,
     Answer {
         option: String,
+        permission: PermissionId,
+    },
+    /// Answers a permission request that carries a [`Question`](crate::Question):
+    /// option labels, or the person's own words, one unless it takes several.
+    AnswerQuestion {
+        answers: Vec<String>,
         permission: PermissionId,
     },
     SetMode {
@@ -120,6 +132,16 @@ pub enum Command {
     /// stoppable, leaving the turn and everything else running.
     StopActivity {
         call_id: String,
+    },
+    /// Runs another agent in the chat, in place of the one it runs, while
+    /// the transcript's `harnesses` offers it.
+    SetAgent {
+        agent: Agent,
+    },
+    /// Lists a pull request the agent worked on, by its GitHub address, as
+    /// `sheprd chat pr add` asks for one changed without `gh`.
+    AddPullRequest {
+        url: String,
     },
 }
 
@@ -167,6 +189,8 @@ pub enum Rejection {
     UnknownPermission,
     #[error("that is not one of the request's options")]
     UnknownOption,
+    #[error("the answer is empty, too long, or has more choices than the question takes")]
+    InvalidAnswer,
     #[error("the agent has no such mode")]
     UnknownMode,
     #[error("the agent has no such setting, or it does not take that value")]
@@ -183,6 +207,19 @@ pub enum Rejection {
     UnknownFile,
     #[error("that work has already ended or cannot be stopped")]
     UnknownActivity,
+    /// The chat cannot switch agents now: its agent is in a turn, or, from
+    /// a program before agents could change mid-conversation, a prompt
+    /// already reached it.
+    #[error("the chat's agent cannot change while it is working")]
+    AgentFixed,
+    #[error("that agent is not installed where the chat runs")]
+    AgentMissing,
+    #[error(
+        "that is not a GitHub pull request address, such as https://github.com/OWNER/REPO/pull/7"
+    )]
+    InvalidPullRequest,
+    #[error("the chat already lists {} pull requests", crate::MAX_PULL_REQUESTS)]
+    TooManyPullRequests,
     /// A command this program's version does not know, from a newer client.
     #[error("this chat program is older than Sheprd; start a new chat to use that")]
     Unsupported,

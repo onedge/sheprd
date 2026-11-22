@@ -17,22 +17,28 @@ on:
     branches: [main]
     paths:
       - 'crates/sheprd-relay/**'
+      - 'crates/sheprd-dashboard/**'
       - 'Cargo.lock'
       - 'Cargo.toml'
       - 'rust-toolchain.toml'
       - 'scripts/relay-image.sh'
       - 'deploy/relay/**'
       - 'scripts/test_relay_deploy.py'
+      - 'website/site/relay/**'
       - '.github/workflows/relay-image.yml'
   pull_request:
+    # ready_for_review starts the run a draft skipped.
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - 'crates/sheprd-relay/**'
+      - 'crates/sheprd-dashboard/**'
       - 'Cargo.lock'
       - 'Cargo.toml'
       - 'rust-toolchain.toml'
       - 'scripts/relay-image.sh'
       - 'deploy/relay/**'
       - 'scripts/test_relay_deploy.py'
+      - 'website/site/relay/**'
       - '.github/workflows/relay-image.yml'
   workflow_dispatch:
 
@@ -47,6 +53,7 @@ jobs:
   # and the job cannot write packages.
   check:
     if: >-
+      github.event.pull_request.draft != true &&
       (github.repository == 'sheprd-labs/sheprd' || github.repository == 'penso/herdr-gpui') &&
       github.actor == 'penso' && github.triggering_actor == 'penso' &&
       github.event_name == 'pull_request' &&
@@ -187,7 +194,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
       # Pinned like release.yml, so signatures stay in the format deploys
       # verify.
-      - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+      - uses: sigstore/cosign-installer@756fe2d284c7292c4e9b62c8a28f1e5629c59532 # v4.1.3
         with:
           cosign-release: 'v2.6.5'
       - name: Sign

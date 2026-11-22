@@ -325,12 +325,10 @@ name, and port as `ssh -G` resolves them, so an SSH alias, `user@address`, and
 before anything else, so a second add from any window is refused while the
 first runs. The catalog file is read again right before `machine add` runs and
 right after: if another client saved the same host in between, the profile added
-second is removed, so exactly one remains. A terminal setup keeps the claim
-while it runs and releases it when it ends, saved or not, so a failed setup
-never locks the host out; if the setup workspace never runs, the claim is
-released after two minutes. Another client adding the host while a terminal
-setup runs can still create a duplicate. A host refused as already being added
-is still in another Add Device dialog or in a running "Set up" workspace.
+second is removed, so exactly one remains. Interactive setup keeps the claim
+while it runs and releases it when it ends, saved or not. Another client adding
+the host during interactive setup can still create a duplicate. A host refused
+as already being added is still in another Add Device dialog.
 
 Under the SSH target, **Nearby devices** suggests hosts to add. Opening the
 dialog starts one search, shown by a sliding bar, which lasts about ten seconds;
@@ -438,23 +436,30 @@ never installs or starts anything while checking:
 - Herdr missing: the dialog asks "Herdr was not detected on the host. Should we
   install it?" An outdated Herdr asks to update it instead.
 - SSH needs a prompt (unknown host key, password, passphrase), the check failed,
-  or saving without a terminal failed: the dialog offers to continue in a
-  terminal.
+  or saving without a terminal failed: the dialog offers to continue here.
 
-Accepting creates a new workspace on this device's Herdr and shows the setup
-there. The setup itself, `herdr machine add` (after `ssh-copy-id` when the host
-refused every key), runs as a child of this app on a terminal the app owns; the
-workspace's shell only runs `sheprd __device-setup-attach SOCKET`, which
-relays the pane's keys and size to it over a private, single-use socket in the
-app's state directory. It runs with your login `PATH` and agent, so it uses
-your own `ssh` (Homebrew's or any other), SSH config, and security key, exactly
-as a terminal would. Herdr handles SSH prompts, approval to install/update
-remote software, server startup, and saving the machine only after successful
-setup; complete any prompts in that workspace. The saved device appears
-automatically on the next catalog refresh. No credentials are collected by the
-GUI. Closing the workspace hangs the setup up, and so does quitting the app,
-since the setup belongs to it. Explicit-socket and development-catalog windows
-do not offer setup. Windows has no terminal setup yet: there the dialog names
+Accepting keeps setup inside **Add Device**: progress is plain text,
+installation and restart approvals have **Yes** and **No** buttons, and SSH
+passwords or passphrases use a masked response field. Enter sends a response;
+confirmations require a button click. Nothing is automatically approved. No
+workspace or terminal tab is created, and the selected device stays selected;
+setup works even when the local daemon is disconnected.
+
+The setup itself, `herdr machine add` (after `ssh-copy-id` when the host refused
+every key), still runs as this app's child on a private terminal, using the
+user's login `PATH`, SSH config, agent, and security key. Before installing, it
+adds `~/.local/bin` to the remote shell's PATH: zsh's `.zshenv`, bash's
+`.bashrc` and existing login profile, fish's `conf.d`, or `.profile` for other
+POSIX shells. Existing content and symlinks are preserved; repeated setup does
+not duplicate the entry. Bash's entry precedes interactive-only early returns,
+so non-interactive SSH commands see it too.
+
+Responses are not logged or saved; the field is cleared after sending.
+Output is bounded to one terminal viewport and terminal escapes cannot run UI
+actions or set the clipboard. Closing or cancelling the dialog hangs up setup,
+as does quitting the app. The saved device appears on the next catalog refresh.
+Explicit-socket and development-catalog windows do not offer setup.
+Windows has no terminal setup yet: there the dialog names
 what needs a terminal and asks you to run `herdr machine add TARGET` in one
 (see [Windows](#ssh-hosts)).
 
@@ -947,8 +952,11 @@ preserves these drafts. Theme, font, and layout writes from Settings are seriali
 
 **Ghostty** and **Herdr** are independent library filters, both enabled initially.
 Turn either off to show only the other; search text is preserved, and changing a
-filter does not change the live theme or pending draft. Ghostty includes native
-built-ins and theme files. The built-ins bundle popular Ghostty themes from
+filter does not change the live theme or pending draft. Switching to one library
+locates its saved or drafted theme. Saved and draft cards have an accent outline,
+while a filled background marks keyboard focus; the first search result may be
+focused without being the current theme. Ghostty includes native built-ins and
+theme files. The built-ins bundle popular Ghostty themes from
 iTerm2-Color-Schemes under their Ghostty names, so a platform without Ghostty
 still lists them; when Ghostty is installed, its copy of a built-in, including
 an older spelling such as `tokyonight` or `catppuccin-mocha`, is listed once,
@@ -1196,6 +1204,20 @@ commit, and has no agent working or waiting on a prompt. A repository with an
 archive script is left for the delete dialog. The focused workspace opens that
 dialog instead of being removed. The branch is not deleted, and a checkout
 the daemon finds dirty is never force removed.
+To clean up once without turning that on, click the sparkles button beside the
+sidebar's Spaces heading, shown while the selected device has merged
+worktrees, or run **Remove Merged Worktrees** (`remove_merged_worktrees`) from
+the palette or `sheprd run`. One dialog lists them; confirming runs the same
+checks over each, removes the focused one too, and reports how many stayed.
+Herdr answers `worktree.remove` only once Git has removed the checkout, and
+other workspace actions wait behind it, so the delete dialog stays open with a
+sliding bar and the seconds waited, and the merged sweep's dialog shows how
+many of them are done and which one is in hand. Dismissing either leaves the
+removal running; the sparkles button shows a running sweep again.
+When the workspace in front is removed or closed, from this window or
+anywhere else, the sidebar row above it comes to the front (the row below
+when it was first), so a long list stays where it was rather than jumping to
+the daemon's or Herdr 2's first workspace.
 The pane dialog's **Do not ask again** checkbox (click it or press Space) saves
 `confirm_close_pane = false` to `config-gpui.local.toml` once the close is sent. Saved edits apply automatically. The
 **Show agents** control in **Settings > Sidebar** saves
@@ -1800,6 +1822,30 @@ a strip squeezed by the sidebar, a panel, or a split gives up its tabs' room
 first, then drops the pair whole before the trailing controls would be
 pushed out.
 
+Ctrl-Tab (`recent_pane`) switches to the pane this window focused most
+recently before the current one across all connected machines, including
+herdr-core tabs and the fallback shell. Herdr 1 panes require surface fencing
+support; older unfenced daemons show an unsupported-command notice. A quick tap
+goes back and forth between two panes. Holding Ctrl while pressing Tab again
+walks the history without reordering intermediate panes. Releasing Ctrl makes
+the selected pane most recent once its focus is confirmed. Releasing before
+that confirmation waits; a failed selection never becomes a visit.
+Ctrl-Shift-Tab (`recent_pane_reverse`) goes the other way, starting from the
+least recently used pane. If another pane gains focus during the hold, that
+pane becomes most recent on release. Each window remembers at most 100 panes.
+Closed panes and unavailable machines are skipped. Reconnecting to the same
+daemon boot preserves its history. A restarted Herdr 1 daemon loses only
+its Herdr 1 panes. A removed machine loses its destinations. Core panes
+remain independent of Herdr 1 restarts.
+A further press while a recent selection is pending is ignored. Core panes
+can still switch locally during an unrelated Herdr 1 outage or activation.
+An unavailable selected machine can still switch to a reachable pane on
+another machine.
+The palette and the devices rail keep Ctrl-Tab for their own filters while
+they are open. A terminal program no longer receives Ctrl-Tab or
+Ctrl-Shift-Tab; unbind or rebind the two commands in `[keybindings]` to give
+the keys back.
+
 macOS keeps `Some(TitlebarOptions)` and the native Herdr window title/traffic lights,
 with transparent chrome and lights positioned at (9, 9) logical pixels. A full-width
 34px header blends `theme.surface` roughly 10% toward white, subtly lifting dark
@@ -2094,6 +2140,14 @@ checkouts without Herdr 1, using the device's GitHub account selection. See
 [desktop SSH pull requests](../../docs/desktop-ssh-pull-requests.md) for cache
 isolation, merged-checkout discovery, and the remaining cloud/WSL PR-origin
 limitation shared by both terminal backends.
+
+If **New worktree** finds that the requested branch already has a checkout,
+Sheprd warns that it already exists, pulls its remote with a fast-forward-only
+update, and opens that checkout. Fork pull requests update from their PR ref.
+A failed pull is shown as a warning and the checkout still opens. Reopening
+does not rerun setup scripts or launch another agent. If you switch hosts while
+an existing Herdr 2 checkout is being pulled, its result is reported with the
+original host's name without switching you back or opening the checkout.
 
 A repository can commit scripts that prepare, start, and clean up its
 worktrees, in `.herdr/worktree.toml` at the repository root:
@@ -2591,8 +2645,8 @@ window at once, and `sheprd ui panel NAME` shows a section.
   an hour fold into one **+N idle** row that opens on click. Hovering a row
   offers **Reply**, **Snooze** (until a preset time), **Settle**, **Pin**, and
   **Open**; snoozed and settled rows fold away at the bottom and come back once
-  their time comes or the agent works or asks again. These marks are this
-  client's own. Shift or Cmd/Ctrl click selects rows, and a bar over the list
+  their time comes or the agent works or asks again, and leave the Dock or
+  taskbar badge until then. These marks are this client's own. Shift or Cmd/Ctrl click selects rows, and a bar over the list
   then settles, snoozes, or replies to all of them.
 
   A blocked agent's row shows the last lines of its pane, so you can read what
@@ -2616,9 +2670,11 @@ window at once, and `sheprd ui panel NAME` shows a section.
   hours or with delivery off; clicking one goes to its pane.
   **Notification History** in the palette opens it, and `sheprd window alerts`
   prints it. An alert about the tab you are looking at is not kept.
-  **Clear** on the shelf, or **Clear All Notifications** in the palette (no
-  default shortcut; bind `clear_all_notifications` under `[keybindings]`, or
-  run `sheprd run clear_all_notifications`), empties it in every window,
+  **Clear all** at the top of the page, shown while there is an alert or a
+  toast to clear, **Clear** on the shelf, or **Clear All Notifications** in
+  the palette (no default shortcut; bind `clear_all_notifications` under
+  `[keybindings]`, or run `sheprd run clear_all_notifications`), empties it
+  in every window,
   dismisses every toast, shown or waiting, and withdraws the app's OS
   notifications (see [System notifications](#system-notifications)). Agents
   keep their status: a finished agent's Done dot and the Dock badge clear as
@@ -3680,10 +3736,12 @@ conversation natively over that pane. The program is the agent's only client,
 so the Herdr TUI, a plain terminal, and every app window see one conversation.
 
 **Starting one.** A group's **…** menu lists **New Chat** with one row per
-agent `sheprd-acp` knows (Claude, Codex, Copilot, Gemini, OpenCode, Pi). A row
+agent `sheprd-acp` knows (Claude, Codex, Copilot, Gemini, Kimi Code, OpenCode, Pi). A row
 opens a tab named after the agent in the focused workspace, in the focused
 pane's folder, and runs the program there; `sheprd chat new AGENT` does
-the same from a pane. The rows show once the app has found `sheprd-acp`,
+the same from a pane, and from a chat, `sheprd chat new` starts that chat's
+agent with its settings ([Starting a chat like this
+one](../../docs/rich-chat.md#starting-a-chat-like-this-one)). The rows show once the app has found `sheprd-acp`,
 first beside its own executable (the app bundle, `cargo build`'s target
 directory, or where `just install` puts both) and then on the login shell's
 `PATH`. A Herdr 2 tab starts a chat beside its active pane, including on
@@ -3691,14 +3749,21 @@ saved SSH, cloud, and WSL hosts; an empty app-kept workspace starts a new
 Herdr 2 chat tab. Remote launches find the remote host's own program rather
 than using the desktop executable's path. Each agent has to be
 installed: `claude`, `codex` and `pi` (which `sheprd-acp` drives without an
-ACP adapter), `copilot --acp`, `gemini --acp`, or `opencode acp`. The program can
+ACP adapter), `copilot --acp`, `gemini --acp`, `kimi acp`, or `opencode acp`. The program can
 also be started by hand in any pane: `sheprd-acp claude`.
 
-**One click.** Each tab strip also offers a button per installed agent that
-starts its chat in a new tab of that group; the chat's tab looks like any
-other, and **+** still opens a terminal tab. Each button takes the shape
-the tab layout gives **+**. `[chat] launcher` places the buttons: `plus`
-(the default) deals them out from under **+** while the pointer is over it,
+**One click.** Each tab strip also offers an **Agent** button right after
+**+** that starts a chat in a new tab of that group, with the agent last
+started (else the first installed), or, when that agent's plan is spent or
+close to its limit, the installed agent with the most room, as the tooltip
+and composer then say (see [Choosing the agent](../../docs/rich-chat.md#choosing-the-agent)); the chat's tab looks like any other, and
+**+** still opens a terminal tab. Until its first prompt, the chat's composer
+offers the other installed agents in its own button, first among the
+settings; picking one restarts the chat with that agent, and the launcher
+starts the next chat with it too. Chats on an SSH host keep the agent they
+start with, since the host's `sheprd-acp` may be older. The button takes the
+shape the tab layout gives **+**. `[chat] launcher` places it, or a button
+per installed agent instead: `agent` is the default, `plus` deals them out from under **+** while the pointer is over it,
 to the right, or to the left when the window has no room there, `beside` keeps them right after **+**, `leading` puts them before
 the tabs, `trailing` at the strip's right end, and `button` shows one named
 button for the agent last started, the others sliding out beside it; `off`
@@ -4000,8 +4065,12 @@ notification from before the app last started stays until you dismiss it.
 The Dock icon shows the number of agents reporting `Done` (finished) or `Blocked`
 (waiting for input), and clears at zero. It covers all connected hosts and
 main windows, including minimized windows, without counting the same agent twice.
-Sidebar visibility, muted sounds, dismissed toasts, and the notification
-delivery setting (including off) do not affect the badge.
+Agents in a muted workspace or tab are not counted, nor agents whose Overview
+row you settled or snoozed: a snoozed agent counts again when its time comes,
+and a settled or snoozed one as soon as it asks for input or works and finishes
+again, as its row comes back. Sidebar visibility, muted sounds, dismissed
+toasts, and the notification delivery setting (including off) do not affect
+the badge.
 Existing attention is counted from each host's first snapshot at startup; no
 new completion or notification is needed. The first positive focus report waits
 until the terminal surface is ready so loading cannot acknowledge unseen work.
@@ -4069,9 +4138,8 @@ three newest reports, redacted like the log records, and lists dumps by name and
 size without including them: they hold the app's memory, so attach one only
 when asked.
 
-For the known macOS Touch Bar window-close crash, see the
-[investigation and native validation steps](../../docs/macos-window-close.md).
-The upstream dependency fix has not yet been adopted by this checkout.
+The fix for the macOS Touch Bar window-close crash is covered by a native
+regression test. See the [cause and test command](../../docs/macos-window-close.md).
 
 Local Windows connections are supported through the daemon's named pipe; pass
 the binary client socket path to `--socket`, not the JSON API socket. No debug
@@ -4403,6 +4471,19 @@ Ctrl+Shift+U is left unbound for
   Accounts are listed in `[github] accounts` with an `id` naming their credential
   entry (`github.com/account/<id>`, or `github-credentials-account-<id>`) and
   optional `owners`; **Remove account (D)** deletes the credential, then the entry.
+- GitHub Enterprise Server accounts read the repositories of a self-hosted
+  GitHub. In the GitHub panel, **Add Enterprise account (E)** asks for the
+  server's host (a port other than 443 goes after a colon) and a personal
+  access token in one form, and the server checks the token before it is saved; there is no browser
+  sign-in. No github.com sign-in is needed. A checkout whose remote is on that
+  host is read with the account listing its owner, else the first account on
+  that server, and never with a github.com credential; a server with no account
+  shows the sign-in prompt. HTTPS is verified against the system's trust store,
+  so a company CA installed on the computer is accepted. They are listed in
+  `[github] enterprise` with `server`, `id`, and optional `owners`
+  (credential `<server>/account/<id>`, or
+  `github-credentials-enterprise-<id>`), and count toward the same limit of
+  eight accounts. Vulnerability reports and avatars stay with github.com.
    Herdr does not give endpoint clients a workspace's checkout path, so every
     daemon version uses this worktree-registry path. No Git or HTTP requests run from menu-open or render paths.
   Opening the top-right Git/PR dropdown also queues a fresh lookup for the focused
@@ -4788,6 +4869,9 @@ Ctrl+Shift+U is left unbound for
   through the sidebar's rows on every listed host and wrap around,
   `switch_workspace` counts the selected host's rows, `focus_agent` counts the
   agent panel's, `last_pane` returns to the pane focused before this one,
+  `recent_pane`/`recent_pane_reverse` (Ctrl-Tab and Ctrl-Shift-Tab) step
+  through this window's recently used panes on every connected machine while
+  their modifier stays held,
   `move_tab_previous`/`_next` wrap a tab at either end to the other, and
   `[keys.indexed]` combos bind the digits 1-9. On macOS, the prefix, its
   chords, and custom command shortcuts recognize a shifted key such as
@@ -5029,7 +5113,8 @@ CI checks formatting, lints every target and feature,
 and runs workspace tests with default and all features on `windows-2025` (x86_64)
 and `windows-11-arm` (ARM64), including headless UI and CLI tests. Its
 `windows-native` job then runs the native tests in both runners' desktop
-sessions: `just test-sidebar`'s fixtures, and on x86_64 `just test-gui` against
+sessions, on main and on pull requests that change what the app is built from
+(`scripts/ci-changes.sh`): `just test-sidebar`'s fixtures, and on x86_64 `just test-gui` against
 a pinned Herdr `herdr.exe` (0.9.5) in the shared test sandbox, with PowerShell
 as the pane shell. Herdr publishes no ARM64 Windows build; emulated on
 `windows-11-arm`, its panes echo typed text but never act on Enter, so CI skips
@@ -5282,7 +5367,8 @@ GitHub sign-ins are kept in Windows Credential Manager, which plays the part
 of the Keychain and the Secret Service. Each account is one generic credential,
 `dev.herdr.gpui.github/github.com` for the main account,
 `dev.herdr.gpui.github/github.com/host/<device-id>` for a device's own, and
-`dev.herdr.gpui.github/github.com/account/<id>` for an additional account, holding
+`dev.herdr.gpui.github/github.com/account/<id>` for an additional account, and
+`dev.herdr.gpui.github/<server>/account/<id>` for a GitHub Enterprise Server one, holding
 exactly what the other keyrings hold: the device-flow token pair with its
 expiry, or only the GitHub CLI marker, never the CLI's token. Entries are
 persisted for your Windows account on this computer only

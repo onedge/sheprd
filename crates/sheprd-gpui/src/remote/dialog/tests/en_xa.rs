@@ -15,6 +15,8 @@ fn daemon(_: &Path, request: &Request) -> Result<Response, control::Error> {
                 device_name: "Pixel".into(),
                 code: "428913".into(),
                 app: Some("https://other.example:8443".into()),
+                ssh: false,
+                fleet: None,
             })
         }
         Request::Pairing { .. } => Response::Pairing(PairingState::Waiting {

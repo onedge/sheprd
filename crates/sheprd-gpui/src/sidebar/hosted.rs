@@ -72,6 +72,8 @@ pub struct Stamp {
     connected: bool,
     /// Every device's snapshot and folds; see `hosted_devices_stamp`.
     devices: u64,
+    /// How many merged worktrees the sidebar's broom would remove.
+    merged: usize,
     metrics: SidebarMetrics,
     panel: ActivityPanel,
     section: bool,
@@ -93,6 +95,7 @@ impl PartialEq for Stamp {
             && self.agents_list == other.agents_list
             && self.connected == other.connected
             && self.devices == other.devices
+            && self.merged == other.merged
             && self.metrics == other.metrics
             && self.panel == other.panel
             && self.section == other.section
@@ -122,6 +125,7 @@ fn panel_id(panel: ActivityPanel) -> &'static str {
         ActivityPanel::Security => "security",
         ActivityPanel::Tasks => "tasks",
         ActivityPanel::Usage => "usage",
+        ActivityPanel::Traces => "traces",
         ActivityPanel::Workspaces => "workspaces",
     }
 }
@@ -227,6 +231,7 @@ impl SheprdWindow {
             agents_list: self.hosted_agents_list(),
             connected: self.live.status.is_connected(),
             devices: self.hosted_devices_stamp(),
+            merged: self.merged_worktrees().len(),
             panel: self.activity_panel(),
             section: self.activity_section().is_some(),
             metrics: self.hosted_metrics(),
@@ -325,6 +330,8 @@ impl SheprdWindow {
                     AgentSort::Grouped => "grouped",
                     AgentSort::Priority => "priority",
                 },
+                // Merged worktrees the spaces heading's broom removes.
+                "merged": self.merged_worktrees().len(),
                 "layout": layout_state(self.config.layout.mode.name(), &self.hosted_metrics()),
                 "connected": self.live.status.is_connected(),
                 "panel": panel_id(self.activity_panel()),

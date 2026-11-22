@@ -51,6 +51,9 @@ notifications = "generic"
 # Forget a paired device that has not connected for this many days (1 to 365),
 # or 0 to keep it until it is revoked.
 device_idle_days = 30
+# GitHub Enterprise Server hosts whose repositories the phone reads from
+# GitHub itself, besides github.com, GHE.com, and the hosts gh is signed in to.
+github_hosts = []
 ```
 
 Device keys and the certificate authority stay in the daemon's own state directory, never in the config file. **Restart the daemon** starts it again from the binary beside Sheprd, as after an update; phones reconnect on their own.
@@ -62,6 +65,8 @@ Choose **Pair a phone…** in Settings > Remote control, the **Pair phone** butt
 1. Scan the code with the phone's camera. The page opens and asks for nothing.
 2. The phone and the desktop both show the same 6-digit code, and the desktop asks: "*iPhone* wants remote control of your chats."
 3. Choose **Allow** only if the phone shows the same code. **Deny**, a timeout, or a second scan of the same code voids the pairing.
+
+The approval step also has **Share GitHub sign-in with this phone**, on by default, so the iPhone app reads pull requests and checks from GitHub itself. It lends Sheprd's main github.com account, checked with GitHub each time and only for as long as that token lasts, and the accounts the GitHub CLI (`gh`) is signed in to on the computer, including Enterprise hosts. Additional accounts stay on the desktop. Change it for each phone beside it in Settings > Remote control. Turning it off, or revoking the phone, stops new sign-ins; a `gh` sign-in the phone already has works until you run `gh auth refresh` or revoke it on GitHub.
 
 Both sides prove who they are. The phone trusts the computer through the daemon's own certificate authority, whose fingerprint is in the QR code and shown on both screens. The computer trusts the phone through a key the phone creates at pairing, which cannot be exported. Revoke a phone any time in Settings > Remote control: its sessions end and its notifications stop at once.
 
@@ -77,7 +82,7 @@ The pairing page offers the certificate authority to install on the phone. Pairi
 
 Add the page to your Home Screen to install it as an app. On iOS, Safari and the Home Screen app keep separate storage; the paired browser hands its pairing over to the installed app without a second approval. An unpaired Home Screen app can also scan a fresh pairing code directly.
 
-Workspace headers show their pull request's number and status color, as on the desktop, for Herdr 2 workspaces too. Tapping the badge opens the pull request. No GitHub credentials are sent to the phone.
+Workspace headers show their pull request's number and status color, as on the desktop, for Herdr 2 workspaces too. Tapping the badge opens the pull request. The web app is sent no GitHub credentials; only the iPhone app borrows a sign-in, as **Share GitHub sign-in** allows.
 
 ## Notifications
 
@@ -114,6 +119,7 @@ On macOS, pairing over Bluetooth needs Sheprd allowed in System Settings > Priva
 | `sheprd remote` | Whether remote control is on and running: port, version, addresses, certificate authority fingerprint, and paired devices |
 | `sheprd remote devices` | Paired devices with their IDs, last seen, notifications, and the other machines each was paired with |
 | `sheprd remote pair [--address HTTPS_ORIGIN]` | Open the pairing dialog; you approve the phone there |
+| `sheprd remote add-link` | Open **Add Device > Nearby Sheprd** with another computer's pairing link, read from standard input (see [SSH hosts](ssh-hosts.md#another-computer-running-sheprd-on-another-network)); you choose **Pair** there |
 | `sheprd remote restart` | Restart the daemon from the binary beside the app |
 | `sheprd remote revoke DEVICE` | Ask in the window to revoke a device; you confirm there |
 

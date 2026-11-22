@@ -137,6 +137,7 @@ fn remote_edits_write_what_loading_reads() -> anyhow::Result<()> {
         Edit::LiveActivities(ActivityDetail::Generic),
         Edit::DeviceIdleDays(90),
         Edit::Presence(true),
+        Edit::PushRelay(true),
         // Written as the daemon names them, each once.
         Edit::Relays(vec![
             " https://relay.example.org/ ".into(),
@@ -155,11 +156,13 @@ fn remote_edits_write_what_loading_reads() -> anyhow::Result<()> {
             device_idle_days: 90,
             enabled: true,
             github_cli: false,
+            github_hosts: Vec::new(),
             keep_running: false,
             live_activities: ActivityDetail::Generic,
             notifications: Privacy::Excerpt,
             port: 9443,
             presence: true,
+            push_relay: true,
             relays: vec![
                 "https://relay.example.org".into(),
                 "https://eu.example.org/relay".into(),

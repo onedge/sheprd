@@ -24,7 +24,9 @@ A native Rust/GPUI workspace for terminals and AI agents on macOS, Linux, and
 Windows. Organize repositories, worktrees, tabs and splits; chat with agents,
 review their changes, track pull requests and usage, and work across local,
 SSH and cloud machines. Browser previews, automations, mods and phone remote
-control connect those workflows in one app. The iPhone and iPad app is in a
+control connect those workflows in one app. MCP clients such as Claude Desktop,
+Cursor, and Codex can use it too, through [`sheprd mcp`](docs/cli.md#mcp), once
+turned on in Settings. The iPhone and iPad app is in a
 [TestFlight beta](https://sheprd.org/testflight/).
 
 Sheprd supports both an existing [Herdr](https://herdr.dev/) daemon and
@@ -149,6 +151,10 @@ not installed, Sheprd opens a herdr-core shell; no separate daemon installation
 is required. It joins an existing core first, otherwise starts your own
 `herdr-core` or the bundled companion. Source builds need a usable herdr-core
 binary for this path.
+
+Once Sheprd finds that Herdr 1 is not installed, it keeps using herdr-core
+without retrying Herdr 1 in the background. If you install Herdr 1 later,
+use Reconnect to check for it.
 
 If you already use [Herdr 1](https://herdr.dev/), Sheprd connects to its sessions
 and may start your installed `herdr server` when the target session is absent.

@@ -1,6 +1,5 @@
 use super::*;
 use crate::controls::COMMANDS;
-use std::collections::BTreeSet;
 
 /// Catalog commands name their messages as data, which `fl!` cannot check.
 #[test]
@@ -28,21 +27,15 @@ fn numbered_commands_say_their_number_in_english_without_isolation() {
     assert_eq!(command(info), "Focus Tab \u{2068}3\u{2069}");
 }
 
-/// The build script refuses files that do not parse; what it embeds is
-/// every English file and each translation's, every embedded language is
-/// one the app offers, the fallback first, and the table `fl!` searches is
-/// sorted.
+/// The build script embeds the English catalog; the table `fl!` searches
+/// is sorted.
 #[test]
-fn the_embedded_files_are_the_offered_languages_and_the_table_is_sorted() {
+fn english_messages_are_embedded_and_the_lookup_table_is_sorted() {
     assert!(
         FILES
             .iter()
             .any(|file| file.language == "en-US" && file.feature == "commands")
     );
-    let offered = available();
-    assert_eq!(offered.first(), Some(&Locale::FALLBACK));
-    let embedded: BTreeSet<String> = FILES.iter().map(|file| file.language.to_owned()).collect();
-    let offered: BTreeSet<String> = offered.iter().map(ToString::to_string).collect();
-    assert_eq!(embedded, offered);
     assert!(MESSAGES.windows(2).all(|pair| pair[0].0 < pair[1].0));
+    assert_eq!(available().first(), Some(&Locale::FALLBACK));
 }

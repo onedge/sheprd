@@ -14,6 +14,8 @@ use sheprd_chat_protocol::{
     display,
 };
 
+mod agent;
+
 /// The settings the header shows a button for, in order.
 const AT_HAND: [OptionCategory; 3] = [
     OptionCategory::Model,
@@ -24,6 +26,9 @@ const AT_HAND: [OptionCategory; 3] = [
 const WARN: u8 = 75;
 const ALARM: u8 = 90;
 const METER: f32 = 48.;
+/// The narrowest any footer setting gets once its label is truncated away:
+/// a switch's track and mark. Its tooltip still names the value.
+pub(super) const SHRUNK: f32 = 58.;
 /// A setting with this many choices, other than the model, is a switch
 /// between them rather than a menu: build or plan, say.
 const SWITCH: usize = 2;
@@ -194,7 +199,7 @@ impl SheprdWindow {
                         if choices.len() > SEARCHABLE)
                 }),
             Menu::Shortcuts => true,
-            Menu::Modes | Menu::Settings => false,
+            Menu::Agent | Menu::Modes | Menu::Settings => false,
         };
         let shortcuts = opening && menu == Menu::Shortcuts;
         // The shortcuts' popover keeps its field while it fades out.
@@ -236,6 +241,21 @@ impl SheprdWindow {
         cx.notify();
     }
 
+    /// Closes the menu open over the chat once the person types in its
+    /// composer, as a click outside it would. A menu with its own search
+    /// field holds the keyboard, so typing there never reaches this.
+    pub(in crate::chat) fn close_chat_menu_on_typing(
+        &mut self,
+        pane_id: &str,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let Some(menu) = self.chats.pane(pane_id).and_then(|pane| pane.menu.clone()) else {
+            return;
+        };
+        self.toggle_chat_menu(pane_id, menu, window, cx);
+    }
+
     /// An on/off switch between a setting's two choices, marked with what
     /// it sets and labeled with the current one: off is the first choice,
     /// on the second.
@@ -267,7 +287,8 @@ impl SheprdWindow {
         div()
             .id(SharedString::from(id))
             .debug_selector(move || selector.clone())
-            .flex_none()
+            .flex_shrink_1()
+            .min_w(px(SHRUNK))
             .flex()
             .items_center()
             .gap(px(6.))
@@ -292,7 +313,7 @@ impl SheprdWindow {
                     .child(div().size(px(11.)).rounded_full().bg(rgb(theme.background))),
             )
             .child(mark)
-            .child(safe_text(&name, 40))
+            .child(div().min_w_0().truncate().child(safe_text(&name, 40)))
             .tooltip(hint)
             .on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation())
             .on_click(cx.listener(move |this, _: &ClickEvent, _, cx| {
@@ -316,10 +337,16 @@ impl SheprdWindow {
         let on = chat.session.transcript().auto_accept;
         let pane = chat.target.pane_id.clone();
         let color = if on { yellow } else { theme.subtext() };
+        let label = if on {
+            fl!("chat-settings-auto-accept-on")
+        } else {
+            fl!("chat-settings-auto-accept-off")
+        };
         div()
             .id("chat-auto-accept")
             .debug_selector(|| "chat-auto-accept".into())
-            .flex_none()
+            .flex_shrink_1()
+            .min_w(px(36.))
             .flex()
             .items_center()
             .gap(px(5.))
@@ -348,11 +375,9 @@ impl SheprdWindow {
                     .size(px(12.))
                     .text_color(rgb(color)),
             )
-            .child(if on {
-                fl!("chat-settings-auto-accept-on")
-            } else {
-                fl!("chat-settings-auto-accept-off")
-            })
+            .child(div().min_w_0().truncate().child(label.clone()))
+            // The label may be truncated; the tooltip names it in full.
+            .tooltip(self.chat_setting_hint(&fl!("chat-settings-auto-accept"), &label))
             .on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation())
             .on_click(cx.listener(move |this, _: &ClickEvent, _, cx| {
                 cx.stop_propagation();
@@ -360,8 +385,9 @@ impl SheprdWindow {
             }))
     }
 
-    /// The composer's setting buttons: one per setting at hand, the agent's
-    /// older modes when it has no mode setting, then one for the rest.
+    /// The composer's setting buttons: the agent while the chat may still
+    /// switch, one per setting at hand, the agent's older modes when it has
+    /// no mode setting, then one for the rest.
     pub(super) fn render_chat_settings_buttons(
         &self,
         chat: &ChatPane,
@@ -377,7 +403,10 @@ impl SheprdWindow {
                 .size(px(10.))
                 .text_color(rgb(theme.subtext()))
         };
-        let mut buttons = Vec::new();
+        let mut buttons: Vec<_> = self
+            .render_chat_agent_button(chat, cx)
+            .into_iter()
+            .collect();
         for category in AT_HAND {
             let Some(option) = transcript.option(category) else {
                 continue;
@@ -408,18 +437,20 @@ impl SheprdWindow {
             }
             let id = option.id.clone();
             let pane = pane_id.clone();
-            let compact = layout_for(self.config.chat.layout).compact_settings()
-                && matches!(option.kind, OptionKind::Select { .. });
             let selector = format!("chat-setting-{}", option.id);
             let button = self
                 .chat_header_button(selector.clone().into())
                 .tooltip(self.chat_setting_hint(&option.name, &option.current_name()))
                 .child(self.chat_setting_icon(&selector, category_icon(category)))
-                // The mark and tooltip still say what a squeezed button sets.
-                .when(compact, |button| button.flex_shrink_1().min_w(px(46.)))
+                // A button squeezed by a single-line footer, or alone on a
+                // wrapped line narrower than it, truncates its label; the
+                // mark and tooltip still say what it sets.
+                .flex_shrink_1()
+                .min_w(px(46.))
                 .child(
                     div()
-                        .when(compact, |label| label.min_w_0().flex_shrink_1())
+                        .min_w_0()
+                        .flex_shrink_1()
                         .max_w(px(200.))
                         .truncate()
                         .child(safe_text(&option.current_name(), 80)),
@@ -475,7 +506,15 @@ impl SheprdWindow {
                                 category_icon(OptionCategory::Mode),
                             ),
                         )
-                        .child(div().max_w(px(160.)).truncate().child(safe_text(&name, 80)))
+                        .flex_shrink_1()
+                        .min_w(px(46.))
+                        .child(
+                            div()
+                                .min_w_0()
+                                .max_w(px(160.))
+                                .truncate()
+                                .child(safe_text(&name, 80)),
+                        )
                         .child(chevron())
                         .on_click(cx.listener(move |this, _: &ClickEvent, window, cx| {
                             cx.stop_propagation();
@@ -590,6 +629,7 @@ impl SheprdWindow {
         };
         let mut rows: Vec<AnyElement> = Vec::new();
         match menu {
+            Menu::Agent => rows.extend(self.chat_agent_rows(chat, row, cx)),
             // Drawn by `render_chat_shortcuts`, which animates it.
             Menu::Shortcuts => return div().into_any_element(),
             Menu::Modes => {

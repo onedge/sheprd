@@ -26,7 +26,6 @@ error-remote-control-unsupported = 이 플랫폼에서는 원격 제어를 서�
 error-remote-control-connect = 원격 제어 데몬에 연결하지 못했습니다
 error-remote-control-daemon = 원격 제어 데몬이 거부했습니다: { $message }
 error-remote-control-no-answer = 원격 제어 데몬이 답하지 않고 연결을 닫았습니다
-error-remote-control-enroll-apns-size = 보낸 APNs 파일이 너무 큽니다
 error-remote-control-enroll-config = { $path }이(가) 올바른 TOML이 아닙니다
 error-remote-control-enroll-no-home = 이 호스트에 홈 폴더가 없습니다
 error-remote-control-enroll-not-started = 이 호스트의 원격 제어 데몬이 시작하지 않았습니다

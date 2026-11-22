@@ -716,6 +716,15 @@ return mod {
 						msg = { fold_all = not folded },
 						to = LINK,
 					},
+					if (sheprd.merged or 0) > 0
+						then icon_button {
+							icon = "sparkles",
+							size = "small",
+							tooltip = "Remove merged worktrees",
+							msg = { command = "remove_merged_worktrees" },
+							to = LINK,
+						}
+						else false,
 					icon_button { icon = "search", size = "small", tooltip = "Search devices, worktrees, branches and notes", msg = "search" },
 				},
 			}

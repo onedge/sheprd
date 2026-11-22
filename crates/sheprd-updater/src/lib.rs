@@ -24,10 +24,14 @@ mod linux;
 mod release;
 #[cfg(not(unix))]
 mod unsupported;
+#[cfg(unix)]
+pub use install::{HomebrewBundle, Legacy, LegacyBundle};
 #[cfg(not(unix))]
 use unsupported::brew;
 #[cfg(not(any(unix, windows)))]
 use unsupported::install;
+#[cfg(not(unix))]
+pub use unsupported::{HomebrewBundle, Legacy, LegacyBundle};
 /// The Windows installer's checks; only its [`windows::Error`] is public,
 /// so the app can name each failure in the shown language.
 #[cfg(windows)]
@@ -36,7 +40,8 @@ pub mod windows;
 use windows as install;
 
 pub use release::{
-    HOST_TARGETS, RELEASES_PAGE, download_host_build, download_host_chat, release_page,
+    AGENT_TARGETS, HOST_TARGETS, RELEASES_PAGE, download_host_agent, download_host_build,
+    download_host_chat, release_page,
 };
 
 use std::{

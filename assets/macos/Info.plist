@@ -7,6 +7,8 @@
     <key>CFBundleLocalizations</key>
     <array>
         <string>en-US</string>
+        <string>zh-Hans</string>
+        <string>ja</string>
         <string>ko</string>
     </array>
     <key>CFBundleDisplayName</key><string>Sheprd</string>

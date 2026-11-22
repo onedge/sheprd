@@ -5,10 +5,11 @@ in a terminal pane, draws the conversation there, and lets Sheprd attach to it
 and show it as a native chat.
 
 ```sh
-sheprd-acp claude             # or codex, copilot, gemini, opencode
+sheprd-acp claude             # or codex, copilot, gemini, kimi, opencode
 sheprd-acp -- goose acp       # any ACP agent command
 sheprd-acp --load ID codex    # continue one of the agent's sessions
 sheprd-acp --resume ID codex  # the same, but never start a new session instead
+sheprd-acp --choose claude    # start Claude, but let a client pick another agent
 sheprd-acp restore ENDPOINT  # recover the chat in its kept Herdr 2 shell
 ```
 
@@ -113,6 +114,12 @@ it exits if the original process ends or its identity changes. It starts no
 agent and writes no Herdr lifecycle metadata. The GUI retains the original
 terminal editor and approval interface directly below the rich conversation.
 No separate conversation, prompt injection or terminal/view round trip is needed.
+
+The remote control daemon runs the same observer for the iPhone app, on Linux
+and macOS, when a phone opens a terminal Claude agent's conversation. On macOS
+`START_TICKS` is the process's birth in microseconds since the epoch
+(`sheprd_client::herdr::processes::local_identity`), and the config directory
+is always the default, as macOS shows no other process's environment.
 
 The manual, read-only historical mirror remains available separately:
 
@@ -253,6 +260,7 @@ it; terminals that do not ignore it.
 | `codex` | `codex app-server` (see below); with `--acp`, `codex-acp`, else `npx -y @agentclientprotocol/codex-acp` |
 | `copilot` | `copilot --acp` |
 | `gemini` | `gemini --acp` |
+| `kimi` | `kimi acp` |
 | `opencode` | `opencode acp` |
 | `pi` | `pi --mode rpc` (see below); with `--acp`, `pi-acp`, else `npx -y pi-acp` |
 
@@ -372,6 +380,43 @@ ACP's session config options (model, thinking level, mode, and any others)
 change from **Ctrl+O** here and from the header's buttons in Sheprd; the
 agent's slash commands complete after `/`, and Up and Down step through the
 session's earlier prompts, whichever client sent them.
+
+## Choosing the agent
+
+`--choose` starts a built-in agent but lets any client switch the chat to
+another one installed on the same machine whenever the agent is idle. A
+switch during a turn is refused with `agent_fixed`. The transcript then carries `harnesses`: the agents installed here (and
+the one the chat started with, even when only `npx` can run it) and the one
+running now. **Ctrl+O** shows it as the first row here; a client sends
+`SetAgent`.
+
+A switch stops the running agent on a thread of its own and starts the new one
+in the same folder, with `--acp` as given. The conversation stays; what only
+the old agent held (its session, modes, settings, context use, and
+sub-agents) goes. The program starts a new epoch, so every client replaces
+its transcript, and replies from the old process are ignored. Prompts typed
+while it was still starting stay queued for the new agent. Herdr's display
+name for the pane, the tab label where it still names the old agent, and the
+restore record all follow the switch. An agent that fails to start leaves the
+choice open, so another can be picked.
+
+Once a prompt has reached an agent, the one taking over is handed the
+conversation with the user's next prompt, as a block of quoted context ahead
+of what the user wrote: the first prompt, the latest prompt and reply, then
+the newest entries within about 16,000 tokens, each cut at 4 KiB. Reasoning,
+turn summaries, and the program's notices are left out, and the transcript
+says how much went and how much was left out for length. The quote is
+fenced by a boundary made at random for each handoff, and every quoted line
+starts with `| `, so nothing in a reply or tool output can end the quote or
+pass for a request. An agent switched
+back to continues its own earlier session (`session/load`, or `--resume` for
+an agent reached natively), whose replay of its history is ignored, and is
+handed only what happened since it last took part. When it cannot continue
+that session, it starts a new one and is handed the whole conversation. The
+handoff is built by `sheprd_chat_protocol::handoff`.
+
+`--choose` refuses a custom command, extra agent arguments, `--load`, and
+`--resume`, since another agent could not take any of them over.
 
 ## Behaviour
 

@@ -97,6 +97,8 @@
             # All Moonframe crates share this pinned Git checkout, including
             # when the optional feature is off and Cargo only vendors it.
             outputHashes."moonframe-0.3.1" = "sha256-DSroyTi58a5T15DKmZCs7v0vnYI6CtHxhaeMUw4xyYQ=";
+            # Sheprd's AccessKit fork, pinned in Cargo.toml's [patch.crates-io].
+            outputHashes."accesskit_macos-0.26.3" = "sha256-aBhgu63Zq/jiEEW/Tu0iiQr3srZfTjLMnAgohTMqUUk=";
           };
           # The app starts chats with the sheprd-acp beside its executable,
           # runs the sheprd-remote-control beside it as a user service, runs

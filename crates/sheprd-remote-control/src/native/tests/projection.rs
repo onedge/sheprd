@@ -33,7 +33,10 @@ fn pull_requests(boot: &str, branch: &str) -> PullRequests {
 
 fn project(summaries: HashMap<String, Summary>, pull_requests: &PullRequests) -> Home {
     Home::project(Sources {
+        checkouts: &Default::default(),
+        recognized: &Default::default(),
         computer: "Studio",
+        favorites: &Default::default(),
         fingerprint: "FP",
         layout: &layout(EndpointId::random()),
         load: None,

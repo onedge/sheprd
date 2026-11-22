@@ -11,15 +11,21 @@ use crate::hub::Layout;
 use serde_json::{Value, json};
 use sheprd_chat_protocol::{Agent, ENDPOINT_ENV, EndpointId, TOKEN};
 use sheprd_core_client::wire::Run;
-use sheprd_session::{Labelled, NEW_WORKSPACE_LABEL, SESSION_LABEL, WORKSPACE_LABEL};
+use sheprd_session::{
+    Labelled, NEW_WORKSPACE_LABEL, NEW_WORKSPACE_TITLE_LABEL, SESSION_LABEL, WORKSPACE_LABEL,
+};
 
 /// Where new work from a phone belongs, which Sheprd gives it a tab in.
 #[derive(Clone, Copy, Debug)]
 pub(in crate::hub) enum Place<'a> {
     /// A workspace that exists.
     Workspace(Labelled<'a>),
-    /// A new workspace in this folder, which Sheprd keeps.
-    New(&'a str),
+    /// A new workspace in this folder, which Sheprd keeps, named `title`
+    /// when the person gave one.
+    New {
+        cwd: &'a str,
+        title: Option<&'a str>,
+    },
 }
 use std::{
     collections::{BTreeMap, HashMap},
@@ -77,6 +83,7 @@ impl Source {
         program: &Path,
         cwd: &str,
         branch: &str,
+        title: Option<&str>,
         root: Option<&Path>,
     ) -> Result<(String, String)> {
         let root = root.ok_or(worktree::Error::NoHome).map_err(Error::from)?;
@@ -85,7 +92,11 @@ impl Source {
             worktree::add(repository, branch, "HEAD", root, || false).map_err(Error::from)?;
         // A new workspace of its own, in the new checkout.
         let checkout = checkout.to_string_lossy().into_owned();
-        let started = self.open_chat(agent, program, &checkout, Some(Place::New(&checkout)));
+        let place = Place::New {
+            cwd: &checkout,
+            title,
+        };
+        let started = self.open_chat(agent, program, &checkout, Some(place));
         let folder = Path::new(&checkout);
         if let Err(error) = &started {
             // A retry must find the branch free, but only a start that
@@ -141,25 +152,35 @@ impl Source {
             }
             (core, addresses)
         };
-        // Each one ended is gone from the list, even if a later one fails.
+        self.end_terminals(&core, &addresses)?;
+        Ok(json!({}))
+    }
+
+    /// Ends the terminals at `addresses`, chats as their recovery expects.
+    /// Each one ended is gone from the list, even if a later one fails.
+    pub(super) fn end_terminals(
+        &self,
+        core: &sheprd_core_client::Core,
+        addresses: &[String],
+    ) -> Result<()> {
         for address in addresses {
             let terminal = lock(&self.state)
                 .terminals
                 .iter()
-                .find(|terminal| terminal.address == address)
+                .find(|terminal| &terminal.address == address)
                 .cloned();
             if let Some(terminal) = terminal {
-                sheprd_core_client::chat_recovery::close_terminal(&core, &terminal)?;
+                sheprd_core_client::chat_recovery::close_terminal(core, &terminal)?;
             } else {
-                core.kill(&address)?;
+                core.kill(address)?;
             }
             let mut state = lock(&self.state);
-            state.screens.remove(&address);
+            state.screens.remove(address);
             state
                 .terminals
-                .retain(|terminal| terminal.address != address);
+                .retain(|terminal| &terminal.address != address);
         }
-        Ok(json!({}))
+        Ok(())
     }
 }
 
@@ -203,8 +224,12 @@ fn place_labels(place: Option<Place<'_>>) -> BTreeMap<&'static str, &str> {
             }
             labels
         }
-        Some(Place::New(cwd)) if Path::new(cwd).is_absolute() => {
-            BTreeMap::from([(NEW_WORKSPACE_LABEL, cwd)])
+        Some(Place::New { cwd, title }) if Path::new(cwd).is_absolute() => {
+            let mut labels = BTreeMap::from([(NEW_WORKSPACE_LABEL, cwd)]);
+            if let Some(title) = title {
+                labels.insert(NEW_WORKSPACE_TITLE_LABEL, title);
+            }
+            labels
         }
         _ => BTreeMap::new(),
     }

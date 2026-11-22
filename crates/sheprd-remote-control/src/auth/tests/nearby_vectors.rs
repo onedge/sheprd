@@ -16,7 +16,7 @@ const AES_NONCE: [u8; 12] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
 fn check(name: &str, value: &Value) {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../ios/SheprdRemoteCore/Tests/SheprdRemoteCoreTests/Fixtures/nearby")
+        .join("../../ios/SheprdRemoteCore/Tests/SheprdNearbyTests/Fixtures/nearby")
         .join(format!("{name}.json"));
     let json = format!("{}\n", serde_json::to_string_pretty(value).unwrap());
     if std::env::var_os("HERDR_UPDATE_FIXTURES").is_some() {
@@ -61,7 +61,7 @@ fn leg(phone: &Phone, daemon: &SecretKey, daemon_nonce: [u8; 32], fingerprint: &
         daemon_nonce: &daemon_nonce,
         fingerprint: &fp,
     }
-    .reveal(&TOKEN, &origins(), None, &AES_NONCE)
+    .reveal(&TOKEN, &origins(), None, None, &AES_NONCE)
     .unwrap();
     json!({
         "phone_private_key": encode(&phone.secret.to_bytes()),
@@ -79,6 +79,7 @@ fn leg(phone: &Phone, daemon: &SecretKey, daemon_nonce: [u8; 32], fingerprint: &
             token: encode(&TOKEN),
             origins: &origins(),
             relay: None,
+            fleet: None,
         })
         .unwrap(),
         "sealed": encode(&revealed.sealed),

@@ -1,4 +1,8 @@
-use super::{Block, Fence, Inline, Kind, MathMode, Style, formula, math_input::Normalized};
+use super::{
+    Block, Fence, Inline, Kind, MathMode, Style, formula,
+    math_input::Normalized,
+    size::{Size, Sizes},
+};
 use crate::chat::visual::{Source, VisualId, Visuals};
 use pulldown_cmark::{Alignment, CodeBlockKind, CowStr, Event, Options, Parser, Tag, TagEnd};
 use std::{collections::HashMap, ops::Range, sync::Arc};
@@ -17,7 +21,26 @@ const MAX_LANGUAGE: usize = 64;
 
 /// Every bounded message uses the same Markdown semantics. Ordinary prose is
 /// laid out as shaped text runs; only mixed math needs individual inline atoms.
+#[cfg(test)]
 pub(in crate::chat) fn parse(text: &str, visuals: &mut Visuals) -> Option<Vec<Block>> {
+    parse_with(text, Breaks::Soft, visuals)
+}
+
+/// What a single newline inside a paragraph becomes.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(in crate::chat) enum Breaks {
+    /// A line break, as a person typing Shift-Enter in the composer means.
+    Hard,
+    /// A space, as Markdown reflows an agent's wrapped prose.
+    Soft,
+}
+
+/// [`parse`], choosing what a single newline becomes.
+pub(in crate::chat) fn parse_with(
+    text: &str,
+    breaks: Breaks,
+    visuals: &mut Visuals,
+) -> Option<Vec<Block>> {
     // Inline layout creates native word elements. Oversized rich fragments
     // use the existing bounded source renderer instead of building a huge tree.
     if text.split_whitespace().take(MAX_WORDS + 1).count() > MAX_WORDS {
@@ -36,6 +59,7 @@ pub(in crate::chat) fn parse(text: &str, visuals: &mut Visuals) -> Option<Vec<Bl
         return None;
     }
     let mut builder = Builder::new(&display.markdown, &display.sources, visuals);
+    builder.breaks = breaks;
     for (event, range) in events {
         builder.event(event, range)?;
     }
@@ -71,6 +95,7 @@ enum Mark {
 /// The blocks parsed so far and the Markdown containers open around the
 /// next event.
 struct Builder<'a> {
+    breaks: Breaks,
     /// The protected Markdown event ranges index.
     markdown: &'a str,
     /// Display math sources by the offset of their placeholder.
@@ -99,6 +124,8 @@ struct Builder<'a> {
     image: usize,
     maths: usize,
     codes: usize,
+    /// Text size spans open in the paragraph being built.
+    sizes: Sizes,
 }
 
 impl<'a> Builder<'a> {
@@ -108,6 +135,7 @@ impl<'a> Builder<'a> {
         visuals: &'a mut Visuals,
     ) -> Self {
         Self {
+            breaks: Breaks::Soft,
             markdown,
             display,
             visuals,
@@ -129,11 +157,13 @@ impl<'a> Builder<'a> {
             image: 0,
             maths: 0,
             codes: 0,
+            sizes: Sizes::default(),
         }
     }
 
     /// Ends the paragraph being built, if it has any content.
     fn flush(&mut self) {
+        self.end_sizes();
         if !self.content.is_empty() {
             self.blocks.push(Block::Paragraph {
                 kind: self.kind,
@@ -145,6 +175,54 @@ impl<'a> Builder<'a> {
 
     fn text(&mut self, text: &str) {
         push_text(&mut self.content, text, &self.style);
+    }
+
+    /// Prose, with the text size spans it opens and closes taken out.
+    fn prose(&mut self, text: &str) {
+        let mut text = text;
+        // `:big` and its `[` may arrive as separate events.
+        if let Some(rest) = text.strip_prefix('[')
+            && let Some(size) = self.trailing_opening()
+            && self.sizes.open(size)
+        {
+            text = rest;
+        }
+        let base = self.style.clone();
+        let content = &mut self.content;
+        self.sizes.split(text, |piece, size| {
+            if piece.is_empty() {
+                return;
+            }
+            let style = Style {
+                size,
+                ..base.clone()
+            };
+            push_linked_text(content, piece, &style);
+        });
+        self.style.size = self.sizes.current();
+    }
+
+    /// Takes a `:big` the paragraph's text ends with, which the `[` that
+    /// follows opens as a span.
+    fn trailing_opening(&mut self) -> Option<Size> {
+        let Some(Inline::Text(text, style)) = self.content.last_mut() else {
+            return None;
+        };
+        if *style != self.style {
+            return None;
+        }
+        let (size, len) = Size::ending(text)?;
+        text.truncate(text.len() - len);
+        if text.is_empty() {
+            self.content.pop();
+        }
+        Some(size)
+    }
+
+    /// Ends the text size spans still open, as their block ends.
+    fn end_sizes(&mut self) {
+        self.sizes.close_all();
+        self.style.size = None;
     }
 
     /// Takes one event; `None` when the fragment cannot be rich after all.
@@ -179,7 +257,7 @@ impl<'a> Builder<'a> {
                 }
             }
             Event::DisplayMath(source) => self.display_math(&source, range),
-            Event::Text(text) => push_linked_text(&mut self.content, &text, &self.style),
+            Event::Text(text) => self.prose(&text),
             Event::Html(text) | Event::InlineHtml(text) => self.text(&text),
             Event::Code(text) => {
                 let mut style = self.style.clone();
@@ -190,8 +268,8 @@ impl<'a> Builder<'a> {
                     &style,
                 );
             }
-            Event::SoftBreak => self.text(" "),
-            Event::HardBreak => self.content.push(Inline::Break),
+            Event::SoftBreak if self.breaks == Breaks::Soft => self.text(" "),
+            Event::SoftBreak | Event::HardBreak => self.content.push(Inline::Break),
             Event::TaskListMarker(done) => self.text(if done { "☑ " } else { "☐ " }),
             Event::Rule => {
                 self.flush();
@@ -307,7 +385,10 @@ impl<'a> Builder<'a> {
                     self.style.link = previous;
                 }
             }
-            TagEnd::TableCell => self.row.push(std::mem::take(&mut self.content)),
+            TagEnd::TableCell => {
+                self.end_sizes();
+                self.row.push(std::mem::take(&mut self.content));
+            }
             TagEnd::TableHead | TagEnd::TableRow => self.rows.push(std::mem::take(&mut self.row)),
             TagEnd::Table => {
                 if self.rows.len() > MAX_TABLE_ROWS

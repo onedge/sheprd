@@ -62,8 +62,10 @@ impl Reader {
                     .and_then(|token| pull_request::fetch(input, &token, || false))
             },
             |target, job| {
-                sheprd_github::cli::token()
-                    .and_then(|token| check_log::job_log(&token, &target.owner, &target.repo, job))
+                sheprd_github::cli::token().and_then(|token| {
+                    let token = sheprd_github::ServerToken::github(std::sync::Arc::new(token));
+                    check_log::job_log(&token, &target.owner, &target.repo, job)
+                })
             },
         )
     }

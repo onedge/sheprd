@@ -17,6 +17,8 @@ fn claimed_daemon(_: &Path, request: &Request) -> Result<Response, control::Erro
             device_name: "iPhone".into(),
             code: "428913".into(),
             app: None,
+            ssh: false,
+            fleet: None,
         }),
         Request::Approve { allow: true, .. } => Response::Pairing(PairingState::Approved {
             device: DeviceId("d1".into()),
@@ -72,6 +74,8 @@ fn allowing_a_phone_allows_the_machines_left_ticked(cx: &mut TestAppContext) {
         allow: true,
         code: "428913".into(),
         hosts: vec![HostId("ssh:1".into())],
+        share_github: true,
+        fleet: None,
     }));
 }
 
@@ -90,7 +94,6 @@ fn a_later_request_is_asked_about_and_closing_declines(cx: &mut TestAppContext) 
         },
         target: None,
         via: "MacBook Pro".into(),
-        apns: None,
     };
     cx.update(|_, cx| Supervisor::queue_host_ask_for_tests(cx, job));
     // Only the window in front asks.

@@ -6,14 +6,20 @@
 pub(crate) mod changes;
 mod convert;
 mod create;
+pub(crate) mod github;
 mod live;
 mod model;
+pub(crate) mod previews;
 mod search;
+mod summarize;
+mod title;
 mod wire;
 
 pub(crate) use convert::convert;
 pub(crate) use create::{create_workspace, new_options, new_terminal, start_chat};
 pub(crate) use search::search;
+pub(crate) use summarize::summarize;
+pub(crate) use title::title;
 
 use crate::{
     control::DeviceId,
@@ -47,8 +53,8 @@ const MAX_STREAMS: usize = 8;
 /// How often an idle socket is pinged, so proxies and NATs keep it.
 const PING_INTERVAL: Duration = Duration::from_secs(20);
 
-/// This computer's home as the state holds it now.
-fn home(state: &Shared) -> Home {
+/// This computer's home as the state holds it now, for `device`.
+fn home(state: &Shared, device: &DeviceId) -> Home {
     let layout = state.hub.layout();
     let summaries: HashMap<String, Summary> = layout
         .chats()
@@ -60,26 +66,35 @@ fn home(state: &Shared) -> Home {
         })
         .collect();
     let pull_requests = state.pull_requests.borrow().clone();
+    let checkouts = state.lending.checkouts.current();
+    let recognized = state.lending.recognized();
+    let favorites = state.favorites.current();
     let mut home = Home::project(Sources {
+        checkouts: &checkouts,
         computer: &state.computer,
+        favorites: &favorites,
         fingerprint: &state.fingerprint,
         layout: &layout,
         load: *state.load.borrow(),
         summaries,
         pull_requests: &pull_requests,
+        recognized: &recognized,
         shortcuts_ms: state.shortcuts.current().updated_ms,
         tags: state.tags.current(),
         version: crate::server::version(),
         waiting: state.attention().len(),
     });
+    home.preview_terminals(&state.previews.current());
     home.github = Some(state.github.enabled());
+    home.github_hosts = github::lent_hosts(state, device);
     home
 }
 
 /// `GET /api/v2/home`.
-pub(crate) async fn get_home(State(state): State<Shared>, _device: Device) -> Json<Home> {
+pub(crate) async fn get_home(State(state): State<Shared>, Device(device): Device) -> Json<Home> {
     state.hub.wake_for_phone();
-    Json(home(&state))
+    state.lending.checkouts.want();
+    Json(home(&state, &device))
 }
 
 /// `GET /api/v2/chat/{pane}`: the transcript and its cursor.
@@ -88,8 +103,15 @@ pub(crate) async fn get_chat(
     _device: Device,
     Path(pane): Path<String>,
 ) -> Result<Json<ChatSnapshot>, ApiError> {
-    state.hub.layout().chat(&pane).ok_or(ApiError::NotFound)?;
-    let link = state.hub.chat(&pane).ok_or(ApiError::NotFound)?;
+    let link = match state.hub.layout().chat(&pane) {
+        Some(_) => state.hub.chat(&pane).ok_or(ApiError::NotFound)?,
+        None if state.hub.observable(&pane) => state
+            .hub
+            .observe(&pane)
+            .await
+            .map_err(|_| ApiError::NotFound)?,
+        None => return Err(ApiError::NotFound),
+    };
     let (transcript, cursor) = link.base();
     Ok(Json(ChatSnapshot {
         pane,

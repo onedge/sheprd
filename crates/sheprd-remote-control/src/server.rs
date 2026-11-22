@@ -9,10 +9,11 @@ pub(crate) use control::version;
 mod listener;
 mod live;
 mod notifier;
+pub(crate) use notifier::forget;
 mod options;
 
 pub use crate::push::Privacy;
-pub use options::{Certificate, Invocation, Options, ParseError, USAGE, parse};
+pub use options::{Certificate, FleetAction, Invocation, Options, ParseError, Relay, USAGE, parse};
 
 use crate::{
     Result,
@@ -61,10 +62,25 @@ pub(crate) fn registrations_for_tests(
 }
 
 /// Runs the daemon on the current Tokio runtime until it is told to stop.
+/// A daemon already serving the state directory leaves this one nothing to
+/// do: it returns at once, so the process exits cleanly and the service
+/// manager, which relaunches only a failed daemon, leaves it down. Failing
+/// instead would retry every few seconds for as long as the other one runs,
+/// filling the log. Sheprd stops the other one and starts the service when
+/// it restarts or updates the daemon.
 pub async fn run(options: Options) -> Result<()> {
     std::fs::create_dir_all(&options.state_dir)?;
+    if control::serving(&options.state_dir) {
+        tracing::warn!(
+            state_dir = %options.state_dir.display(),
+            "Another remote control daemon serves this state directory; exiting"
+        );
+        return Ok(());
+    }
     let bind = options.bind;
-    let relayed = !options.relays.is_empty();
+    // Relays may be shared with this computer while it runs, so loopback,
+    // where relay sessions are served, is always certified.
+    let relayed = true;
     let (authority, resolver, names) = match &options.certificate {
         Certificate::Own => {
             let names = Names::current().bound_to(bind);
@@ -89,9 +105,31 @@ pub async fn run(options: Options) -> Result<()> {
     let push = Vapid::load_or_create(&options.state_dir)
         .and_then(|vapid| Sender::new(vapid, PUSH_SUBJECT))
         .ok();
-    let auth = Auth::load(&options.state_dir, Limits::default())?;
+    let mut auth = Auth::load(&options.state_dir, Limits::default())?;
+    // Desktops paired over Bluetooth log in over SSH through the relays.
+    match crate::ssh_access::SshAccess::of_user() {
+        Ok(access) => auth.set_ssh_access(access),
+        Err(error) => tracing::info!(error = %error, "desktops cannot be let in over SSH"),
+    }
     let apps = auth.apps();
-    let apns = crate::apns::Sender::load(&options.state_dir).map_err(crate::apns::Error::from)?;
+    let apns = crate::apns::Delivery::new(options.push_relay)?;
+    tracing::info!(delivery = apns.name(), "APNs pushes");
+    // A key an earlier release used, or copied here when linking a host, is
+    // left on disk for its owner and never read: only the push relay holds
+    // the key APNs takes for the app.
+    let unused_key = sheprd_apns::dir(&options.state_dir);
+    if unused_key.join("AuthKey.p8").exists() {
+        tracing::info!(
+            directory = %unused_key.display(),
+            "an APNs key here is no longer used: iPhone pushes go only through the push relay"
+        );
+    }
+    // Only a daemon whose pushes go through the push relay revokes handles there.
+    let push_relay_revocations = apns.push_relays().is_some().then(|| {
+        let (revocations, receiver) = crate::apns::push_relay_revoke::channel();
+        auth.set_push_relay_revocations(revocations);
+        receiver
+    });
     // Only origins this computer's own authority serves may be remembered.
     let seen = match &authority {
         Some(authority) => web::Origins::load(&options.state_dir, authority.fingerprint()),
@@ -106,14 +144,21 @@ pub async fn run(options: Options) -> Result<()> {
     )?;
     let (pull_requests, _) = watch::channel(Arc::new(Default::default()));
     let load = crate::load::start();
-    let relay = if options.relays.is_empty() {
-        None
-    } else {
-        Some(Arc::new(crate::relay::Relays::load(
-            &options.state_dir,
-            options.relays.clone(),
-        )?))
+    // Kept even with no relay set, for ones another computer shares later.
+    // Only a computer told to listen on relays fails without its keys.
+    let relay = match crate::relay::Relays::load(&options.state_dir, options.relays.clone()) {
+        Ok(relay) => Some(Arc::new(relay)),
+        Err(error) if options.relays.is_empty() => {
+            tracing::warn!(%error, "Could not load the relay keys; relays shared later are ignored");
+            None
+        }
+        Err(error) => return Err(error.into()),
     };
+    // A second daemon on this state directory stops here, before it
+    // changes anything the running one keeps.
+    let keys = auth.ssh_access().ok().map(|access| &access.keys);
+    let fleet =
+        crate::fleet::Fleet::for_daemon(&options.state_dir, web::now_ms(), keys)?.map(Arc::new);
     let state = Arc::new(State {
         apns,
         apps,
@@ -122,9 +167,15 @@ pub async fn run(options: Options) -> Result<()> {
         changes: Default::default(),
         computer: options::computer_name(),
         connected: Mutex::new(HashMap::new()),
+        favorites: web::Favorites::load(crate::app::favorites::file(&options.state_dir)),
         fingerprint,
+        fleet,
         github: crate::native::changes::github::Reader::new(options.github_cli),
         hub,
+        lending: crate::native::github::Lending::new(
+            options.github_hosts.clone(),
+            sheprd_github::cli::token_for,
+        ),
         live_activities: options.live_activities,
         load,
         look: web::Look::load(&options.state_dir),
@@ -132,9 +183,11 @@ pub async fn run(options: Options) -> Result<()> {
         near: Mutex::default(),
         opened: web::attention::Opened::default(),
         port: options.port,
+        previews: Default::default(),
         privacy: options.privacy,
         pull_requests,
         push,
+        pushes: Default::default(),
         relay,
         reports: Mutex::new(web::report_limit()),
         seen: Mutex::new(seen),
@@ -160,6 +213,17 @@ pub async fn run(options: Options) -> Result<()> {
     // pictures.
     state.uploads.remove_leftovers();
     tokio::spawn(notifier::run(state.clone()));
+    if let Some(receiver) = push_relay_revocations {
+        tokio::spawn(revoke_push_relay_handles(state.clone(), receiver));
+    }
+    tokio::spawn(crate::fleet::grants::follow(state.clone()));
+    if let Some(fleet) = state.fleet.clone() {
+        tokio::spawn(crate::fleet::removals::flood(fleet));
+    }
+    tokio::spawn(web::follow_favorite_boot(state.clone()));
+    tokio::spawn(crate::native::github::checkouts::follow(state.clone()));
+    tokio::spawn(crate::native::previews::follow(state.clone()));
+    tokio::spawn(crate::native::github::follow_gh_hosts(state.clone()));
     if state.github.enabled() {
         tokio::spawn(crate::native::changes::github::badges(state.clone()));
     }
@@ -183,8 +247,6 @@ pub async fn run(options: Options) -> Result<()> {
     }
     let router = web::router(state.clone());
     if let Some(relay) = &state.relay {
-        // Nearby offers say how to claim through the relays too.
-        state.auth().set_relay_offer(relay.info());
         // The phone reaches a relay session at `https://127.0.0.1:PORT`
         // through its loopback proxy: the certificate for that address,
         // which `certified` has issued whatever the bind address.
@@ -287,6 +349,25 @@ async fn expire(state: Arc<State>, idle: Option<Duration>) {
         let state = state.clone();
         let _ = tokio::task::spawn_blocking(move || sweep(&state, web::now_ms(), idle_ms)).await;
     }
+}
+
+/// Revokes unpaired devices' push relay handles through `state`'s push relays
+/// (`apns::push_relay_revoke`).
+async fn revoke_push_relay_handles(
+    state: Arc<State>,
+    receiver: tokio::sync::mpsc::Receiver<Vec<crate::apns::Handle>>,
+) {
+    let revoke = move |handle: crate::apns::Handle| {
+        let state = state.clone();
+        async move {
+            match state.apns.push_relays() {
+                Some(relays) => relays.revoke(&handle, web::now_ms()).await,
+                None => sheprd_apns::RelayOutcome::Unavailable,
+            }
+        }
+    };
+    crate::apns::push_relay_revoke::run(receiver, revoke, crate::apns::push_relay_revoke::log)
+        .await;
 }
 
 /// One tick of [`expire`]: drops old pictures, and devices away for

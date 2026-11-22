@@ -145,3 +145,35 @@ fn host_revocations_are_listed_and_cleared() {
         Response::Done
     );
 }
+
+#[test]
+fn relays_read_or_take_an_offer() {
+    assert_eq!(
+        parse(args(&["relays", "--offer"])).unwrap(),
+        Invocation::Relays {
+            state_dir: None,
+            offer: true,
+        }
+    );
+    assert!(parse(args(&["relays", "--nope"])).is_err());
+    assert!(USAGE.contains("relays [--offer]"));
+}
+
+#[test]
+fn favorites_read_or_take_a_change() {
+    assert_eq!(
+        parse(args(&["favorites"])).unwrap(),
+        Invocation::Favorites {
+            state_dir: None,
+            offer: false,
+        }
+    );
+    assert_eq!(
+        parse(args(&["favorites", "--offer", "--state-dir", "/s"])).unwrap(),
+        Invocation::Favorites {
+            state_dir: Some("/s".into()),
+            offer: true,
+        }
+    );
+    assert!(parse(args(&["favorites", "--nope"])).is_err());
+}

@@ -2,7 +2,7 @@
 //! `automation`.
 mod batch;
 mod cloud;
-mod exec;
+pub(super) mod exec;
 mod text;
 
 pub(super) use text::bytes;
@@ -36,7 +36,10 @@ pub(super) fn pr(command: PrCommand, context: &Context) -> crate::Result<Output>
         PrCommand::Status | PrCommand::Checks => HostOp::Pr,
         PrCommand::Comments => HostOp::PrComments,
         PrCommand::Open => HostOp::PrOpen,
+        PrCommand::Create => HostOp::PrCreate {},
         PrCommand::Quota => HostOp::PrQuota,
+        PrCommand::Merge => HostOp::PrMerge,
+        PrCommand::Queue(change) => HostOp::PrQueue { change },
     };
     match context.call(Request::Host, op)? {
         Response::Host {
@@ -143,6 +146,19 @@ pub(super) fn usage(context: &Context) -> crate::Result<Output> {
             let empty = matches!(&reply, Reply::Usage { usage, .. } if usage.is_empty());
             let output = Output::data(text::usage(&reply), &reply)?;
             Ok(if empty { output.nothing() } else { output })
+        }
+        response => Err(unexpected(response)),
+    }
+}
+
+pub(super) fn usage_pick(context: &Context) -> crate::Result<Output> {
+    match context.call(Request::Host, HostOp::UsagePick)? {
+        Response::Host {
+            reply: Reply::UsagePick(pick),
+        } => {
+            let none = pick.agent.is_none();
+            let output = Output::data(text::usage_pick(&pick), &pick)?;
+            Ok(if none { output.nothing() } else { output })
         }
         response => Err(unexpected(response)),
     }

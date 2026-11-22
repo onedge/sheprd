@@ -1,4 +1,5 @@
 import SheprdRemoteCore
+import SheprdNearby
 import SwiftUI
 import UIKit
 
@@ -64,7 +65,7 @@ struct ProximityCard: View {
         .padding(24)
         .background(Color(.secondarySystemBackground), in: .rect(cornerRadius: 44))
         .padding(10)
-        .sensoryFeedback(.success, trigger: pairing.step) { _, step in if case .code = step { true } else { false } }
+        .haptic(.success, trigger: pairing.step) { _, step in if case .code = step { true } else { false } }
         .transition(.move(edge: .bottom).combined(with: .opacity))
         #if DEBUG
         // `-nearbyPair YES` presses Pair, for the simulator loop.

@@ -12,6 +12,8 @@
 mod api;
 mod assets;
 pub(crate) mod attention;
+mod favorites;
+mod fleet;
 mod fragments;
 mod github;
 mod hosts;
@@ -21,16 +23,21 @@ mod log;
 mod nearby;
 mod origins;
 mod pace;
+pub(crate) mod prompt;
 mod relay;
 mod render;
 mod shortcuts;
 mod stream;
 mod tags;
 mod terminal;
+mod test_push;
+mod typed;
 mod update;
 mod uploads;
+mod workspace;
 
 pub(crate) use api::{NEW_CHAT_WAIT, check_new_workspace, parse_agent};
+pub(crate) use favorites::{Kept as Favorites, follow_boot as follow_favorite_boot};
 pub(crate) use fragments::folders;
 pub(crate) use indicators::{Indicators, Look};
 pub(crate) use log::report_limit;
@@ -41,6 +48,7 @@ pub(crate) use shortcuts::Shortcuts;
 pub(crate) use stream::Connected;
 pub(crate) use tags::Tags;
 pub(crate) use terminal::read_scrolled;
+pub(crate) use typed::{Relayed, TypedFrom};
 pub(crate) use uploads::Uploads;
 
 use crate::control::DeviceId;
@@ -71,9 +79,9 @@ const BODY_LIMIT: usize = 320 * 1024;
 
 /// What every request reads.
 pub(crate) struct State {
-    /// Live Activity pushes for the iOS companion, when the user set up an
-    /// APNs key.
-    pub(crate) apns: Option<crate::apns::Sender>,
+    /// How APNs pushes for the iOS companion leave: through the push relay,
+    /// or not at all.
+    pub(crate) apns: crate::apns::Delivery,
     /// `Auth::apps`: origins of apps installed from other computers.
     pub(crate) apps: Arc<RwLock<Vec<String>>>,
     pub(crate) auth: Mutex<Auth>,
@@ -84,9 +92,16 @@ pub(crate) struct State {
     pub(crate) computer: String,
     /// Streams open per device.
     pub(crate) connected: Mutex<HashMap<DeviceId, usize>>,
+    /// This computer's favorite agents, which its phones and desktops share.
+    pub(crate) favorites: Favorites,
     pub(crate) fingerprint: String,
+    /// The fleet, when its key could be read or made.
+    pub(crate) fleet: Option<Arc<crate::fleet::Fleet>>,
     pub(crate) github: crate::native::changes::github::Reader,
     pub(crate) hub: Arc<Hub>,
+    /// Lending this computer's GitHub sign-ins to phones, and which
+    /// repository each workspace is on.
+    pub(crate) lending: crate::native::github::Lending,
     /// How much this computer lets Live Activities say.
     pub(crate) live_activities: crate::app::config::ActivityDetail,
     /// This computer's CPU and memory, as `load` last read them.
@@ -100,10 +115,14 @@ pub(crate) struct State {
     /// What phones have looked at, for the badge.
     pub(crate) opened: attention::Opened,
     pub(crate) port: u16,
+    /// What each terminal agent last said, for its row.
+    pub(crate) previews: crate::native::previews::Previews,
     pub(crate) privacy: Privacy,
     pub(crate) pull_requests:
         tokio::sync::watch::Sender<Arc<crate::control::pull_requests::PullRequests>>,
     pub(crate) push: Option<Sender>,
+    /// How the last APNs push of each kind went.
+    pub(crate) pushes: crate::apns::Ledger,
     /// The relays this computer listens on, when any are set.
     pub(crate) relay: Option<Arc<crate::relay::Relays>>,
     /// How often each address may write a phone's error to the log.
@@ -221,21 +240,54 @@ pub(crate) fn router(state: Shared) -> Router {
         .route("/api/relay", get(relay::info).post(relay::enroll))
         .route(
             "/api/apns",
-            post(api::register_apns).layer(DefaultBodyLimit::max(16 * 1024)),
+            // 32 activities, each a token or a relay handle of up to 2 KiB.
+            post(api::register_apns).layer(DefaultBodyLimit::max(96 * 1024)),
+        )
+        .route(
+            "/api/apns/test",
+            post(test_push::send).layer(DefaultBodyLimit::max(1024)),
         )
         .route("/api/term/{pane}/keys", post(terminal::keys))
         .route("/api/term/{pane}/paste", post(terminal::paste))
         .route(
+            "/api/term/{pane}/prompt",
+            get(prompt::get).post(prompt::choose),
+        )
+        .route(
             "/api/term/{pane}/upload",
             post(terminal::upload).layer(DefaultBodyLimit::max(uploads::MAX_UPLOAD + 1024)),
+        )
+        .route(
+            "/api/term/{pane}/file",
+            post(terminal::file).layer(DefaultBodyLimit::max(uploads::MAX_FILE + 1024)),
         )
         .route("/api/term/{pane}/action", post(terminal::action))
         .route("/api/term/{pane}/rename", post(terminal::rename))
         .route("/api/stream", get(stream::stream))
         .route("/api/v2/chat/{pane}", get(crate::native::get_chat))
+        .route(
+            "/api/v2/chat/{pane}/summarize",
+            post(crate::native::summarize),
+        )
+        .route("/api/v2/chat/{pane}/title", post(crate::native::title))
+        .route("/api/v2/fleet", get(fleet::status))
+        .route(
+            "/api/v2/fleet/join",
+            post(fleet::join).layer(DefaultBodyLimit::max(fleet::MAX_JOIN_BODY)),
+        )
+        .route(
+            "/api/v2/fleet/sync",
+            post(fleet::sync).layer(DefaultBodyLimit::max(fleet::MAX_SYNC_BODY)),
+        )
+        .route("/api/v2/github/token", get(crate::native::github::token))
         .route("/api/v2/home", get(crate::native::get_home))
         .route("/api/v2/hosts", get(hosts::list))
+        .route(
+            "/api/v2/hosts/relay",
+            post(hosts::relay).layer(DefaultBodyLimit::max(16 * 1024)),
+        )
         .route("/api/v2/hosts/{host}/pair", post(hosts::pair))
+        .route("/api/v2/favorites", post(favorites::post))
         .route("/api/v2/live", get(crate::native::live))
         .route("/api/v2/new", get(crate::native::new_options))
         .route("/api/v2/search", get(crate::native::search))
@@ -278,6 +330,14 @@ pub(crate) fn router(state: Shared) -> Router {
         .route(
             "/api/v2/workspaces/{workspace}/rename",
             post(terminal::rename_workspace),
+        )
+        .route(
+            "/api/v2/workspaces/{workspace}/close",
+            post(workspace::close),
+        )
+        .route(
+            "/api/v2/workspaces/{workspace}/remove-worktree",
+            post(workspace::remove_worktree),
         )
         .route("/f/home", get(fragments::home))
         .route("/f/board", get(fragments::board))
@@ -391,6 +451,23 @@ async fn cors(Extract(state): Extract<Shared>, request: Request, next: Next) -> 
     response
 }
 
+/// How a phone hears of a fleet failure: what it sent is refused, the
+/// fleet is not there, or this computer failed.
+fn fleet_status(error: &crate::fleet::Error) -> StatusCode {
+    use crate::fleet::{Error, bluetooth, joins};
+    match error {
+        Error::NoFleet => StatusCode::CONFLICT,
+        Error::Joins(joins::Error::Full) => StatusCode::TOO_MANY_REQUESTS,
+        Error::Joins(joins::Error::Removed) => StatusCode::FORBIDDEN,
+        Error::Joins(_) | Error::Log(_) => StatusCode::BAD_REQUEST,
+        Error::Bluetooth(bluetooth::Error::NotClaimant | bluetooth::Error::Removed) => {
+            StatusCode::FORBIDDEN
+        }
+        Error::Bluetooth(_) => StatusCode::CONFLICT,
+        _ => StatusCode::INTERNAL_SERVER_ERROR,
+    }
+}
+
 pub(crate) fn allowed_origin(origins: &[String], origin: &str) -> bool {
     origins.iter().any(|allowed| allowed == origin)
 }
@@ -431,13 +508,19 @@ pub(crate) fn bearer(headers: &HeaderMap) -> Option<&str> {
 pub(crate) enum ApiError {
     // keep-sorted start
     #[error(transparent)]
+    Agent(#[from] crate::hub::row_summary::Error),
+    #[error(transparent)]
     App(#[from] crate::app::Error),
     #[error(transparent)]
     Auth(#[from] auth::Error),
     #[error(transparent)]
     Changes(#[from] crate::native::changes::Error),
+    #[error(transparent)]
+    Fleet(#[from] crate::fleet::Error),
     #[error("that is not a folder you can start a workspace in")]
     Folder,
+    #[error(transparent)]
+    GitHub(#[from] crate::native::github::Error),
     #[error(transparent)]
     Hub(#[from] crate::hub::Error),
     #[error("{0}")]
@@ -463,29 +546,46 @@ impl IntoResponse for ApiError {
     fn into_response(self) -> Response {
         let status = match &self {
             Self::Unauthorized => StatusCode::UNAUTHORIZED,
+            Self::Agent(error) => error.status(),
             Self::Changes(error) => error.status(),
+            Self::GitHub(error) => error.status(),
             Self::TooManyStreams => StatusCode::TOO_MANY_REQUESTS,
             Self::NotFound => StatusCode::NOT_FOUND,
             Self::Auth(auth::Error::RateLimited | auth::Error::NearbyBusy) => {
                 StatusCode::TOO_MANY_REQUESTS
             }
-            Self::Auth(auth::Error::NearbyExhausted | auth::Error::NoPairing) => {
-                StatusCode::CONFLICT
-            }
+            Self::Auth(
+                auth::Error::NearbyExhausted | auth::Error::NoPairing | auth::Error::RelayKeysTaken,
+            ) => StatusCode::CONFLICT,
             Self::Auth(auth::Error::UnknownNearby) => StatusCode::NOT_FOUND,
             Self::Auth(auth::Error::UnknownDevice) => StatusCode::FORBIDDEN,
             Self::Auth(auth::Error::Links(auth::links::Error::UnknownHost)) => {
                 StatusCode::NOT_FOUND
             }
-            Self::Auth(auth::Error::Links(
-                auth::links::Error::Busy | auth::links::Error::TooMany,
-            )) => StatusCode::TOO_MANY_REQUESTS,
+            Self::Auth(
+                auth::Error::Links(auth::links::Error::Busy | auth::links::Error::TooMany)
+                | auth::Error::HostRelay(
+                    auth::host_relays::Error::Busy | auth::host_relays::Error::TooMany,
+                ),
+            ) => StatusCode::TOO_MANY_REQUESTS,
+            Self::Auth(auth::Error::SshAccess(
+                crate::ssh_access::Error::ServerOff | crate::ssh_access::Error::Unsupported,
+            )) => StatusCode::CONFLICT,
             Self::Auth(
                 auth::Error::Store { .. }
                 | auth::Error::StoreFormat { .. }
-                | auth::Error::Random(_),
+                | auth::Error::Random(_)
+                | auth::Error::SshAccess(
+                    crate::ssh_access::Error::File { .. }
+                    | crate::ssh_access::Error::Linked { .. }
+                    | crate::ssh_access::Error::NoHome
+                    | crate::ssh_access::Error::TooLarge { .. }
+                    | crate::ssh_access::Error::UnknownUser,
+                ),
             ) => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::Fleet(error) => fleet_status(error),
             Self::Update(update::Error::AppClosed) => StatusCode::CONFLICT,
+            Self::App(crate::app::Error::Favorites(_)) => StatusCode::BAD_REQUEST,
             Self::App(_) | Self::Upload(uploads::Error::Write(_)) => {
                 StatusCode::INTERNAL_SERVER_ERROR
             }
@@ -501,6 +601,7 @@ impl IntoResponse for ApiError {
                 | crate::hub::ConvertError::Refused(_),
             ))
             | Self::Hub(crate::hub::Error::SessionOnHerdr2) => StatusCode::CONFLICT,
+            Self::Hub(error) if error.worktree_kept() => StatusCode::CONFLICT,
             Self::Hub(_) | Self::NoPush => StatusCode::SERVICE_UNAVAILABLE,
         };
         // The request line only has the status. A computer without push

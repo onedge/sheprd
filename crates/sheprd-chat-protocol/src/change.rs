@@ -3,9 +3,9 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    Activity, ConfigOption, Entry, EntryId, EntryKind, Error, MAX_ACTIVITIES, Modes, Permission,
-    PermissionId, PlanEntry, Queued, Result, SessionInfo, SlashCommand, Status, Transcript, Turn,
-    Usage, valid_question_answers,
+    Activity, ConfigOption, Entry, EntryId, EntryKind, Error, Harnesses, MAX_ACTIVITIES,
+    MAX_PULL_REQUESTS, Modes, Permission, PermissionId, PlanEntry, PullRequest, Queued, Result,
+    SessionInfo, SlashCommand, Status, Transcript, Turn, Usage, valid_question_answers,
 };
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -77,6 +77,15 @@ pub enum Change {
     /// changed; it replaces the activity with the same call id.
     Activity {
         activity: Activity,
+    },
+    /// The agents the chat may still switch to, or `None` once it may not.
+    Harnesses {
+        harnesses: Option<Harnesses>,
+    },
+    /// The agent worked on a pull request: it is added, or what it did is
+    /// added to the one with the same repository and number.
+    PullRequest {
+        pull_request: PullRequest,
     },
 }
 
@@ -157,7 +166,25 @@ impl Transcript {
             Change::Usage { usage } => self.usage.clone_from(usage),
             Change::AutoAccept { on } => self.auto_accept = *on,
             Change::Activity { activity } => self.record(activity)?,
+            Change::Harnesses { harnesses } => self.harnesses.clone_from(harnesses),
+            Change::PullRequest { pull_request } => self.add_pull_request(pull_request)?,
         }
+        Ok(())
+    }
+
+    /// Adds `pull`, or its actions to the one already kept.
+    fn add_pull_request(&mut self, pull: &PullRequest) -> Result<()> {
+        if !pull.fits() {
+            return Err(Error::PullRequest);
+        }
+        if let Some(known) = self.pull_requests.iter_mut().find(|known| known.is(pull)) {
+            known.record(&pull.actions);
+            return Ok(());
+        }
+        if self.pull_requests.len() >= MAX_PULL_REQUESTS {
+            return Err(Error::PullRequestLimit);
+        }
+        self.pull_requests.push(pull.clone());
         Ok(())
     }
 

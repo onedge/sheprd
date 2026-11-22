@@ -12,10 +12,13 @@ pub const USAGE: &str = "\
 sheprd-push-relay: forwards sealed pushes to APNs for the iOS app.
 
 Usage: sheprd-push-relay --secrets DIR [--store STORE] [--listen ADDRESS] [--behind-proxy]
+       sheprd-push-relay --secrets DIR --check
 
   --secrets DIR      Holds apns/config.json, apns/AuthKey.p8, relay-key.pem,
                      optionally relay-key-previous.pem, and credential-secret
                      (32 or more bytes as hex). All private to this user.
+                     With dashboard-token there too (24 or more characters),
+                     /dashboard and /metrics are served behind that token.
   --store STORE      Where revocations live: memory (default), sqlite:FILE, or
                      postgres, which reads postgres-url from the secrets and
                      trusts postgres-ca.pem there if there is one. Pushes keep
@@ -24,6 +27,8 @@ Usage: sheprd-push-relay --secrets DIR [--store STORE] [--listen ADDRESS] [--beh
   --listen ADDRESS   Where to listen (default 127.0.0.1:8080).
   --behind-proxy     Take the caller's address from X-Forwarded-For. Use only
                      when nothing can reach the relay except that proxy.
+  --check            Load the secrets as the relay would, then exit: 0 when
+                     it could start with them. Opens no store or socket.
   --help             Show this.";
 
 const DEFAULT_LISTEN: ([u8; 4], u16) = ([127, 0, 0, 1], 8080);
@@ -56,6 +61,8 @@ impl Backend {
 pub struct Options {
     pub backend: Backend,
     pub behind_proxy: bool,
+    /// Load the secrets and stop, rather than serve.
+    pub check: bool,
     pub listen: SocketAddr,
     pub secrets: PathBuf,
 }
@@ -66,6 +73,7 @@ impl Options {
         let mut arguments = arguments.into_iter();
         let mut backend = Backend::default();
         let mut behind_proxy = false;
+        let mut check = false;
         let mut listen = SocketAddr::from(DEFAULT_LISTEN);
         let mut secrets = None;
         while let Some(argument) = arguments.next() {
@@ -76,6 +84,7 @@ impl Options {
             };
             match argument.to_str() {
                 Some("--behind-proxy") => behind_proxy = true,
+                Some("--check") => check = true,
                 Some("--help") => return Ok(None),
                 Some("--listen") => {
                     let text = value()?;
@@ -98,6 +107,7 @@ impl Options {
         Ok(Some(Self {
             backend,
             behind_proxy,
+            check,
             listen,
             secrets: secrets.ok_or_else(|| missing("--secrets"))?,
         }))

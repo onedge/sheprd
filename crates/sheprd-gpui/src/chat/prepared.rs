@@ -5,7 +5,7 @@
 //! call's output and file changes summarized.
 
 use super::{
-    rich::Fence,
+    rich::{Breaks, Fence},
     visual::{MAX_DIAGRAM_SOURCE, Source, VisualId, Visuals},
 };
 use crate::{
@@ -43,7 +43,12 @@ fn cut_note() -> String {
 /// Markdown prose as rich blocks, or as lines when it is too large to be
 /// rich.
 fn prose(text: &str, visuals: &mut Visuals) -> Part {
-    match super::rich::parse(text, visuals) {
+    prose_with(text, Breaks::Soft, visuals)
+}
+
+/// [`prose`], choosing what a single newline becomes.
+fn prose_with(text: &str, breaks: Breaks, visuals: &mut Visuals) -> Part {
+    match super::rich::parse_with(text, breaks, visuals) {
         Some(blocks) => Part::Rich(blocks.into()),
         None => Part::Text(message_lines(text)),
     }
@@ -184,6 +189,11 @@ pub(crate) struct ToolSummary {
 pub(crate) enum Part {
     Text(Rc<[Line]>),
     Rich(Rc<[super::rich::Block]>),
+    /// Markdown an agent wrapped in a bubble effect, as `:::slam` does.
+    Bubble(super::effects::Bubble, Rc<[super::rich::Block]>),
+    /// The pane effect an agent's message asks for, as a `::confetti` line
+    /// does; it draws as the link that plays it again.
+    Screen(super::effects::Screen),
     Widget(Rc<super::widgets::Document>),
     /// A Mermaid fence, with its source as code lines for when it cannot be
     /// drawn.
@@ -235,8 +245,10 @@ impl Body {
                 let (own, blocks): (_, &[super::rich::Block]) = match part {
                     Part::Diagram(id, _) | Part::Remote { id, .. } => (Some(*id), &[]),
                     Part::Html { code } => (Some(code.id), &[]),
-                    Part::Rich(blocks) => (None, blocks),
-                    Part::Text(_) | Part::Widget(_) | Part::Picture { .. } => (None, &[]),
+                    Part::Rich(blocks) | Part::Bubble(_, blocks) => (None, blocks),
+                    Part::Text(_) | Part::Widget(_) | Part::Picture { .. } | Part::Screen(_) => {
+                        (None, &[])
+                    }
                 };
                 own.into_iter()
                     .chain(blocks.iter().flat_map(super::rich::Block::visuals))
@@ -321,7 +333,7 @@ impl Prepared {
             Body::Message(parts) | Body::Answers { parts, .. } => {
                 for part in parts {
                     match part {
-                        Part::Rich(blocks) => {
+                        Part::Rich(blocks) | Part::Bubble(_, blocks) => {
                             for block in &**blocks {
                                 block.request_visible(&self.visuals);
                             }
@@ -517,22 +529,62 @@ fn message(text: &str, author: Author, visuals: &mut Visuals) -> Vec<Part> {
         .sum();
     let cut = end < text.len();
     let text = &text[..end];
+    // A person's newline is a line they meant; an agent's may only wrap.
+    let breaks = match author {
+        Author::User => Breaks::Hard,
+        Author::Agent => Breaks::Soft,
+    };
     let mut parts = Vec::new();
     let mut markdown = String::new();
     let flush = |text: &mut String, parts: &mut Vec<Part>, visuals: &mut Visuals| {
         if !text.trim().is_empty() {
-            parts.push(prose(text, visuals));
+            parts.push(prose_with(text, breaks, visuals));
         }
         text.clear();
     };
     let mut lines = text.split_inclusive('\n');
-    let (mut diagrams, mut pages, mut widgets) = (0, 0, 0);
+    let (mut diagrams, mut pages, mut widgets, mut bubbles) = (0, 0, 0, 0);
+    let mut screen = None;
     while let Some(line) = lines.next() {
         let trimmed = line.trim_start();
         let indentation = &line[..line.len() - trimmed.len()];
         if indentation.len() > 3 || !indentation.chars().all(|ch| ch == ' ') {
             markdown.push_str(line);
             continue;
+        }
+        if author == Author::Agent {
+            // Only the first pane effect plays; later ones are dropped too.
+            if let Some(effect) = super::effects::screen_line(line) {
+                screen = screen.or(Some(effect));
+                continue;
+            }
+            if let Some(effect) = super::effects::bubble_opening(line)
+                && bubbles < BUBBLES
+            {
+                flush(&mut markdown, &mut parts, visuals);
+                bubbles += 1;
+                // A bubble still streaming reaches the end of the message;
+                // a `:::` inside a code fence is the code's, not its end.
+                let mut inner = String::new();
+                let mut code: Option<Fence<'_>> = None;
+                for line in lines.by_ref() {
+                    match &code {
+                        Some(fence) if fence.closes(line) => code = None,
+                        Some(_) => {}
+                        None if super::effects::bubble_closing(line) => break,
+                        None => code = Fence::open(line),
+                    }
+                    inner.push_str(line);
+                }
+                if !inner.trim().is_empty() {
+                    parts.push(match prose(&inner, visuals) {
+                        Part::Rich(blocks) => Part::Bubble(effect, blocks),
+                        // Too large to be rich: shown, but without its effect.
+                        text => text,
+                    });
+                }
+                continue;
+            }
         }
         if let Some(part) = picture(line) {
             flush(&mut markdown, &mut parts, visuals);
@@ -606,8 +658,9 @@ fn message(text: &str, author: Author, visuals: &mut Visuals) -> Vec<Part> {
         }
     }
     if !markdown.trim().is_empty() || parts.is_empty() {
-        parts.push(prose(&markdown, visuals));
+        parts.push(prose_with(&markdown, breaks, visuals));
     }
+    parts.extend(screen.map(Part::Screen));
     if cut {
         let note = release_notes::note(&cut_note());
         match parts.last_mut() {
@@ -627,6 +680,9 @@ enum Embed {
     Page,
     Widget,
 }
+
+/// Bubble effects per message; later openings stay text.
+const BUBBLES: usize = 8;
 
 /// Cards per message; excess cards remain readable source.
 const WIDGETS: usize = 4;

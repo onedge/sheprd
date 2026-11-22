@@ -12,7 +12,9 @@ mod connect;
 #[cfg(unix)]
 mod control_dir;
 pub mod core_bridge;
+pub mod device_tags;
 mod discovery;
+pub mod edited;
 mod environment;
 mod error;
 mod event;
@@ -26,10 +28,13 @@ mod local_network;
 pub mod local_path;
 pub mod login_env;
 mod method;
+pub mod one_shot;
 mod options;
 pub mod private_endpoint;
+pub mod private_file;
 mod process;
 mod queue;
+pub mod relay_host;
 mod remote_host;
 mod script;
 pub mod scrollback;
@@ -98,9 +103,9 @@ pub use ssh::{
 };
 pub use ssh::{
     Destination, FORWARD_READY, HostKeyFingerprint, HostKeyScan, HostKeys, HostProbe,
-    MAX_UNVERIFIED_HOSTS, NewHostKey, SshFailure, forward_command, probe_host, probe_host_with,
-    remote_config_value, remote_origin_url, resolve_destination, scan_host_key, set_host_keys,
-    set_unverified_hosts, trust_host_key,
+    MAX_UNVERIFIED_HOSTS, NewHostKey, SshFailure, confirm_host_key, forward_command,
+    known_host_keys, probe_host, probe_host_with, remote_config_value, remote_origin_url,
+    resolve_destination, scan_host_key, set_host_keys, set_unverified_hosts, trust_host_key,
 };
 pub use surface_images::{
     ImageStore, MAX_IMAGE_BYTES, MAX_IMAGE_SIDE, MAX_IMAGES, MAX_PLACEMENTS, SurfaceImage,

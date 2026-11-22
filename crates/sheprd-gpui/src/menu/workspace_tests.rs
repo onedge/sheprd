@@ -10,6 +10,7 @@ mod dialog_layout;
 mod dispatch;
 mod en_xa;
 mod issues;
+mod kept_close;
 // Only POSIX clients script other hosts, so only they dispatch.
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 mod kept_dispatch;
@@ -23,6 +24,7 @@ mod mute;
 mod naming;
 mod pull_requests;
 mod remote_branches;
+mod rename_double_click;
 #[cfg(all(feature = "container", any(target_os = "linux", target_os = "macos")))]
 mod sandbox_dispatch;
 #[cfg(all(
@@ -41,6 +43,8 @@ mod worktree_delete_recovery;
 // Host scripts, which find and start agents, need a POSIX client.
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 mod worktree_landing;
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+mod worktree_landing_rows;
 
 /// Presses the open workspace dialog's submit, for `endpoint::lifecycle_tests`.
 #[cfg(unix)]
@@ -96,6 +100,7 @@ pub(crate) fn submit_focus_change(
                 dirty: true,
                 unpushed: true,
                 unknown: false,
+                ..Default::default()
             }),
         )
     });

@@ -3,6 +3,9 @@ use crate::control::protocol::remote::Reply;
 use sheprd_remote_control::control::{Device, DeviceId, Status};
 
 mod addresses;
+mod push_hosts;
+mod push_status;
+mod relay_token;
 mod relays;
 
 fn status() -> Status {
@@ -22,6 +25,7 @@ fn status() -> Status {
         devices: 2,
         connected: 1,
         relays: Default::default(),
+        github_asks: 0,
     }
 }
 
@@ -93,6 +97,7 @@ fn devices_print_one_line_each_or_exit_4_when_there_are_none() {
             connected: false,
             via: None,
             hosts: Vec::new(),
+            share_github: true,
         },
         Device {
             id: DeviceId("d2".into()),
@@ -103,6 +108,7 @@ fn devices_print_one_line_each_or_exit_4_when_there_are_none() {
             connected: true,
             via: None,
             hosts: Vec::new(),
+            share_github: true,
         },
         Device {
             id: DeviceId("d3".into()),
@@ -113,6 +119,7 @@ fn devices_print_one_line_each_or_exit_4_when_there_are_none() {
             connected: false,
             via: None,
             hosts: Vec::new(),
+            share_github: true,
         },
     ];
     assert_eq!(

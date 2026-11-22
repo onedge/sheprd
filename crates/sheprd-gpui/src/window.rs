@@ -6,6 +6,7 @@
 mod accessibility;
 mod annotate;
 mod announcement;
+mod app_tab;
 mod backdrop;
 pub(crate) mod chrome_focus;
 pub(crate) mod clipboard;
@@ -44,8 +45,10 @@ mod mouse;
 mod pending_input;
 mod plugin_selection;
 pub(crate) mod prefix;
+mod recent_panes;
 mod reconnecting;
 mod regions;
+mod rename_offer;
 mod render;
 pub(crate) use render::NoticeCard;
 mod report_issue;
@@ -85,6 +88,8 @@ mod shortcut_tests;
 mod status_bar_tests;
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod typing_tests;
 
 #[cfg(feature = "integration-test")]
 use crate::smoke;
@@ -106,6 +111,7 @@ pub(crate) use server_keys::ActiveServerKeymap;
 pub(crate) struct SheprdWindow {
     // keep-sorted start
     pub(crate) _activation: Subscription,
+    pub(crate) _agent_favorites: Subscription,
     pub(crate) _appearance: Subscription,
     pub(crate) _browser_tabs: Subscription,
     pub(crate) _device_tags: Subscription,
@@ -125,6 +131,8 @@ pub(crate) struct SheprdWindow {
     pub(crate) active: bool,
     /// The activity bar's panel and filter.
     pub(crate) activity: sidebar::Activity,
+    /// Every device's favorite agents, as their daemons last answered.
+    pub(crate) agent_favorites: std::sync::Arc<crate::agent_favorites::Sets>,
     /// The coordinator group the agents panel is narrowed to, by name: a
     /// group outlives its coordinator's pane. None lists every group.
     pub(crate) agent_group: Option<String>,
@@ -153,6 +161,8 @@ pub(crate) struct SheprdWindow {
     pub(crate) catalog: endpoint::Catalog,
     pub(crate) cell_width: f32,
     /// Native views of the `herdr-acp` chats in this daemon's panes.
+    /// The rail beside an agent chat, shared by every chat in the window.
+    pub(crate) chat_rail_width: crate::panel_resize::PanelWidth,
     pub(crate) chats: crate::chat::Chats,
     /// Snapshots of checkouts taken at agent turns, and the dialog listing them.
     pub(crate) checkpoints: crate::checkpoint::Checkpoints,
@@ -227,6 +237,9 @@ pub(crate) struct SheprdWindow {
     pub(crate) flash: Option<(Flash, std::time::Instant)>,
     pub(crate) flash_motion: flash::Motion,
     pub(crate) focus: FocusHandle,
+    /// The workspace in front and the row that takes its place when it is
+    /// removed; see `sidebar::front_watch`.
+    pub(crate) front_watch: sidebar::FrontWatch,
     pub(crate) git: git::Git,
     /// Where the titlebar's Git button last painted. The window owns it so a
     /// shortcut and a click open the Git menu at the same place.
@@ -266,6 +279,10 @@ pub(crate) struct SheprdWindow {
     /// The last pointer position over the panes, so a move event that did not move is not use.
     pub(crate) last_pointer: Option<Point<Pixels>>,
     pub(crate) last_queued_options: Option<ConnectOptions>,
+    /// When this window last typed, composed, or pasted, and into which of
+    /// Herdr's panes. Pointer motion, wheels, clicks, and focus changes are
+    /// not typing.
+    pub(crate) last_typed: Option<crate::chat::Typed>,
     /// The status line text the last link this window failed to follow
     /// left, so following the next one can clear it without touching an
     /// unrelated error.
@@ -332,6 +349,8 @@ pub(crate) struct SheprdWindow {
     /// The frame on screen, kept across the gap between two projections.
     pub(crate) presentation: Presentation,
     pub(crate) pressed_terminal_link: Option<PressedLink>,
+    /// Ctrl-Tab's order: the panes focused on any endpoint, most recent first.
+    pub(crate) recent_panes: recent_panes::RecentPanes,
     /// The terminal grid's cached regions; see `host_regions`.
     pub(crate) regions: Vec<regions::RegionLayers>,
     /// Pages remote agents asked for, waiting for their port's forward.
@@ -437,6 +456,8 @@ pub(crate) struct SheprdWindow {
     /// Toasts sliding in and out of their corners.
     pub(crate) toast_motion: toasts::motion::ToastMotion,
     pub(crate) toasts_hidden: bool,
+    /// Agent sessions on this computer, for the Traces section.
+    pub(crate) traces: crate::traces::State,
     /// SSH tunnels to remote ports that listen on their host's loopback only.
     pub(crate) tunnels: crate::listening_ports::Tunnels,
     pub(crate) update_preview: Option<updater::State>,
@@ -564,6 +585,9 @@ impl SheprdWindow {
         if self.mod_panel_width.chosen().is_none() {
             self.mod_panel_width.restore(chrome.mod_panel_width);
         }
+        if self.chat_rail_width.chosen().is_none() {
+            self.chat_rail_width.restore(chrome.chat_rail_width);
+        }
         if self.review_files_width.chosen().is_none() {
             self.review_files_width.restore(chrome.review_files_width);
         }
@@ -674,6 +698,7 @@ impl SheprdWindow {
         self.poll_remote_browser(window, cx);
         self.poll_remote_work(window, cx);
         self.poll_chats(window, cx);
+        self.offer_app_rename(window, cx);
         self.offer_browser_skill(window, cx);
         self.poll_sessions(cx);
         self.flush_scrollbar(cx);
@@ -738,9 +763,11 @@ impl SheprdWindow {
             cx.notify();
         }
         self.publish_remote_pull_requests(cx);
+        self.publish_github_account(cx);
         self.sync_remote_hosts(window, cx);
         self.reach_device_tags(cx);
         self.update_merged_cleanup(window, cx);
+        self.follow_removed_front(cx);
         if self.update_git() {
             cx.notify();
         }
@@ -751,6 +778,7 @@ impl SheprdWindow {
         self.poll_core_terminals(window, cx);
         self.poll_overview(cx);
         self.poll_security(cx);
+        self.poll_traces(cx);
         self.poll_automations(cx);
         self.poll_remote_updates(window, cx);
         if self.update_system_load() {

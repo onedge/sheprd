@@ -4,9 +4,17 @@
 //! `[remote]` change does.
 // i18n: migrated
 
+mod deploy;
+mod token;
+
+pub(in crate::settings_window) use token::TokenPrompt;
+
 use super::{Edit, SettingsWindow, ui};
 use crate::{
-    config::{Theme, remote::relay_address},
+    config::{
+        Theme,
+        remote::{Relay, relay_address},
+    },
     i18n::{Localize, fl},
     remote::{
         Health,
@@ -39,7 +47,8 @@ pub(in crate::settings_window) enum Offered {
 pub(in crate::settings_window) enum Standing {
     /// The daemon does not run, so it reports nothing.
     Off,
-    Listening,
+    /// With the round trip in milliseconds, once measured.
+    Listening(Option<u32>),
     Connecting,
     Failed(String),
     /// Between a save and the daemon's restart, or an older daemon.
@@ -58,8 +67,8 @@ impl Standing {
                 .ok()
                 .and_then(|address| status.relays.get(&address))
         });
-        match reported {
-            Some(RelayState::Listening) => Self::Listening,
+        match reported.map(|reported| &reported.state) {
+            Some(RelayState::Listening { rtt_ms }) => Self::Listening(*rtt_ms),
             Some(RelayState::Connecting) => Self::Connecting,
             Some(RelayState::Failed { error }) => Self::Failed(error.clone()),
             None => Self::Unreported,
@@ -70,7 +79,8 @@ impl Standing {
     pub(in crate::settings_window) fn line(&self) -> String {
         match self {
             Self::Off => fl!("settings-remote-while-running"),
-            Self::Listening => fl!("settings-remote-relay-listening"),
+            Self::Listening(None) => fl!("settings-remote-relay-listening"),
+            Self::Listening(Some(ms)) => fl!("settings-remote-relay-listening-rtt", ms = ms),
             Self::Connecting => fl!("settings-remote-relay-connecting"),
             Self::Failed(error) => fl!(
                 "settings-remote-relay-failed",
@@ -84,12 +94,35 @@ impl Standing {
     /// connecting, and quiet when there is nothing to say.
     fn color(&self, theme: &Theme) -> u32 {
         match self {
-            Self::Listening => theme.ink(theme.palette[2]),
+            Self::Listening(_) => theme.ink(theme.palette[2]),
             Self::Failed(_) => theme.ink(theme.palette[1]),
             Self::Connecting => theme.ink(theme.palette[3]),
             Self::Off | Self::Unreported => theme.muted,
         }
     }
+}
+
+/// A listed relay's description: how it stands, then, for a labelled one,
+/// its address when a name took its place, its description, and its tags.
+pub(in crate::settings_window) fn relay_line(relay: &Relay, standing: &Standing) -> String {
+    let label = &relay.label;
+    let mut parts = vec![standing.line()];
+    if label.name.is_some() {
+        parts.push(crate::notifications::safe_text(&relay.endpoint, 200));
+    }
+    if let Some(description) = &label.description {
+        parts.push(crate::notifications::safe_text(description, 256));
+    }
+    if !label.tags.is_empty() {
+        let tags = label
+            .tags
+            .iter()
+            .map(|tag| crate::notifications::safe_text(tag, 32))
+            .collect::<Vec<_>>()
+            .join(", ");
+        parts.push(fl!("settings-remote-relay-tags", tags = tags));
+    }
+    parts.join(" · ")
 }
 
 /// A public relay's title: its name and region when the list gives them,
@@ -118,7 +151,9 @@ impl SettingsWindow {
             .remote
             .relays
             .iter()
-            .any(|relay| relay == address || relay_address(relay).is_ok_and(|it| it == address))
+            .any(|Relay { endpoint, .. }| {
+                endpoint == address || relay_address(endpoint).is_ok_and(|it| it == address)
+            })
     }
 
     fn save_with_relay(&mut self, address: String, cx: &mut Context<Self>) {
@@ -126,7 +161,7 @@ impl SettingsWindow {
             return;
         }
         let mut relays = self.config.remote.relays.clone();
-        relays.push(address);
+        relays.push(address.into());
         self.save_remote(Edit::Relays(relays), cx);
     }
 
@@ -143,7 +178,9 @@ impl SettingsWindow {
         };
         self.remote.relay_invalid = false;
         input.update(cx, |input, cx| input.clear(cx));
-        self.save_with_relay(address, cx);
+        self.save_with_relay(address.clone(), cx);
+        // A private relay admits this computer only with its token.
+        self.check_relay_token(address, cx);
         cx.notify();
     }
 
@@ -204,8 +241,8 @@ impl SettingsWindow {
     ) {
         let mut relays = self.config.remote.relays.clone();
         if index < relays.len() {
-            relays.remove(index);
-            self.save_remote(Edit::Relays(relays), cx);
+            let removed = relays.remove(index);
+            self.remove_relay_and_token(relays, removed.endpoint, cx);
         }
     }
 
@@ -242,9 +279,14 @@ impl SettingsWindow {
         let theme = &self.theme;
         let relays = &self.config.remote.relays;
         let idle = !self.busy();
+        let (linked, token_row) = (self.linked_relay_row(cx), self.relay_token_row(cx));
         let rows = relays.iter().enumerate().map(|(index, relay)| {
-            let name = crate::notifications::safe_text(relay, 200);
-            let standing = Standing::of(relay, health);
+            let address = crate::notifications::safe_text(&relay.endpoint, 200);
+            let name = relay.label.name.as_deref().map_or_else(
+                || address.clone(),
+                |name| crate::notifications::safe_text(name, 64),
+            );
+            let standing = Standing::of(&relay.endpoint, health);
             let remove = ui::button(
                 theme,
                 format!("remote-relay-{index}-remove"),
@@ -260,9 +302,26 @@ impl SettingsWindow {
                     cx.listener(move |this, _, _, cx| this.remove_remote_relay(index, cx)),
                 )
             });
+            let endpoint = relay.endpoint.clone();
+            let token = ui::button(
+                theme,
+                format!("remote-relay-{index}-token"),
+                fl!("settings-remote-relay-token-button"),
+                idle,
+            )
+            .aria_label(fl!(
+                "settings-remote-relay-token-label",
+                relay = name.clone()
+            ))
+            .when(idle, |button| {
+                button.on_click(cx.listener(move |this, _, _, cx| {
+                    this.ask_relay_token(endpoint.clone(), cx);
+                }))
+            });
             ui::row(theme, format!("remote-relay-{index}"), name)
                 .dot(standing.color(theme))
-                .description(standing.line())
+                .description(relay_line(relay, &standing))
+                .control(token)
                 .control(remove)
                 .into_any_element()
         });
@@ -275,6 +334,44 @@ impl SettingsWindow {
         .when(idle, |button| {
             button.on_click(cx.listener(|this, _, _, cx| this.add_remote_relay(cx)))
         });
+        let field = div()
+            .debug_selector(|| "remote-relay-address".into())
+            .children(self.remote.relay.clone());
+        let none = relays.is_empty();
+        let list = div()
+            .flex()
+            .flex_col()
+            .child(
+                ui::row(theme, "remote-relays", fl!("settings-remote-relays")).description(
+                    if none {
+                        fl!("settings-remote-relays-none")
+                    } else {
+                        fl!("settings-remote-relays-note")
+                    },
+                ),
+            )
+            .children(linked);
+        // No relay yet: deploying one and adding one sit side by side.
+        // Once one is listed, Add keeps its row and deploying moves under it.
+        let list = if none {
+            // A relay just added may ask for its token before the list
+            // the daemon restarts with names it.
+            list.child(self.relay_start(field, add)).children(token_row)
+        } else {
+            list.children(rows)
+                .children(token_row)
+                .child(
+                    ui::row(theme, "remote-relay-add", fl!("settings-remote-relay-add"))
+                        .description(if self.remote.relay_invalid {
+                            fl!("settings-remote-relay-invalid", example = PLACEHOLDER)
+                        } else {
+                            fl!("settings-remote-relay-add-note")
+                        })
+                        .control(field.w(px(260.)).flex_none())
+                        .control(add),
+                )
+                .child(self.relay_deploy_row())
+        };
         div()
             .flex()
             .flex_col()
@@ -283,32 +380,7 @@ impl SettingsWindow {
                 &fl!("settings-remote-section-relays"),
                 None,
             ))
-            .child(
-                ui::row(theme, "remote-relays", fl!("settings-remote-relays")).description(
-                    if relays.is_empty() {
-                        fl!("settings-remote-relays-none")
-                    } else {
-                        fl!("settings-remote-relays-note")
-                    },
-                ),
-            )
-            .children(rows)
-            .child(
-                ui::row(theme, "remote-relay-add", fl!("settings-remote-relay-add"))
-                    .description(if self.remote.relay_invalid {
-                        fl!("settings-remote-relay-invalid", example = PLACEHOLDER)
-                    } else {
-                        fl!("settings-remote-relay-add-note")
-                    })
-                    .control(
-                        div()
-                            .debug_selector(|| "remote-relay-address".into())
-                            .w(px(260.))
-                            .flex_none()
-                            .children(self.remote.relay.clone()),
-                    )
-                    .control(add),
-            )
+            .child(list)
             .child(self.remote_public_relays(cx))
     }
 

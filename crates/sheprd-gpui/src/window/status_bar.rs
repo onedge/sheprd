@@ -127,6 +127,7 @@ impl SheprdWindow {
             .children(self.render_system_load())
             .children(self.render_gpu_load())
             .children(self.render_network_quality(cx))
+            .children(self.machines_status(cx))
             .children(self.caffeine_button(items.keep_awake, cx))
             .when(items.theme.shown(), |bar| {
                 bar.child(
@@ -325,20 +326,20 @@ impl SheprdWindow {
 
     /// Lets an `UntilAgentsFinish` hold go once no window's agents work.
     pub(crate) fn observe_agent_work(&self, window: &Window, cx: &mut Context<Self>) {
-        let work = crate::caffeine::Work::of(
-            self.endpoints
-                .iter()
-                .filter(|endpoint| endpoint.enabled)
-                .map(|endpoint| {
-                    endpoint
-                        .live
-                        .snapshot
-                        .as_deref()
-                        .filter(|_| endpoint.live.status.is_connected())
-                }),
-        );
+        let endpoints = self
+            .endpoints
+            .iter()
+            .filter(|endpoint| endpoint.enabled)
+            .map(|endpoint| {
+                let snapshot = endpoint
+                    .live
+                    .snapshot
+                    .as_deref()
+                    .filter(|_| endpoint.live.status.is_connected());
+                (endpoint.id.as_str(), crate::caffeine::Work::of(snapshot))
+            });
         let report = Self::caffeine_report(cx);
-        crate::caffeine::observe(window.window_handle().window_id(), work, cx, report);
+        crate::caffeine::observe(window.window_handle().window_id(), endpoints, cx, report);
     }
 
     /// Shows a keep-awake failure in this window, if it is still open.
@@ -348,6 +349,16 @@ impl SheprdWindow {
             let flash = super::Flash::warning(error.localize());
             let _ = view.update(cx, |this, cx| this.show_flash(flash, cx));
         }
+    }
+
+    #[cfg(target_os = "macos")]
+    fn machines_status(&self, cx: &mut Context<Self>) -> Option<Stateful<Div>> {
+        self.render_machines_status(cx)
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    fn machines_status(&self, _: &mut Context<Self>) -> Option<Stateful<Div>> {
+        None
     }
 
     /// Hidden by `keep_awake = false` only while off: the cup is the one

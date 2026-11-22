@@ -12,7 +12,11 @@ pub mod app;
 mod auth;
 pub mod control;
 pub mod core_target;
+#[cfg(feature = "server")]
+pub mod desktop;
 mod error;
+#[cfg(feature = "server")]
+pub mod fleet;
 #[cfg(feature = "server")]
 mod hub;
 #[cfg(feature = "server")]
@@ -23,11 +27,17 @@ mod native;
 mod push;
 #[cfg(feature = "server")]
 mod relay;
+pub mod relay_label;
 #[cfg(feature = "server")]
 pub mod server;
+#[cfg(feature = "server")]
+mod ssh_access;
 #[cfg(feature = "server")]
 mod tls;
 #[cfg(feature = "server")]
 mod web;
 
 pub use error::{Error, Result};
+/// `sheprd-remote-control relays --offer`: relays another computer shares.
+#[cfg(feature = "server")]
+pub use relay::shared as shared_relays;

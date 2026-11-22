@@ -13,6 +13,7 @@ use secrecy::ExposeSecret as _;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use tower::ServiceExt;
 
+mod apns_delivery;
 mod apps;
 mod attention;
 mod changes;
@@ -20,17 +21,24 @@ mod convert;
 #[cfg(unix)]
 mod echo;
 mod empty_core;
+mod favorites;
+#[cfg(unix)]
+pub(crate) mod fleet;
+#[cfg(unix)]
+mod fleet_copy;
 mod github;
 mod handoff;
 mod hosts;
 mod indicators;
 mod layout;
+mod lend;
 mod nearby;
 mod new_terminal;
 mod origins;
 mod pace;
 mod pairing;
 mod presence;
+mod prompt;
 mod pull_requests;
 mod rename;
 mod routes;
@@ -40,11 +48,15 @@ mod stream;
 #[cfg(unix)]
 mod streaming;
 mod tags;
+mod term_files;
 #[cfg(unix)]
 mod term_history;
 mod terminal;
+mod test_push;
+mod typed;
 mod update;
 mod uploads;
+mod workspace;
 
 pub(crate) const ORIGIN: &str = "https://192.168.1.20:7443";
 
@@ -63,22 +75,34 @@ pub(crate) fn state(dir: &std::path::Path) -> Shared {
 
 /// A server state on a private directory showing what `hub` holds.
 pub(crate) fn state_with(dir: &std::path::Path, hub: Arc<Hub>) -> Shared {
+    state_lending(dir, hub, crate::native::github::Lending::default())
+}
+
+/// [`state_with`], lending GitHub sign-ins as `lending` does.
+pub(crate) fn state_lending(
+    dir: &std::path::Path,
+    hub: Arc<Hub>,
+    lending: crate::native::github::Lending,
+) -> Shared {
     let names = Names::new([IpAddr::V4(Ipv4Addr::new(192, 168, 1, 20))], Some("studio"));
     let authority = Authority::load_or_create(dir).unwrap();
     let seen = Origins::load(dir, authority.fingerprint());
     let auth = Auth::load(dir, Limits::default()).unwrap();
     let (pull_requests, _) = tokio::sync::watch::channel(Arc::new(Default::default()));
     Arc::new(State {
-        apns: None,
+        apns: crate::apns::Delivery::Off,
         apps: auth.apps(),
         auth: Mutex::new(auth),
         changes: Default::default(),
         computer: "Studio".into(),
         connected: Mutex::new(HashMap::new()),
+        favorites: Favorites::load(crate::app::favorites::file(dir)),
         fingerprint: authority.fingerprint().to_owned(),
+        fleet: None,
         github: Default::default(),
         authority: Some(authority),
         hub,
+        lending,
         live_activities: crate::app::config::ActivityDetail::default(),
         load: tokio::sync::watch::channel(None).1,
         look: Look::load(dir),
@@ -86,9 +110,11 @@ pub(crate) fn state_with(dir: &std::path::Path, hub: Arc<Hub>) -> Shared {
         near: Mutex::default(),
         opened: crate::web::attention::Opened::default(),
         port: 7443,
+        previews: Default::default(),
         privacy: Privacy::Generic,
         pull_requests,
         push: None,
+        pushes: Default::default(),
         relay: None,
         reports: Mutex::new(report_limit()),
         seen: Mutex::new(seen),

@@ -14,17 +14,25 @@ mod attach;
 mod attachments;
 mod auto_accept;
 mod bounds;
+mod carry;
 mod commands;
+mod continued;
 mod flow;
+mod harnesses;
 mod history;
+mod known;
 mod linked_pictures;
 mod media;
 mod opencode;
+mod origin;
 mod permissions;
 mod prompt_titles;
+mod pull_requests;
+mod questions;
 mod resume;
 mod settings;
 mod streaming;
+mod threads;
 
 type Reports = Rc<RefCell<Vec<Activity>>>;
 type Prompts = Rc<RefCell<Vec<String>>>;
@@ -38,18 +46,31 @@ struct Harness {
     prompts: Prompts,
     reports: Reports,
     session: TestSession,
+    /// The settings the session reported a new session offered.
+    settings: Rc<RefCell<Vec<(Agent, crate::known::Settings)>>>,
+    /// The processes the session reported a switch's agent started as.
+    started: Rc<RefCell<Vec<u32>>>,
+    /// The agents the session reported switching to.
+    switched: Rc<RefCell<Vec<Agent>>>,
 }
 
 fn config() -> Config {
     Config {
         agent: "Claude".to_owned(),
+        choices: None,
         cwd: PathBuf::from("/work"),
         exit_with_agent: false,
+        harness: Some(Agent::Claude),
         history: None,
+        known: Default::default(),
+        listens: false,
         load: None,
         login_hint: Some("run `claude` and use /login".to_owned()),
         pane: Some("p_1".to_owned()),
+        prompts: Default::default(),
         require_load: false,
+        settings: None,
+        sheprd: None,
     }
 }
 
@@ -60,13 +81,24 @@ fn harness_with(config: Config) -> Harness {
     let opened: Prompts = Rc::default();
     let (sink, prompt_sink) = (Rc::clone(&reports), Rc::clone(&prompts));
     let opened_sink = Rc::clone(&opened);
+    let switched: Rc<RefCell<Vec<Agent>>> = Rc::default();
+    let switched_sink = Rc::clone(&switched);
+    let started: Rc<RefCell<Vec<u32>>> = Rc::default();
+    let started_sink = Rc::clone(&started);
+    let settings: Rc<RefCell<Vec<(Agent, crate::known::Settings)>>> = Rc::default();
+    let settings_sink = Rc::clone(&settings);
     let session = Session::new(
         config,
         Outbox(sender),
         Box::new(move |update| match update {
             Update::Activity(activity) => sink.borrow_mut().push(activity),
+            Update::Harness(agent) => switched_sink.borrow_mut().push(agent),
             Update::Opened(id) => opened_sink.borrow_mut().push(id),
             Update::Prompt(prompt) => prompt_sink.borrow_mut().push(prompt),
+            Update::Settings(agent, settings) => {
+                settings_sink.borrow_mut().push((agent, settings));
+            }
+            Update::Started(pid) => started_sink.borrow_mut().push(pid),
         }) as Box<dyn FnMut(Update)>,
     );
     Harness {
@@ -75,6 +107,9 @@ fn harness_with(config: Config) -> Harness {
         prompts,
         reports,
         session,
+        settings,
+        started,
+        switched,
     }
 }
 
@@ -100,24 +135,33 @@ impl Harness {
     }
 
     fn respond(&mut self, id: i64, result: Value) {
-        self.input(Input::Agent(Inbound::Response {
-            id: wire::RequestId::Number(id),
-            result: Ok(result),
-        }));
+        self.input(Input::Agent(
+            HarnessId::default(),
+            Inbound::Response {
+                id: wire::RequestId::Number(id),
+                result: Ok(result),
+            },
+        ));
     }
 
     fn fail(&mut self, id: i64, error: wire::Error) {
-        self.input(Input::Agent(Inbound::Response {
-            id: wire::RequestId::Number(id),
-            result: Err(error),
-        }));
+        self.input(Input::Agent(
+            HarnessId::default(),
+            Inbound::Response {
+                id: wire::RequestId::Number(id),
+                result: Err(error),
+            },
+        ));
     }
 
     fn update(&mut self, update: Value) {
-        self.input(Input::Agent(Inbound::Notification {
-            method: "session/update".to_owned(),
-            params: json!({"sessionId": "s1", "update": update}),
-        }));
+        self.input(Input::Agent(
+            HarnessId::default(),
+            Inbound::Notification {
+                method: "session/update".to_owned(),
+                params: json!({"sessionId": "s1", "update": update}),
+            },
+        ));
     }
 
     fn agent_says(&mut self, text: &str) {
@@ -193,6 +237,7 @@ fn prompt(harness: &mut Harness, conn: u64, text: &str) -> i64 {
     harness.command(
         conn,
         Command::Prompt {
+            origin: None,
             text: text.to_owned(),
             attachments: Vec::new(),
         },
@@ -203,15 +248,18 @@ fn prompt(harness: &mut Harness, conn: u64, text: &str) -> i64 {
 }
 
 fn ask_permission(harness: &mut Harness, request: i64) -> PermissionId {
-    harness.input(Input::Agent(Inbound::Request {
-        id: wire::RequestId::Number(request),
-        method: "session/request_permission".to_owned(),
-        params: json!({"sessionId": "s1",
+    harness.input(Input::Agent(
+        HarnessId::default(),
+        Inbound::Request {
+            id: wire::RequestId::Number(request),
+            method: "session/request_permission".to_owned(),
+            params: json!({"sessionId": "s1",
             "toolCall": {"toolCallId": "call-1", "title": "Run cargo test", "kind": "execute"},
             "options": [
                 {"optionId": "allow", "name": "Allow", "kind": "allow_once"},
                 {"optionId": "deny", "name": "Deny", "kind": "reject_once"}]}),
-    }));
+        },
+    ));
     harness.transcript().permissions.last().unwrap().id
 }
 

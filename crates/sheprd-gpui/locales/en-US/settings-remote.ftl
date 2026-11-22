@@ -3,7 +3,7 @@
 # saves on each SSH host.
 
 settings-remote-health-updating = Updating the service…
-settings-remote-health-off = Off. Turning it on installs a user service that serves your chats over HTTPS on your network, and over Tailscale when it runs.
+settings-remote-health-off = Off. Turning it on installs a user service that serves your chats over HTTPS on your network, over Tailscale when it runs, and through a relay once you add one under Relays.
 settings-remote-health-starting = Starting…
 settings-remote-health-running = Running on port { $port } · { $devices ->
         [one] { $devices } device
@@ -17,6 +17,10 @@ settings-remote-health-not-running = Not running: { $reason }
 settings-remote-service-failed = Could not change the service: { $error }
 settings-remote-revoke-failed = Could not revoke the device: { $error }
 settings-remote-retry = Retry
+# Shown while the service runs a build without a developer ID and the
+# macOS firewall is on.
+settings-remote-firewall = Phones will be blocked after this build changes
+settings-remote-firewall-note = The macOS firewall is on, and this build of the daemon is not signed with a developer ID, so macOS approves only this exact build. After a rebuild, the next restart of the Mac or of the daemon blocks phones until someone clicks Allow at this computer. Run remote control from a signed release to keep the approval.
 
 settings-remote-section-service = Service
 settings-remote-keep-running-note = Phones keep working and notifications keep coming. Pairing a new device still needs Sheprd.
@@ -25,6 +29,9 @@ settings-remote-presence-note = Paired iPhones near this computer over Bluetooth
 settings-remote-restart = Restart the daemon
 settings-remote-restart-note = Starts it again from the binary beside Sheprd, as after an update. Phones reconnect on their own.
 settings-remote-restart-button = Restart
+settings-remote-fleet = Use several computers?
+settings-remote-fleet-note = Fleet links them all, with your phones, so a host added on one is reachable from every other.
+settings-remote-fleet-open = Open Fleet
 
 settings-remote-section-connection = Connection
 settings-remote-bind-all = All interfaces
@@ -46,9 +53,12 @@ settings-remote-relays = Reach this computer from any network
 settings-remote-relays-none = No relay. Phones reach this computer on your network, or over Tailscale when it runs.
 settings-remote-relays-note = Paired phones go through a relay when they have no direct path. A relay sees only encrypted traffic. A phone learns of a new relay the next time it connects directly.
 settings-remote-relay-listening = Listening
+settings-remote-relay-listening-rtt = Listening · { $ms } ms
 settings-remote-relay-connecting = Connecting…
 settings-remote-relay-failed = Failed: { $error }
 settings-remote-relay-unreported = The daemon has not reported on it yet.
+# $tags is the relay's tags from remote.relays, joined with commas.
+settings-remote-relay-tags = Tags: { $tags }
 settings-remote-relay-remove = Remove
 settings-remote-relay-remove-label = Remove { $relay }
 settings-remote-relay-add = Add a relay
@@ -101,3 +111,21 @@ settings-remote-pair-no-window = Open a Sheprd window to pair a device.
 settings-remote-pair-dialog-open = Close the open dialog, then pair the device.
 
 settings-remote-history-reload-failed = Saved; host daemon reload not queued: { $error }
+
+## A private relay's listen token.
+
+settings-remote-relay-token-button = Token
+# $relay is a relay's name or address.
+settings-remote-relay-token-label = Set the listen token for { $relay }
+# $relay is a relay's address.
+settings-remote-relay-token = Listen token for { $relay }
+settings-remote-relay-token-note = This relay is private: it admits only computers with its listen token. Paste the token its operator gave you. It stays on this computer and the computers Sheprd shares relays with, never in the config.
+settings-remote-relay-token-placeholder = Listen token
+settings-remote-relay-token-invalid = A listen token is 16 to 255 characters, without spaces.
+settings-remote-relay-token-save = Save
+settings-remote-relay-token-forget = Forget
+settings-remote-relay-token-cancel = Cancel
+settings-remote-relay-linked = Add a private relay from a link?
+# $relay is a relay's address, from the link.
+settings-remote-relay-linked-note = { $relay }. Its listen token came with the link; Sheprd keeps it on this computer. Add it only if you deployed this relay or trust whoever sent the link.
+settings-remote-relay-linked-dismiss = Dismiss

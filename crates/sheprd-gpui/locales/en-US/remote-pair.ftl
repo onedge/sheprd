@@ -8,6 +8,7 @@ remote-pair-off = Remote control is off.
 remote-pair-off-detail = Turn it on in Settings > Remote control to pair a phone.
 remote-pair-open-settings = Open Settings
 remote-pair-approved = { $device } can now control your chats.
+remote-pair-approved-ssh = { $device } can now open terminals here.
 remote-pair-approved-detail = Revoke it any time in Settings > Remote control.
 remote-pair-done = Done
 remote-pair-denied = Not paired.
@@ -37,11 +38,31 @@ remote-pair-nearby-allow = To pair nearby over Bluetooth, allow Sheprd to use Bl
 # Enter opens it too, so keep the key name.
 remote-pair-get-app = Get the iPhone app (Enter)
 
+## Copy link: a pairing link for another computer running Sheprd on any
+## network, pasted there in Add Device > Nearby Sheprd.
+
+remote-pair-link-intro = Adding this computer from another one running Sheprd on a different network? Copy a pairing link and paste it there in Add Device > Nearby Sheprd.
+remote-pair-copy-link = Copy link
+# $minutes is how long the link still works, rounded up.
+remote-pair-link-copied = Copied. It works once, for { $minutes ->
+    [one] one more minute
+   *[other] { $minutes } more minutes
+}. Send it only to yourself: whoever holds it can ask to pair.
+remote-pair-link-expired = The copied link expired. Copy a new one.
+remote-pair-link-no-relays = A link needs this computer to listen on a relay. Turn on relays in Settings > Remote control.
+# $error is the reason, in a sentence of its own.
+remote-pair-link-failed = Could not make a link: { $error }
+
 # The phone's name is drawn bold.
 remote-pair-wants = { $device } wants remote control of your chats.
 # $app is the address the phone's app was installed from.
 remote-pair-app = It asks from the Sheprd app at { $app }. Allow it only if you are adding this computer to that app.
 remote-pair-same-code = Allow it only if the phone shows the same code.
+# Another computer's Sheprd, nearby over Bluetooth, adding this computer.
+# Its name is drawn bold.
+remote-pair-wants-ssh = { $device } wants to open terminals on this computer.
+remote-pair-ssh = Allowing adds its key to ~/.ssh/authorized_keys, usable only through this computer's relays. Revoke it in Settings > Remote control to remove the key.
+remote-pair-same-code-computer = Allow it only if the other computer shows the same code.
 remote-pair-deny = Deny
 remote-pair-allow = Allow
 remote-pair-allowing = Allowing…

@@ -6,13 +6,13 @@
 
 mod error;
 pub(crate) mod github;
-mod local;
+pub(crate) mod local;
 mod mailbox;
 
 pub(crate) use error::Error;
 pub(crate) use mailbox::Mailbox;
 
-use crate::hub::Keeper;
+use crate::hub::{Keeper, TabRef};
 use crate::{
     control::{
         changes::{Answer, CheckLog, Checks, Failure, FileDiff, FileList, MAX_PATH, Scope, Wanted},
@@ -118,19 +118,38 @@ async fn ask_sheprd(
 
 /// How long a phone's change to a Herdr 2 tab waits for Sheprd, which
 /// makes it at once.
-const LAYOUT_WAIT: Duration = Duration::from_secs(10);
+pub(crate) const LAYOUT_WAIT: Duration = Duration::from_secs(10);
+/// A workspace close may have to end many terminals before the desktop
+/// answers the phone.
+const WORKSPACE_CLOSE_WAIT: Duration = Duration::from_secs(30);
+/// Removing a linked checkout can take a while on a large repository.
+const WORKTREE_REMOVE_WAIT: Duration = Duration::from_secs(70);
 
-/// Asks Sheprd to make `op` at the pane of `terminal` in its saved Herdr 2
-/// tab `tab`, and waits until it has.
+fn layout_wait(op: &layout::Op) -> Duration {
+    match op {
+        layout::Op::CloseWorkspace { .. } => WORKSPACE_CLOSE_WAIT,
+        layout::Op::RemoveWorktree { .. } => WORKTREE_REMOVE_WAIT,
+        _ => LAYOUT_WAIT,
+    }
+}
+
+/// Asks Sheprd to make `op` at the pane of `terminal` in its kept Herdr 2
+/// tab `tab`, and waits until it has. A tab of the core's shared document
+/// that Sheprd holds no saved tab for is changed in the document instead,
+/// which Sheprd then reads.
 pub(crate) async fn change_layout(
     state: &Shared,
-    tab: u64,
+    tab: TabRef,
     terminal: String,
     op: layout::Op,
 ) -> Result<Option<String>, ApiError> {
+    let Some(desktop_tab) = state.hub.desktop_tab(&tab, &terminal) else {
+        return Ok(state.hub.arrange_doc(tab, terminal, op).await?);
+    };
+    let wait = layout_wait(&op);
     let mut pending = state
         .changes
-        .ask_layout(tab, terminal.clone(), op.clone(), Instant::now())
+        .ask_layout(desktop_tab, terminal.clone(), op.clone(), Instant::now())
         .map_err(ApiError::from)?;
     let answer = async {
         loop {
@@ -151,7 +170,7 @@ pub(crate) async fn change_layout(
             }
         }
     };
-    match tokio::time::timeout(LAYOUT_WAIT, answer).await {
+    match tokio::time::timeout(wait, answer).await {
         Ok(Err(error)) => Err(error),
         Ok(Ok(Some(layout::Answer::Done))) => Ok(None),
         Ok(Ok(Some(layout::Answer::Split(created)))) if created.len() <= layout::MAX_TERMINAL => {
@@ -240,3 +259,6 @@ pub(crate) async fn check_log(
         _ => Err(mismatch()),
     }
 }
+
+#[cfg(test)]
+mod tests;
