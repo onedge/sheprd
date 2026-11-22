@@ -1,5 +1,5 @@
-//! `remote`: the remote control daemon's status, devices, and restart, and
-//! the window's pairing and revoke dialogs.
+//! `remote`: the remote control daemon's status, devices, and restart, the
+//! window's pairing and revoke dialogs, and a private relay's listen token.
 use super::{Context, Output, unexpected};
 use crate::{
     cli::control::RemoteCommand,
@@ -9,20 +9,51 @@ use crate::{
     },
 };
 use sheprd_remote_control::control::{Device, Status};
+use std::io::IsTerminal as _;
+
+mod push_status;
 
 pub(super) fn remote(command: RemoteCommand, context: &Context) -> crate::Result<Output> {
     let op = match command {
         RemoteCommand::Status => RemoteOp::Status,
         RemoteCommand::Pair { address } => RemoteOp::Pair { address },
         RemoteCommand::Devices => RemoteOp::Devices,
+        RemoteCommand::PushStatus => RemoteOp::PushStatus,
         RemoteCommand::Revoke { device } => RemoteOp::Revoke { device },
         RemoteCommand::Restart => RemoteOp::Restart,
+        RemoteCommand::AddLink => RemoteOp::AddLink {
+            link: piped_link()?,
+        },
+        RemoteCommand::RelayToken { relay, clear } => RemoteOp::RelayToken {
+            relay: relay.to_string(),
+            token: if clear { None } else { Some(piped_token()?) },
+        },
     };
     match context.call(Request::Remote, op)? {
         Response::Done { message } => Ok(Output::message(message)),
         Response::Remote { reply } => output(&reply),
         response => Err(unexpected(response)),
     }
+}
+
+/// The listen token piped on standard input. A terminal is refused: what
+/// is typed there would be shown on screen.
+fn piped_token() -> crate::Result<sheprd_remote_control::control::relays::ListenToken> {
+    let stdin = std::io::stdin();
+    if stdin.is_terminal() {
+        return Err(crate::control::listen_token::Error::Terminal.into());
+    }
+    Ok(crate::control::listen_token::read(stdin.lock())?)
+}
+
+/// The pairing link piped on standard input. A terminal is refused, as
+/// for a listen token.
+fn piped_link() -> crate::Result<sheprd_remote_control::app::pairing::LinkText> {
+    let stdin = std::io::stdin();
+    if stdin.is_terminal() {
+        return Err(crate::control::link_input::Error::Terminal.into());
+    }
+    Ok(crate::control::link_input::read(stdin.lock())?)
 }
 
 /// What a reply prints, as text and as JSON.
@@ -33,12 +64,26 @@ pub(super) fn output(reply: &Reply) -> crate::Result<Output> {
             status,
             error,
         } => {
-            let json = serde_json::json!({
+            let mut json = serde_json::json!({
                 "enabled": enabled,
                 "running": status.is_some(),
                 "status": status,
                 "error": error,
             });
+            // The daemon leaves `token` out when false; it is spelled out
+            // here so a script need not know that.
+            // `pointer_mut`, as indexing would turn a missing status into `{}`.
+            if let Some(relays) = json
+                .pointer_mut("/status/relays")
+                .and_then(serde_json::Value::as_object_mut)
+            {
+                for relay in relays
+                    .values_mut()
+                    .filter_map(|relay| relay.as_object_mut())
+                {
+                    relay.entry("token").or_insert(false.into());
+                }
+            }
             Output::data(
                 status_text(*enabled, status.as_deref(), error.as_deref()),
                 &json,
@@ -52,6 +97,37 @@ pub(super) fn output(reply: &Reply) -> crate::Result<Output> {
             let now = crate::remote::now_ms();
             let lines: Vec<String> = devices.iter().map(|device| line(device, now)).collect();
             Output::data(lines.join("\n"), &json)
+        }
+        Reply::PushStatus {
+            enabled,
+            push_relay,
+            status,
+            error,
+            hosts,
+        } => {
+            let json = serde_json::json!({
+                "enabled": enabled,
+                "push_relay": push_relay,
+                "status": status,
+                "error": error,
+                "hosts": hosts,
+            });
+            let mut text =
+                push_status::text(*enabled, *push_relay, status.as_deref(), error.as_deref());
+            if !hosts.is_empty() {
+                text.push_str("\n\nLinked hosts:\n");
+                text.push_str(&push_status::hosts(hosts));
+            }
+            Output::data(text, &json)
+        }
+        Reply::RelayToken { relay, token } => {
+            let json = serde_json::json!({ "relay": relay, "token": token });
+            let text = if *token {
+                format!("Kept this computer's listen token for {relay}")
+            } else {
+                format!("Forgot this computer's listen token for {relay}")
+            };
+            Output::data(text, &json)
         }
     }
 }
@@ -95,15 +171,46 @@ fn status_text(enabled: bool, status: Option<&Status>, error: Option<&str>) -> S
             None => format!("Address: {address}"),
         },
     ));
-    lines.extend(status.relays.iter().map(|(relay, state)| {
-        use sheprd_remote_control::control::RelayState;
-        match state {
-            RelayState::Connecting => format!("Relay: {relay} — connecting"),
-            RelayState::Listening => format!("Relay: {relay} — listening"),
-            RelayState::Failed { error } => format!("Relay: {relay} — failed: {error}"),
-        }
-    }));
+    lines.extend(
+        status
+            .relays
+            .iter()
+            .map(|(relay, status)| relay_line(relay, status)),
+    );
     lines.join("\n")
+}
+
+/// One relay: what it is called and where, how it stands, then its
+/// description and tags on lines of their own.
+fn relay_line(relay: &str, status: &sheprd_remote_control::control::RelayStatus) -> String {
+    use sheprd_remote_control::control::RelayState;
+    let label = &status.label;
+    let state = match &status.state {
+        RelayState::Connecting => "connecting".to_owned(),
+        RelayState::Listening { rtt_ms: None } => "listening".to_owned(),
+        RelayState::Listening {
+            rtt_ms: Some(rtt_ms),
+        } => format!("listening, {rtt_ms} ms"),
+        RelayState::Failed { error } => format!("failed: {error}"),
+    };
+    let state = if status.token {
+        format!("{state}, with a listen token")
+    } else {
+        state
+    };
+    let mut line = match &label.name {
+        Some(name) => format!("Relay: {name} ({relay}) — {state}"),
+        None => format!("Relay: {relay} — {state}"),
+    };
+    if let Some(description) = &label.description {
+        line.push_str("\n  ");
+        line.push_str(description);
+    }
+    if !label.tags.is_empty() {
+        line.push_str("\n  Tags: ");
+        line.push_str(&label.tags.join(", "));
+    }
+    line
 }
 
 /// One device as a line of text: its ID for `remote revoke`, its name, and

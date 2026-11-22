@@ -17,6 +17,7 @@ CATALOGS = (
     "Localization/AppShortcuts.xcstrings",
     "Localization/InfoPlist.xcstrings",
     "SheprdRemoteCore/Sources/SheprdRemoteCore/Resources/Localizable.xcstrings",
+    "SheprdRemoteCore/Sources/SheprdTerminal/Resources/Localizable.xcstrings",
 )
 # printf specifiers, positional or not, a literal %, and App Shortcut
 # parameters such as ${applicationName}.

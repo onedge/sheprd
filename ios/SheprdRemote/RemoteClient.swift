@@ -242,12 +242,50 @@ final class RemoteClient: Sendable {
         )
     }
 
+    /// Hands this phone's relay keys for another computer to this one, to
+    /// carry there; posting the same request again reads where it stands.
+    func carryRelay(_ request: API.HostRelayRequest, bearer: String) async throws -> API.HostRelayState {
+        try await send("POST", "/api/v2/hosts/relay", body: request, bearer: bearer)
+    }
+
+    // MARK: Fleet
+
+    /// A fleet call (`FleetClient`): JSON in, the answer's bytes out.
+    func fleetCall(_ method: String, _ path: String, body: Data?, bearer: String) async throws -> Data {
+        guard let url = URL(string: origin + path) else { throw RemoteError.unreachable }
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+        request.httpBody = body
+        if body != nil { request.setValue("application/json", forHTTPHeaderField: "Content-Type") }
+        request.setValue("Bearer \(bearer)", forHTTPHeaderField: "Authorization")
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse else { throw RemoteError.notHTTP }
+        guard (200..<300).contains(http.statusCode) else {
+            throw RemoteError.status(http.statusCode, Refusal.text(status: http.statusCode, body: data))
+        }
+        return data
+    }
+
     // MARK: Tags
 
     /// Offers this phone's copy of the computer's tags; answers those that
     /// stand, which are the computer's own if it heard of a later edit.
     func offerTags(_ tags: Home.Tags, bearer: String) async throws -> Home.Tags {
         try await send("PUT", "/api/v2/tags", body: tags, bearer: bearer)
+    }
+
+    // MARK: Favorites
+
+    /// Stars or unstars the agent in `pane`; the computer's homes mark it.
+    /// An older computer answers 404.
+    func setFavorite(_ favorite: Bool, pane: String, bearer: String) async throws {
+        struct Change: Encodable {
+            let pane: String
+            let favorite: Bool
+        }
+        let _: EmptyAnswer = try await send(
+            "POST", "/api/v2/favorites", body: Change(pane: pane, favorite: favorite), bearer: bearer
+        )
     }
 
     // MARK: Text shortcuts
@@ -277,6 +315,21 @@ final class RemoteClient: Sendable {
         let _: EmptyAnswer = try await send("POST", "/api/term/\(Self.segment(pane))/paste", body: Body(text: text), bearer: bearer)
     }
 
+    /// The question the terminal agent in `pane` waits on, if any.
+    func termPrompt(pane: String, bearer: String) async throws -> TermPrompt? {
+        let answer: TermPrompt.Answer = try await send("GET", "/api/term/\(Self.segment(pane))/prompt", bearer: bearer)
+        return answer.prompt
+    }
+
+    /// Takes `choice` of `prompt`, the question as shown, with `text` for
+    /// a choice that takes words; refused when the question changed since,
+    /// even to another with the same choices.
+    func termChoose(_ choice: TermPrompt.Choice, of prompt: TermPrompt, text: String?, pane: String, bearer: String) async throws {
+        struct Body: Encodable { let question: [String]; let number: UInt32; let label: String; let text: String? }
+        let body = Body(question: prompt.question, number: choice.number, label: choice.label, text: text)
+        let _: EmptyAnswer = try await send("POST", "/api/term/\(Self.segment(pane))/prompt", body: body, bearer: bearer)
+    }
+
     /// A picture the computer stores and types the path of, as a file
     /// dropped on a terminal would.
     func termUpload(_ image: Data, pane: String, bearer: String) async throws {
@@ -285,6 +338,22 @@ final class RemoteClient: Sendable {
         request.httpMethod = "POST"
         request.timeoutInterval = 60
         request.httpBody = image
+        request.setValue("application/octet-stream", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(bearer)", forHTTPHeaderField: "Authorization")
+        let _: EmptyAnswer = try await perform(request)
+    }
+
+    /// Any file the computer stores under its name and types the path of,
+    /// as `termUpload` does a picture.
+    func termFile(_ data: Data, name: String, pane: String, bearer: String) async throws {
+        var components = URLComponents(string: origin + "/api/term/\(Self.segment(pane))/file")
+        components?.queryItems = [URLQueryItem(name: "name", value: name)]
+        guard let url = components?.url else { throw RemoteError.unreachable }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        // Up to 16 MB, possibly through a relay.
+        request.timeoutInterval = 300
+        request.httpBody = data
         request.setValue("application/octet-stream", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(bearer)", forHTTPHeaderField: "Authorization")
         let _: EmptyAnswer = try await perform(request)
@@ -352,6 +421,15 @@ final class RemoteClient: Sendable {
                        bearer: bearer, timeout: Self.askTimeout)
     }
 
+    /// A GitHub token this computer lends the phone for `host`
+    /// (`GitHubLeases`): 404 when it has no account there, 403 when sharing
+    /// is off, 429 and 504 when it asks the phone to wait. The answer is
+    /// SheprdGitHub's `LeaseAnswer`, named by the caller: the share extension
+    /// compiles this file without linking SheprdGitHub.
+    func githubToken<Answer: Decodable>(host: String, bearer: String) async throws -> Answer {
+        try await send("GET", "/api/v2/github/token?\(Self.query(["host": host]))", bearer: bearer, timeout: Self.askTimeout)
+    }
+
     /// Longer than the computer waits for Sheprd (`ANSWER_WAIT`), so it is
     /// the computer that says what went wrong.
     private static let askTimeout: TimeInterval = 30
@@ -367,10 +445,42 @@ final class RemoteClient: Sendable {
         return (components.percentEncodedQuery ?? "").replacingOccurrences(of: "+", with: "%2B")
     }
 
+    /// Asks Claude, run once on its own, where the chat stands;
+    /// the summary arrives on `home` when it is done.
+    func summarize(pane: String, bearer: String) async throws {
+        let _: EmptyAnswer = try await send("POST", "/api/v2/chat/\(Self.segment(pane))/summarize", body: NoBody(), bearer: bearer)
+    }
+
+    /// A short title for the chat `pane` runs, from Claude run once on its
+    /// own; the chat is not renamed. The agent may take up to 90
+    /// seconds, so this waits longer than that for the computer to say why.
+    func suggestTitle(pane: String, bearer: String) async throws -> String {
+        struct Answer: Decodable { let title: String }
+        let answer: Answer = try await send("POST", "/api/v2/chat/\(Self.segment(pane))/title",
+                                            body: NoBody(), bearer: bearer, timeout: 100)
+        return answer.title
+    }
+
     /// Names a workspace; it always has a name.
     func renameWorkspace(_ workspace: String, to label: String, bearer: String) async throws {
         struct Body: Encodable { let label: String }
         let _: EmptyAnswer = try await send("POST", "/api/v2/workspaces/\(Self.segment(workspace))/rename", body: Body(label: label), bearer: bearer)
+    }
+
+    /// Closes a workspace: its tabs close and their programs end. Its
+    /// checkout stays.
+    func closeWorkspace(_ workspace: String, bearer: String) async throws {
+        let _: EmptyAnswer = try await send("POST", "/api/v2/workspaces/\(Self.segment(workspace))/close", bearer: bearer, timeout: 40)
+    }
+
+    /// Deletes a workspace's linked worktree, then closes it. The computer
+    /// refuses a checkout with uncommitted changes unless `discard`, sent
+    /// only once the person confirmed losing them, and always one with an
+    /// archive script, which Sheprd runs first. Git and Sheprd may take a
+    /// while, so this waits longer than most requests.
+    func removeWorktree(_ workspace: String, discard: Bool, bearer: String) async throws {
+        let query = discard ? "?discard=true" : ""
+        let _: EmptyAnswer = try await send("POST", "/api/v2/workspaces/\(Self.segment(workspace))/remove-worktree\(query)", bearer: bearer, timeout: 80)
     }
 
     /// How to reach this computer through its relays; nil from a daemon
@@ -431,8 +541,13 @@ final class RemoteClient: Sendable {
         )
     }
 
-    func registerAPNs(_ registration: API.APNsRegistration, bearer: String) async throws {
-        let _: EmptyAnswer = try await send("POST", "/api/apns", body: registration, bearer: bearer)
+    func registerAPNs(_ registration: API.APNsRegistration, bearer: String) async throws -> API.APNsAnswer {
+        try await send("POST", "/api/apns", body: registration, bearer: bearer)
+    }
+
+    /// Asks the computer to send this phone a sealed test alert carrying `id`.
+    func sendTestPush(id: String, bearer: String) async throws -> API.PushTestAnswer {
+        try await send("POST", "/api/apns/test", body: API.PushTestRequest(id: id), bearer: bearer)
     }
 
     /// Writes what only this phone saw to the computer's `daemon.log`. The
@@ -539,12 +654,10 @@ actor Sessions {
     private var reached: [String: String] = [:]
 
     /// A token from the first of the computer's addresses that answers,
-    /// trying the last one that did first.
-    func session(for computer: Computer) async throws -> (client: RemoteClient, token: String) {
-        var origins = computer.origins
-        if let last = reached[computer.device], let index = origins.firstIndex(of: last) {
-            origins.insert(origins.remove(at: index), at: 0)
-        }
+    /// trying the last one that did first, then `fallback`: its relay
+    /// proxy's, for a computer the phone may reach only through a relay.
+    func session(for computer: Computer, fallback: [String] = []) async throws -> (client: RemoteClient, token: String) {
+        let origins = computer.sessionOrigins(last: reached[computer.device], fallback: fallback)
         let minted = try await mint(computer, at: origins, round: computer.device)
         return (minted.client, minted.token)
     }

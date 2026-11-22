@@ -353,12 +353,17 @@ impl SheprdWindow {
         cx: &mut Context<Self>,
     ) {
         if self.menu.page.is_some() {
+            // The palette and the devices rail read Ctrl-Tab themselves.
+            if command.is_recent_pane() {
+                cx.propagate();
+            }
             return;
         }
         #[cfg(feature = "integration-test")]
         {
             self.input_probe.actions += 1;
         }
+        self.observe_recent_focus(window, cx);
         if self.core_pane_command(command, window, cx)
             || self.core_history_command(command, window, cx)
         {
@@ -480,6 +485,14 @@ impl SheprdWindow {
                 self.open_px0(None, window, cx);
                 return;
             }
+            Command::OpenMachine => {
+                self.open_some_machine(window, cx);
+                return;
+            }
+            Command::NewMachine => {
+                self.offer_new_machine(cx);
+                return;
+            }
             Command::RemotePair => {
                 self.open_remote_pairing(window, cx);
                 return;
@@ -524,6 +537,10 @@ impl SheprdWindow {
                     WorktreeShortcut::Remove
                 };
                 self.open_worktree_shortcut(shortcut, window, cx);
+                return;
+            }
+            Command::RemoveMergedWorktrees => {
+                self.open_merged_sweep(window, cx);
                 return;
             }
             Command::WorktreeNotes => {
@@ -643,6 +660,10 @@ impl SheprdWindow {
                 cx.notify();
                 return;
             }
+            Command::ToggleAllHosts => {
+                self.toggle_all_devices(cx);
+                return;
+            }
             Command::ToggleZenMode => {
                 self.toggle_zen(window, cx);
                 return;
@@ -759,6 +780,14 @@ impl SheprdWindow {
                     self.navigate(NavigationTarget::Pane(&pane), cx);
                 }
                 window.focus(&self.focus, cx);
+                return;
+            }
+            Command::RecentPane | Command::RecentPaneReverse => {
+                let step = match command {
+                    Command::RecentPane => Step::Back,
+                    _ => Step::Forward,
+                };
+                self.switch_recent_pane(step, window, cx);
                 return;
             }
             Command::Back | Command::Forward => {

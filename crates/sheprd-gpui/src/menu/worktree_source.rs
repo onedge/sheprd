@@ -172,6 +172,11 @@ pub(crate) struct WorktreeSource {
     /// The row a creation is running for, kept from the moment it is picked
     /// until the daemon answers.
     pub(super) pending: Option<Pending>,
+    /// The branch actually submitted, independent of edits while waiting.
+    pub(super) create_branch: Option<String>,
+    /// A refused creation's branch and diagnostic, awaiting a fresh list.
+    pub(super) checking: Option<(String, String)>,
+    pub(super) reuse_notice: Option<String>,
     _subscriptions: [Subscription; 2],
 }
 
@@ -275,7 +280,7 @@ impl WorktreeSource {
 
     /// A creation is under way, so the list must not start another.
     pub(super) fn busy(&self) -> bool {
-        self.pending.is_some()
+        self.pending.is_some() || self.checking.is_some()
     }
 
     /// Keep what the daemon listed that no workspace has open yet.
@@ -407,6 +412,9 @@ impl SheprdWindow {
             checkouts: Default::default(),
             branches: Default::default(),
             pending: None,
+            checking: None,
+            create_branch: None,
+            reuse_notice: None,
             _subscriptions: [subscription, naming],
         });
         // Both are cheap and local, so their counts are ready before a tab is
@@ -415,7 +423,7 @@ impl SheprdWindow {
         // issues without one, and its tab can only open once that is known.
         self.list_checkouts(cx);
         self.list_branches(cx);
-        if self.pr_profile().is_none() {
+        if !self.pr_signed_in() {
             self.list_repo_items();
         }
     }
@@ -437,8 +445,8 @@ impl SheprdWindow {
         let gitlab = self.worktree_on_gitlab();
         match tab.kind() {
             None => true,
-            Some(Kind::Issue) => gitlab || self.pr_profile().is_some(),
-            Some(Kind::PullRequest) => !gitlab && self.pr_profile().is_some(),
+            Some(Kind::Issue) => gitlab || self.pr_signed_in(),
+            Some(Kind::PullRequest) => !gitlab && self.pr_signed_in(),
         }
     }
 
@@ -490,7 +498,7 @@ impl SheprdWindow {
             if !source.checkouts.listed {
                 self.list_checkouts(cx);
             }
-            if self.pr_profile().is_some() || self.worktree_on_gitlab() {
+            if self.pr_signed_in() || self.worktree_on_gitlab() {
                 self.list_repo_items();
             }
         }

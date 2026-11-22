@@ -222,8 +222,11 @@ impl Document {
             .map(|entry| (entry.id, entry))
             .collect();
         self.positions.clear();
-        for (entry, &(id, revision)) in transcript.entries.iter().zip(keys) {
-            if entry.id != id {
+        // Rows a continued conversation's fold hides hold no text: a
+        // selection in them ends with the fold, and Select All skips them.
+        let fold = crate::chat::earlier::earlier(transcript, &self.expanded);
+        for (index, (entry, &(id, revision))) in transcript.entries.iter().zip(keys).enumerate() {
+            if entry.id != id || fold.is_some_and(|fold| fold.hides(index)) {
                 continue;
             }
             let expanded = self.expanded.contains(&id);
@@ -407,11 +410,11 @@ impl Builder {
             let region = Region::Body(index);
             let first = self.segments.len();
             match content {
-                Part::Rich(blocks) => self.blocks(region, blocks),
+                Part::Rich(blocks) | Part::Bubble(_, blocks) => self.blocks(region, blocks),
                 Part::Text(lines) => self.lines(region, lines),
                 // Source owned by a preview/card is not visible transcript
                 // text. A range across it must never reveal the hidden payload.
-                Part::Diagram(_, _) | Part::Html { .. } | Part::Widget(_) => {}
+                Part::Diagram(_, _) | Part::Html { .. } | Part::Widget(_) | Part::Screen(_) => {}
                 Part::Picture { alt } | Part::Remote { alt, .. } => {
                     self.plain(region, Cell::default(), alt.clone())
                 }

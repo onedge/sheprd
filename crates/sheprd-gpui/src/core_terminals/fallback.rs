@@ -7,11 +7,48 @@
 use super::{CoreTerminalView, Host, Start, State, worker};
 use crate::SheprdWindow;
 use gpui::{prelude::*, *};
-use sheprd_backend::{Backend as _, Role, Size, Spawn, TerminalId};
+use sheprd_backend::{Backend as _, Role, Size, Spawn, TerminalId, TerminalInfo};
+use sheprd_core_client::CoreBackend;
 use std::sync::mpsc;
 
+/// The stand-in shell: named, so a later launch finds it again, and in the
+/// user's home, as a new Terminal window opens. The core's own folder is `/`
+/// when the app was opened from the Finder or the Dock.
+pub(super) fn shell_spawn() -> Spawn {
+    Spawn {
+        cwd: sheprd_client::local_path::home_dir(),
+        name: Some(SHELL.to_owned()),
+        ..Spawn::default()
+    }
+}
+
 /// The name of the shell the window shows in place of Herdr 1.
-const SHELL: &str = "herdr-ui";
+const SHELL: &str = sheprd_session::STAND_IN_SHELL;
+
+/// The id of a shell the core refused as already running, so the window shows
+/// the one an earlier launch left: its address, as the core lists it.
+fn reused(backend: &CoreBackend) -> sheprd_core_client::Result<TerminalId> {
+    // A list that fails leaves the name, which the core resolves as it did
+    // before; only the address is an improvement.
+    let listed = backend.terminals().unwrap_or_default();
+    reused_id(&listed).map_err(sheprd_core_client::Error::from)
+}
+
+/// Which id the window holds for a shell it reused: the address the core
+/// lists it under, else the name it asked for. Everything that acts on the
+/// shell's pane — a note's delivery, a system notification, an editor ask —
+/// matches its id against the core's addresses, so a name leaves the shell's
+/// agent unreachable through all of them; the name stays only as the fallback
+/// for a shell that ended between the refusal and the list.
+pub(super) fn reused_id(listed: &[TerminalInfo]) -> sheprd_backend::Result<TerminalId> {
+    match listed
+        .iter()
+        .find(|info| info.name.as_deref() == Some(SHELL))
+    {
+        Some(info) => Ok(info.id.clone()),
+        None => TerminalId::new(SHELL),
+    }
+}
 
 #[derive(Default)]
 pub(crate) enum Fallback {
@@ -107,10 +144,7 @@ impl SheprdWindow {
             return;
         };
         let (send, receive) = mpsc::sync_channel(1);
-        let spawn = Spawn {
-            name: Some(SHELL.to_owned()),
-            ..Spawn::default()
-        };
+        let spawn = shell_spawn();
         let spawned = std::thread::Builder::new()
             .name("herdr-core-shell".into())
             .spawn(move || {
@@ -119,9 +153,7 @@ impl SheprdWindow {
                     // An earlier launch's shell still runs: show it again.
                     Err(sheprd_core_client::Error::Refused {
                         kind: Some(kind), ..
-                    }) if kind == "name_taken" => {
-                        TerminalId::new(SHELL).map_err(sheprd_core_client::Error::from)
-                    }
+                    }) if kind == "name_taken" => reused(&backend),
                     Err(error) => Err(error),
                 };
                 let _ = send.send(found);

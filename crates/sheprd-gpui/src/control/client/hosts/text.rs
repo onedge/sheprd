@@ -2,7 +2,9 @@
 //! without an app; `finish` makes the app's text safe to print.
 use crate::control::protocol::{
     app::HostInfo,
-    hosts::{CheckInfo, CommentInfo, LoadInfo, LocalPorts, Ports, PrInfo, Reply},
+    hosts::{
+        CheckInfo, CommentInfo, LoadInfo, LocalPorts, Ports, PrInfo, Reply, RoomState, UsagePick,
+    },
 };
 use std::fmt::Write as _;
 
@@ -31,6 +33,38 @@ pub(super) fn pr(pr: &PrInfo) -> String {
         let _ = writeln!(text, "{}", details.join(" · "));
     }
     let _ = writeln!(text, "Checks: {}", summary(&pr.checks));
+    if let Some(stack) = &pr.stack {
+        let verdict = match (&stack.blocked_by, &stack.reason, stack.ready) {
+            (Some(number), Some(reason), _) => {
+                format!("blocked by #{number} ({})", reason.replace('_', " "))
+            }
+            (_, _, Some(count)) => format!("ready to merge {count}"),
+            _ => stack.verdict.clone(),
+        };
+        let _ = writeln!(
+            text,
+            "Stack: layer {} of {} onto {} · {verdict}",
+            stack.position, stack.size, stack.base
+        );
+        let layers: Vec<String> = stack
+            .layers
+            .iter()
+            .map(|layer| format!("#{} {}", layer.number, layer.status.replace('_', " ")))
+            .collect();
+        let _ = writeln!(text, "  {}", layers.join(" · "));
+    }
+    if let Some(queue) = &pr.queue {
+        let _ = write!(
+            text,
+            "Queue: position {} · {}",
+            queue.position,
+            queue.state.replace('_', " ")
+        );
+        if let Some(seconds) = queue.eta_seconds {
+            let _ = write!(text, " · about {} min", seconds.div_ceil(60).max(1));
+        }
+        text.push('\n');
+    }
     text.push_str(&pr.url);
     text
 }
@@ -273,6 +307,43 @@ pub(super) fn usage(reply: &Reply) -> String {
         }
     }
     if let Some(note) = note {
+        text.push_str(note);
+    }
+    text.trim_end().to_owned()
+}
+
+pub(super) fn usage_pick(pick: &UsagePick) -> String {
+    let mut text = String::new();
+    match (&pick.agent, &pick.reason) {
+        (Some(agent), Some(reason)) => {
+            let _ = writeln!(text, "{agent}: {reason}");
+        }
+        (Some(agent), None) => {
+            let _ = writeln!(text, "{agent}");
+        }
+        (None, _) => {
+            let _ = writeln!(text, "No agent to start on {}", pick.host);
+        }
+    }
+    for candidate in &pick.candidates {
+        let room = match candidate.room {
+            RoomState::Ample => "ample",
+            RoomState::Unknown => "unknown",
+            RoomState::Tight => "tight",
+            RoomState::Spent => "spent",
+        };
+        let _ = write!(text, "  {:<10} {room:<8}", candidate.agent);
+        if let Some(used) = candidate.used_percent {
+            let _ = write!(text, " {used:>3.0}% used");
+        }
+        if let Some(left) = candidate.runs_out_in_seconds {
+            let _ = write!(text, ", runs out in {}", duration(left));
+        } else if let Some(left) = candidate.resets_in_seconds {
+            let _ = write!(text, ", resets in {}", duration(left));
+        }
+        text.push('\n');
+    }
+    if let Some(note) = &pick.note {
         text.push_str(note);
     }
     text.trim_end().to_owned()

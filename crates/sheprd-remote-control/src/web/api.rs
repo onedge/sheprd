@@ -3,7 +3,7 @@
 //! blocking pool.
 
 use super::{
-    ApiError, Device, Peer, Shared,
+    ApiError, Device, Peer, Shared, TypedFrom,
     fragments::folders,
     render::{now_ms, urlencode},
 };
@@ -53,6 +53,19 @@ pub(super) struct ClaimRequest {
     /// relays: stored with the device when approved.
     #[serde(default)]
     relay: Option<RelayKeysRequest>,
+    /// Another computer's Sheprd asking to open terminals here over SSH
+    /// through the relays (`crate::ssh_access`): its `ssh-ed25519` key.
+    #[serde(default)]
+    ssh: Option<SshRequest>,
+    /// That desktop asking to join this computer's fleet, or inviting this
+    /// computer into its own (`crate::fleet::bluetooth`).
+    #[serde(default)]
+    fleet: Option<crate::control::fleet::bluetooth::ClaimFleet>,
+}
+
+#[derive(Deserialize)]
+pub(super) struct SshRequest {
+    public_key: String,
 }
 
 #[derive(Deserialize)]
@@ -79,7 +92,12 @@ pub(super) async fn claim(
         .filter(|origin| !state.serves(origin))
         .map(|origin| app_origin(origin).ok_or(ApiError::Invalid("the app's origin is not valid")))
         .transpose()?;
+    let ssh = desktop_key(&state, request.ssh.as_ref(), request.relay.as_ref()).await?;
+    let fleet = claimed_fleet(&state, &request, ssh.as_ref()).await?;
     let claim = with_auth(&state, move |auth| {
+        if ssh.is_some() {
+            auth.ssh_access()?;
+        }
         let claim = auth.claim(
             peer.ip(),
             request.token.expose_secret(),
@@ -89,6 +107,12 @@ pub(super) async fn claim(
         )?;
         if let Some(app) = app {
             auth.claimed_from(&claim.id, app);
+        }
+        if let Some(key) = ssh {
+            auth.claimed_ssh(&claim.id, key);
+        }
+        if let Some(fleet) = fleet {
+            auth.pairings().claimed_fleet(&claim.id, fleet);
         }
         if let Some(relay) = request.relay {
             let keys = crate::auth::devices::RelayKeys {
@@ -111,6 +135,76 @@ pub(super) async fn claim(
     })))
 }
 
+/// The SSH key a desktop claims with, checked before its token is spent:
+/// a desktop reaches this computer only through the relays, so it must send
+/// relay keys too, and an SSH server must be listening to splice it to.
+async fn desktop_key(
+    state: &Shared,
+    ssh: Option<&SshRequest>,
+    relay: Option<&RelayKeysRequest>,
+) -> Result<Option<crate::ssh_access::SshKey>, ApiError> {
+    let Some(ssh) = ssh else {
+        return Ok(None);
+    };
+    let key =
+        crate::ssh_access::SshKey::parse(&ssh.public_key).map_err(crate::auth::Error::from)?;
+    let reachable = relay.is_some_and(|relay| {
+        let keys = crate::auth::devices::RelayKeys {
+            dial: relay.dial.clone(),
+            tunnel: relay.tunnel.clone(),
+        };
+        keys.dial_key().is_some() && keys.tunnel_key().is_some()
+    });
+    if !reachable {
+        return Err(ApiError::Invalid("a desktop must send relay keys"));
+    }
+    let access = with_auth(state, |auth| Ok(auth.ssh_access()?.clone())).await?;
+    let listening = tokio::task::spawn_blocking(move || access.server_listening())
+        .await
+        .unwrap_or(false);
+    if !listening {
+        return Err(crate::auth::Error::from(crate::ssh_access::Error::ServerOff).into());
+    }
+    Ok(Some(key))
+}
+
+/// What a desktop's claim asks of the fleet, checked before its token is
+/// spent: only a desktop, which sends its SSH and relay keys, asks, and a
+/// join must carry those very keys, bound to this claim's token.
+async fn claimed_fleet(
+    state: &Shared,
+    request: &ClaimRequest,
+    ssh: Option<&crate::ssh_access::SshKey>,
+) -> Result<Option<crate::fleet::bluetooth::Claimed>, ApiError> {
+    let (Some(asked), Some(fleet)) = (request.fleet.clone(), state.fleet.clone()) else {
+        return Ok(None);
+    };
+    let (Some(ssh), Some(relay)) = (ssh.cloned(), request.relay.as_ref()) else {
+        return Err(ApiError::Invalid("only a desktop asks to join a fleet"));
+    };
+    let token: [u8; 32] = crate::auth::decode_fixed(request.token.expose_secret())
+        .map_err(|_| crate::auth::Error::InvalidToken)?;
+    // Nothing the fleet part carries is read for a peer without the token.
+    let holds = with_auth(state, move |auth| {
+        Ok(auth.pairings().holds(&token, now_ms()))
+    })
+    .await?;
+    if !holds {
+        return Err(crate::auth::Error::InvalidToken.into());
+    }
+    let relay = crate::auth::devices::RelayKeys {
+        dial: relay.dial.clone(),
+        tunnel: relay.tunnel.clone(),
+    };
+    tokio::task::spawn_blocking(move || {
+        crate::fleet::bluetooth::check_claim(&fleet, asked, &token, &relay, &ssh)
+    })
+    .await
+    .map_err(|_| ApiError::Invalid("the request was interrupted"))?
+    .map(Some)
+    .map_err(ApiError::from)
+}
+
 /// `origin` when it is an `https://` origin as a browser sends it: a host
 /// and an optional port, nothing more, at most 255 bytes.
 pub(super) fn app_origin(origin: &str) -> Option<String> {
@@ -127,18 +221,45 @@ pub(super) async fn claim_status(
     State(state): State<Shared>,
     Path(claim): Path<String>,
 ) -> Result<Json<Value>, ApiError> {
-    let pairing = with_auth(&state, move |auth| {
-        Ok(auth.claim_status(&ClaimId(claim), now_ms())?)
+    let (pairing, login, fleet) = with_auth(&state, move |auth| {
+        let pairing = auth.claim_status(&ClaimId(claim), now_ms())?;
+        // A desktop learns who to log in as, and which host keys to pin,
+        // only once allowed.
+        // A desktop learns it was approved only once the fleet acted on
+        // the approval, with what came of it.
+        let pairing = match pairing {
+            PairingState::Approved { device } if auth.pairings().fleet_settling(&device) => {
+                PairingState::Waiting { expires_in_ms: 0 }
+            }
+            pairing => pairing,
+        };
+        let (login, fleet) = match &pairing {
+            PairingState::Approved { device } => (
+                auth.desktop_login(device)?,
+                auth.pairings().fleet_for(device),
+            ),
+            _ => (None, None),
+        };
+        Ok((pairing, login, fleet))
     })
     .await?;
     Ok(Json(match pairing {
-        PairingState::Approved { device } => json!({
-            "state": "approved",
-            "device": device.0,
-            "origins": state.origins(),
-            "fingerprint": state.fingerprint,
-            "computer": state.computer,
-        }),
+        PairingState::Approved { device } => {
+            let mut approved = json!({
+                "state": "approved",
+                "device": device.0,
+                "origins": state.origins(),
+                "fingerprint": state.fingerprint,
+                "computer": state.computer,
+            });
+            if let Some(login) = login {
+                approved["ssh"] = json!(login);
+            }
+            if let Some(fleet) = fleet {
+                approved["fleet"] = json!(fleet);
+            }
+            approved
+        }
         PairingState::Claimed { .. } | PairingState::Waiting { .. } => json!({"state": "claimed"}),
         PairingState::Denied => json!({"state": "denied"}),
         PairingState::Expired => json!({"state": "expired"}),
@@ -244,14 +365,19 @@ pub(super) async fn origins(State(state): State<Shared>, _device: Device) -> Jso
 pub(super) async fn command(
     State(state): State<Shared>,
     _device: Device,
+    TypedFrom(origin): TypedFrom,
     Path(pane): Path<String>,
     Json(command): Json<Command>,
 ) -> Result<Json<Value>, ApiError> {
-    // A phone names only pictures it uploaded, never a path here.
+    // A phone names only pictures it uploaded, never a path here, and the
+    // connection says where it typed, whatever the phone claims.
     let command = match command {
-        Command::Prompt { text, attachments } => Command::Prompt {
+        Command::Prompt {
+            text, attachments, ..
+        } => Command::Prompt {
             text,
             attachments: state.uploads.resolve(&attachments, now_ms())?,
+            origin: Some(origin),
         },
         command => command,
     };
@@ -293,7 +419,13 @@ pub(super) async fn create_workspace(
         check_new_workspace(&state, &request.cwd, &request.branch, &request.agent).await?;
     state
         .hub
-        .create_workspace(&request.cwd, branch.as_deref(), agent, None)
+        .create_workspace(crate::hub::NewWorkspace {
+            agent,
+            branch: branch.as_deref(),
+            cwd: &request.cwd,
+            session: None,
+            title: None,
+        })
         .await?;
     Ok(Json(json!({ "location": "/" })))
 }
@@ -364,31 +496,38 @@ pub(super) async fn start_chat(
     Ok(Json(json!({ "location": location })))
 }
 
-/// The iOS companion's Live Activity tokens: the push-to-start token when
-/// it changed, and every activity it still shows.
+/// The iOS companion's Live Activity tokens or push relay handles: the
+/// push-to-start token when it changed, and every activity it still shows.
+/// The answer names the delivery, `push_relay`, the only one there is.
 pub(super) async fn register_apns(
     State(state): State<Shared>,
     Device(device): Device,
     body: axum::body::Bytes,
 ) -> Result<Json<Value>, ApiError> {
-    if state.apns.is_none() {
+    if state.apns.is_off() {
         return Err(ApiError::NoPush);
     }
-    let update = crate::apns::Registration::parse(&body)
+    // An explicit `null` alert or push-to-start clears it: the phone sends
+    // that when its push relay goes off (`apns::Update`).
+    let update = crate::apns::Update::parse(&body)
         .map_err(|_| ApiError::Invalid("that registration is not valid"))?;
     with_auth(&state, move |auth| {
         let devices = auth.devices_mut();
         let mut stored = crate::apns::Registration::from_stored(
             devices.get(&device).and_then(|record| record.apns.as_ref()),
         );
-        stored.merge(update);
+        stored.apply(update);
         let value = stored
             .to_stored()
             .map_err(|_| ApiError::Invalid("that registration cannot be stored"))?;
         Ok(devices.set_apns(&device, value)?)
     })
     .await?;
-    Ok(Json(json!({ "ok": true })))
+    // Which way this computer's pushes leave it, for the phone's Settings;
+    // older phones ignore it.
+    Ok(Json(
+        json!({ "ok": true, "delivery": state.apns.wire_name() }),
+    ))
 }
 
 pub(super) async fn push_key(

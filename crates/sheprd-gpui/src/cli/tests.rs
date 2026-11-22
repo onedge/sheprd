@@ -4,18 +4,27 @@ use control::BrowserCommand;
 mod automation;
 mod browser_zoom;
 mod chat;
+mod chat_pull_requests;
 mod chat_shortcuts;
 mod cloud_batch;
 mod cloud_exec;
 mod cloud_images;
 mod cloud_setup;
 mod control_commands;
+mod fleet;
 mod language;
 mod links;
 mod local_ports;
+mod machine;
+mod machine_agent;
+#[cfg(feature = "mcp")]
+mod mcp;
+mod memory;
 mod menu_bar;
 mod mods;
 mod open_command;
+mod pr_create;
+mod pr_merge;
 mod px0;
 mod quota;
 mod remote;
@@ -23,6 +32,8 @@ mod remote_update;
 mod security;
 mod ui_agent_group;
 mod ui_panel;
+mod ui_traces;
+mod usage_pick;
 mod worktrees;
 
 #[test]

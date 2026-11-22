@@ -8,12 +8,15 @@
 use super::service::{self, Outcome};
 use crate::{config::RemoteConfig, i18n::Localize};
 use gpui::{App, BackgroundExecutor, Global, Task};
+use sheprd_remote_control::app::firewall::{self, Approval};
 use sheprd_remote_control::control::pull_requests::PullRequests;
 use sheprd_remote_control::control::{self, Device, DeviceId, Request, Response, Status};
 
 mod changes;
+mod github;
 mod links;
 mod pull_requests;
+mod push_status;
 mod update;
 pub(crate) use links::Links;
 use std::{
@@ -39,6 +42,8 @@ pub(crate) type Send = fn(&Path, &Request) -> Result<Response, control::Error>;
 type Reconcile = fn(&RemoteConfig, Send) -> crate::Result<Outcome>;
 /// Restarts the service from the binary beside the app. Blocking.
 type Restart = fn(&RemoteConfig) -> crate::Result<Outcome>;
+/// How long the firewall's approval of the service's daemon lasts. Blocking.
+type CheckApproval = fn() -> Approval;
 
 /// What the daemon last said about itself.
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -88,14 +93,22 @@ pub(crate) struct Supervisor {
     // keep-sorted start
     /// Where the daemon listens; `None` without a state directory.
     address: Option<PathBuf>,
+    /// How long the firewall's approval of the running daemon lasts, as
+    /// last checked after a service change.
+    approval: Approval,
     /// Answering phones' questions about workspaces.
     changes: changes::Changes,
+    check_approval: CheckApproval,
     /// The `[remote]` settings as last loaded.
     config: RemoteConfig,
     devices: Option<Vec<Device>>,
     /// Why the last service change failed, until the next one.
     failure: Option<Arc<crate::Error>>,
+    /// Lending the main GitHub account to phones.
+    github: github::Lending,
     health: Health,
+    /// Linked hosts' push status, for Settings.
+    host_push: push_status::HostPushes,
     /// The status marks set in Sheprd (`status_icons`), by config name,
     /// which the phone's lists draw too.
     indicators: Option<&'static str>,
@@ -113,6 +126,9 @@ pub(crate) struct Supervisor {
     pull_requests_checked: Option<Instant>,
     pull_requests_sent: Option<Arc<PullRequests>>,
     pull_requests_sent_at: Option<Instant>,
+    /// How the daemon's iPhone pushes leave it, asked while Settings
+    /// watches; `None` until asked, or from a daemon too old to say.
+    push_status: Option<control::push::PushStatus>,
     quitting: bool,
     reconcile: Reconcile,
     reconciling: bool,
@@ -131,11 +147,15 @@ impl Default for Supervisor {
         Self {
             // keep-sorted start
             address: super::state_dir().ok().map(|dir| control::address(&dir)),
+            approval: Approval::Lasting,
             changes: changes::Changes::default(),
+            check_approval: check_approval_host,
             config: RemoteConfig::default(),
             devices: None,
             failure: None,
+            github: github::Lending::default(),
             health: Health::Off,
+            host_push: push_status::HostPushes::default(),
             indicators: None,
             indicators_sent: None,
             last_poll: None,
@@ -147,6 +167,7 @@ impl Default for Supervisor {
             pull_requests_checked: None,
             pull_requests_sent: None,
             pull_requests_sent_at: None,
+            push_status: None,
             quitting: false,
             reconcile: reconcile_host,
             reconciling: false,
@@ -176,10 +197,44 @@ fn reconcile_host(config: &RemoteConfig, send: Send) -> crate::Result<Outcome> {
     .map_err(Into::into)
 }
 
-/// The real restart: this user's host.
+/// The real approval check: the daemon the service runs, which is the one
+/// beside the app after a service change.
+fn check_approval_host() -> Approval {
+    let Some(program) = crate::bundled::locate(service::PROGRAM) else {
+        return Approval::Lasting;
+    };
+    firewall::approval(&program).unwrap_or_else(|error| {
+        tracing::debug!(%error, "Cannot tell how long the firewall allows remote control");
+        Approval::Lasting
+    })
+}
+
+/// The real restart: this user's host, and the daemon answering its address.
 fn restart_host(config: &RemoteConfig) -> crate::Result<Outcome> {
-    let host = super::host(super::state_dir()?)?;
-    service::restart(config, &host, service::run).map_err(Into::into)
+    let state_dir = super::state_dir()?;
+    let address = control::address(&state_dir);
+    let host = super::host(state_dir)?;
+    service::restart(
+        config,
+        &host,
+        |request| control::request(&address, request),
+        service::run,
+    )
+    .map_err(Into::into)
+}
+
+/// The firewall check after a service change: only a running service has
+/// a daemon to approve.
+fn approval_after(
+    config: &RemoteConfig,
+    result: &crate::Result<Outcome>,
+    check: CheckApproval,
+) -> Approval {
+    if config.enabled && result.is_ok() {
+        check()
+    } else {
+        Approval::Lasting
+    }
 }
 
 impl Supervisor {
@@ -251,6 +306,12 @@ impl Supervisor {
         if supervisor.quitting || !supervisor.loaded {
             return;
         }
+        // Linked hosts have daemons of their own, asked whether or not this
+        // computer's runs or answers, while Settings watches.
+        if supervisor.watchers.get() > 0 {
+            Self::refresh_hosts(cx);
+        }
+        let supervisor = cx.global_mut::<Self>();
         // Presence runs the nearby helper while the daemon it reports to
         // does.
         {
@@ -262,19 +323,21 @@ impl Supervisor {
         let supervisor = cx.global_mut::<Self>();
         if !supervisor.reconciling && supervisor.synced.as_ref() != Some(&supervisor.config) {
             supervisor.reconciling = true;
-            let (config, reconcile, send) = (
+            let (config, reconcile, send, check) = (
                 supervisor.config.clone(),
                 supervisor.reconcile,
                 supervisor.send,
+                supervisor.check_approval,
             );
             let task = executor.spawn(async move {
                 let result = reconcile(&config, send);
-                (config, result)
+                let approval = approval_after(&config, &result, check);
+                (config, result, approval)
             });
             cx.spawn(async move |cx| {
-                let (config, result) = task.await;
+                let (config, result, approval) = task.await;
                 cx.update(|cx| {
-                    cx.global_mut::<Self>().reconciled(config, result);
+                    cx.global_mut::<Self>().reconciled(config, result, approval);
                     cx.refresh_windows();
                 });
             })
@@ -285,6 +348,7 @@ impl Supervisor {
             if supervisor.health != Health::Off || supervisor.devices.is_some() {
                 supervisor.health = Health::Off;
                 supervisor.devices = None;
+                supervisor.push_status = None;
                 cx.refresh_windows();
             }
             return;
@@ -293,6 +357,7 @@ impl Supervisor {
             supervisor.health = Health::Unknown;
         }
         Self::poll_changes(cx);
+        Self::poll_github_leases(cx);
         let supervisor = cx.global_mut::<Self>();
         let watched = supervisor.watchers.get() > 0;
         let interval = if watched { WATCHED } else { UNWATCHED };
@@ -326,6 +391,8 @@ impl Supervisor {
             let status = send(&address, &Request::Status);
             // Every poll: the title bar shows whether any phone is paired.
             let devices = status.is_ok().then(|| send(&address, &Request::Devices));
+            // Only Settings shows it, so only while it watches.
+            let push = (watched && status.is_ok()).then(|| send(&address, &Request::PushStatus));
             // The daemon keeps the set across restarts; it is sent again
             // only when it changes or a poll found the daemon down.
             let sent = indicators.filter(|name| {
@@ -365,12 +432,19 @@ impl Supervisor {
                     Ok(Response::AppUpdate { requested: true })
                 )
             });
-            (status, devices, sent, sent_prs, hosts, update_asked)
+            (status, devices, push, sent, sent_prs, hosts, update_asked)
         });
         cx.spawn(async move |cx| {
-            let (status, devices, sent, sent_prs, hosts, update_asked) = task.await;
+            let (status, devices, push, sent, sent_prs, hosts, update_asked) = task.await;
             cx.update(|cx| {
                 let supervisor = cx.global_mut::<Self>();
+                let push_changed = match push {
+                    Some(push) => supervisor.push_polled(push),
+                    // A daemon that stopped answering no longer says how
+                    // its pushes leave it.
+                    None if status.is_err() => supervisor.push_status.take().is_some(),
+                    None => false,
+                };
                 if update_asked {
                     supervisor.updates.requested();
                 }
@@ -386,7 +460,7 @@ impl Supervisor {
                     supervisor.pull_requests_sent = Some(sent);
                     supervisor.pull_requests_sent_at = Some(Instant::now());
                 }
-                if supervisor.polled(status, devices) {
+                if supervisor.polled(status, devices) || push_changed {
                     cx.refresh_windows();
                 }
                 if let Some(hosts) = hosts {
@@ -397,8 +471,14 @@ impl Supervisor {
         .detach();
     }
 
-    fn reconciled(&mut self, config: RemoteConfig, result: crate::Result<Outcome>) {
+    fn reconciled(
+        &mut self,
+        config: RemoteConfig,
+        result: crate::Result<Outcome>,
+        approval: Approval,
+    ) {
         self.reconciling = false;
+        self.approval = approval;
         self.poke = true;
         match result {
             Ok(outcome) => {
@@ -453,6 +533,15 @@ impl Supervisor {
 
     pub(crate) fn devices(cx: &App) -> Option<&[Device]> {
         cx.try_global::<Self>()?.devices.as_deref()
+    }
+
+    /// Whether the firewall will block phones once this build of the
+    /// daemon changes and it starts again: worth saying while the person is
+    /// still at the computer to click Allow.
+    pub(crate) fn approval_per_build(cx: &App) -> bool {
+        cx.try_global::<Self>().is_some_and(|supervisor| {
+            supervisor.config.enabled && supervisor.approval == Approval::ThisBuild
+        })
     }
 
     pub(crate) fn failure(cx: &App) -> Option<Arc<crate::Error>> {
@@ -511,15 +600,21 @@ impl Supervisor {
         if supervisor.quitting || supervisor.reconciling || !supervisor.config.enabled {
             return false;
         }
-        let (config, restart) = (supervisor.config.clone(), supervisor.restart);
+        let (config, restart, check) = (
+            supervisor.config.clone(),
+            supervisor.restart,
+            supervisor.check_approval,
+        );
         cx.global_mut::<Self>().reconciling = true;
-        let task = cx
-            .background_executor()
-            .spawn(async move { (restart(&config), config) });
+        let task = cx.background_executor().spawn(async move {
+            let result = restart(&config);
+            let approval = approval_after(&config, &result, check);
+            (result, config, approval)
+        });
         cx.spawn(async move |cx| {
-            let (result, config) = task.await;
+            let (result, config, approval) = task.await;
             cx.update(|cx| {
-                cx.global_mut::<Self>().reconciled(config, result);
+                cx.global_mut::<Self>().reconciled(config, result, approval);
                 cx.refresh_windows();
             });
         })
@@ -567,6 +662,7 @@ impl Supervisor {
             synced: Some(config.clone()),
             config,
             loaded: true,
+            check_approval: || Approval::Lasting,
             reconcile: |_, _| Ok(Outcome::Unchanged),
             restart: |_| Ok(Outcome::Started),
             send,
@@ -578,6 +674,12 @@ impl Supervisor {
     #[cfg(test)]
     pub(crate) fn set_restart_for_tests(&mut self, restart: Restart) {
         self.restart = restart;
+    }
+
+    /// Takes a firewall check's answer, as tests outside this module do.
+    #[cfg(test)]
+    pub(crate) fn set_approval_for_tests(cx: &mut App, approval: Approval) {
+        cx.global_mut::<Self>().approval = approval;
     }
 
     /// Takes a status and device list as a poll would have.

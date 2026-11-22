@@ -275,6 +275,61 @@ pub(super) fn summary_row(row: Row<'_>, look: &Look<'_>, above: f32) -> AnyEleme
     .into_any_element()
 }
 
+/// A composer's foot under the draft: its buttons and settings, which wrap
+/// onto more lines when a larger font or a narrow pane leaves too little
+/// width, then context use and send, which stay together at the end of the
+/// first line so sending never moves under the settings.
+pub(super) fn composer_foot(
+    attach: Stateful<Div>,
+    shortcuts: Stateful<Div>,
+    settings: Vec<AnyElement>,
+    usage: Option<Div>,
+    send: Stateful<Div>,
+) -> Div {
+    let gap = px(8.);
+    // The last setting takes what is left of its line, so it stays there,
+    // truncating its label, rather than wrapping while that leaves room for
+    // its narrowest. The line breaks on that floor, not the full label, and
+    // the button keeps its own width inside, so the rest stays empty.
+    let mut settings = settings;
+    let last = settings.pop().map(|last| {
+        div()
+            .flex_grow(1.)
+            .flex_basis(px(0.))
+            .min_w(px(super::settings::SHRUNK))
+            .flex()
+            .items_center()
+            .child(last)
+    });
+    div()
+        .debug_selector(|| "chat-settings".into())
+        .flex()
+        .items_start()
+        .gap(gap)
+        .child(
+            div()
+                .flex_1()
+                .min_w_0()
+                .flex()
+                .flex_wrap()
+                .items_center()
+                .gap(gap)
+                .child(attach)
+                .child(shortcuts)
+                .children(settings)
+                .children(last),
+        )
+        .child(
+            div()
+                .flex_none()
+                .flex()
+                .items_center()
+                .gap(gap)
+                .children(usage)
+                .child(send),
+        )
+}
+
 /// The fill of the user's bubble in a [`bubble_row`].
 pub(super) fn bubble_fill(look: &Look<'_>) -> u32 {
     crate::config::mix(look.theme.background, look.theme.foreground, 9)

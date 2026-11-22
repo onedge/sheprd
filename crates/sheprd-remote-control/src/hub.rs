@@ -7,11 +7,15 @@
 mod api;
 mod attach;
 mod chat;
+pub(crate) mod chat_title;
 mod convert;
 mod core;
 mod daemon;
 mod layout;
+mod new_workspace;
+mod observed;
 mod recency;
+pub(crate) mod row_summary;
 mod sessions;
 mod wake;
 
@@ -19,10 +23,15 @@ pub(crate) use api::ApiMethod;
 pub(crate) use attach::TermHold;
 pub(crate) use chat::{Chat, Event, Summary, View};
 pub(crate) use convert::Error as ConvertError;
-pub(crate) use core::{Keeper, arrangeable};
+#[cfg(test)]
+pub(crate) use core::project_spaces;
+pub(crate) use core::{Keeper, TabRef, arrangeable};
 #[cfg(test)]
 pub(crate) use layout::TerminalAgent;
-pub(crate) use layout::{Chat as ChatRow, Layout, Terminal, TerminalPane, Workspace};
+pub(crate) use layout::{Chat as ChatRow, Job, Layout, Terminal, TerminalPane, Workspace};
+pub(crate) use new_workspace::NewWorkspace;
+pub(crate) use observed::observable;
+pub(crate) use row_summary::RowSummary;
 
 use serde_json::{Value, json};
 use sheprd_chat_protocol::{Agent, Command, EndpointId, Rejection};
@@ -59,6 +68,8 @@ pub enum Error {
     Daemon(String),
     #[error("Herdr is not running on this computer")]
     NotConnected,
+    #[error(transparent)]
+    Observed(#[from] observed::Error),
     #[error("sheprd-acp was not found beside sheprd-remote-control or on PATH")]
     ProgramMissing,
     #[error(transparent)]
@@ -103,6 +114,8 @@ pub(crate) struct Hub {
     layout: watch::Receiver<Arc<Layout>>,
     /// Terminal agents moving into chats now.
     moving: convert::Moving,
+    /// Terminal agents' conversations phones read as chats now.
+    observed: observed::Observed,
     /// The primary session's own layout, to tell whether it answers.
     primary: watch::Receiver<Arc<Layout>>,
     program: Option<PathBuf>,
@@ -167,6 +180,7 @@ impl Hub {
             home: None,
             layout,
             moving: convert::Moving::default(),
+            observed: observed::Observed::default(),
             primary: daemon_layout,
             program: locate_program(),
             search_program: true,
@@ -182,6 +196,7 @@ impl Hub {
         }
         let follower = hub.clone();
         tokio::spawn(async move { follower.follow().await });
+        tokio::spawn(hub.clone().follow_observed_sessions());
         Ok(hub)
     }
 
@@ -255,6 +270,7 @@ impl Hub {
             core: None,
             home: None,
             moving: convert::Moving::default(),
+            observed: observed::Observed::default(),
             primary: receiver.clone(),
             layout: receiver,
             program: None,
@@ -269,8 +285,22 @@ impl Hub {
         self.layout.borrow().clone()
     }
 
+    /// Where checkout work for a workspace runs: its named Herdr session
+    /// when present, else this hub's primary endpoint.
+    pub(crate) fn workspace_target(&self, session: Option<&str>) -> ConnectTarget {
+        session
+            .and_then(|name| self.sessions.get(name))
+            .map(|session| session.api.target())
+            .unwrap_or_else(|| self.api.target())
+    }
+
     pub(crate) fn watch_layout(&self) -> watch::Receiver<Arc<Layout>> {
         self.layout.clone()
+    }
+
+    /// The primary Herdr 1 session's own layout, whose boot favorites follow.
+    pub(crate) fn watch_primary(&self) -> watch::Receiver<Arc<Layout>> {
+        self.primary.clone()
     }
 
     /// Every step of every chat, tagged with its pane.
@@ -343,96 +373,6 @@ impl Hub {
         )
         .await
         .is_ok()
-    }
-
-    /// A new workspace in `cwd`, on a new worktree when `branch` is given,
-    /// with a chat running `agent` in it, in the Herdr 1 `session` this
-    /// daemon follows by that name (the primary otherwise). While a core answers the chat
-    /// starts there, in its unlisted group: the core has no workspaces or
-    /// worktrees, so a branch's checkout is made here, never by Herdr 1.
-    pub(crate) async fn create_workspace(
-        &self,
-        cwd: &str,
-        branch: Option<&str>,
-        agent: Agent,
-        session: Option<&str>,
-    ) -> Result<CreatedWorkspace> {
-        // As in [`Hub::start_chat`]: the program here cannot run in a
-        // distribution, and a core would open the chat on this computer.
-        if session.is_some_and(sessions::is_wsl) {
-            return Err(Error::WslChat);
-        }
-        let program = self.program().ok_or(Error::ProgramMissing)?;
-        let program = program.as_path();
-        if let Some(core) = self.core_for_work().await? {
-            // Herdr 2 keeps no Herdr 1 session: asked for a named one, the
-            // workspace could not be where it was asked for.
-            if session.is_some_and(|name| self.sessions.get(name).is_some()) {
-                return Err(Error::SessionOnHerdr2);
-            }
-            let (cwd, program) = (cwd.to_owned(), program.to_owned());
-            let (branch, root) = (branch.map(str::to_owned), self.worktrees.clone());
-            let (pane, folder) = on_core(move || match branch {
-                Some(branch) => {
-                    core.open_worktree_chat(agent, &program, &cwd, &branch, root.as_deref())
-                }
-                // Sheprd keeps a workspace for it, in this folder.
-                None => core
-                    .open_chat(agent, &program, &cwd, Some(core::Place::New(&cwd)))
-                    .map(|pane| (pane, cwd)),
-            })
-            .await?;
-            // Listed apart until Sheprd keeps its workspace.
-            return Ok(CreatedWorkspace {
-                workspace: core::new_workspace_id(&folder),
-                pane,
-            });
-        }
-        let opened = self
-            .call_in(
-                session,
-                ApiMethod::WorkspaceCreate,
-                json!({"cwd": cwd, "focus": false}),
-            )
-            .await?;
-        let workspace = opened["workspace"]["workspace_id"]
-            .as_str()
-            .filter(|id| !id.is_empty())
-            .ok_or(Error::Response)?
-            .to_owned();
-        let Some(branch) = branch else {
-            let response = self
-                .call(
-                    ApiMethod::TabCreate,
-                    tab_params(&workspace, cwd, agent, program),
-                )
-                .await?;
-            let (_, pane) = created_tab(&response).ok_or(Error::Response)?;
-            self.run_line(&pane, &command_line(agent)).await?;
-            return Ok(CreatedWorkspace { workspace, pane });
-        };
-        let created = self
-            .call(
-                ApiMethod::WorktreeCreate,
-                json!({"workspace_id": workspace, "branch": branch, "focus": false}),
-            )
-            .await?;
-        let pane = created["root_pane"]["pane_id"]
-            .as_str()
-            .ok_or(Error::Response)?
-            .to_owned();
-        let worktree = created["workspace"]["workspace_id"]
-            .as_str()
-            .ok_or(Error::Response)?
-            .to_owned();
-        // The worktree's first pane is a shell in its folder; the program
-        // path rides in this line because the pane was not made with it.
-        self.run_line(&pane, &direct_command_line(program, agent))
-            .await?;
-        Ok(CreatedWorkspace {
-            workspace: worktree,
-            pane,
-        })
     }
 
     /// Types `line` and Enter into `pane`, as Sheprd starts a chat.
@@ -518,6 +458,28 @@ impl Hub {
         }
     }
 
+    /// A terminal pane's visible screen as text, for its row's preview. A
+    /// Herdr 2 pane is read by its core, so these reads never hold a screen
+    /// a phone needs to open a terminal; any other goes to `pane.read`.
+    pub(crate) async fn screen_text(&self, pane: &str) -> Result<String> {
+        let params = json!({"pane_id": pane, "source": "visible", "format": "ansi"});
+        if core::owns(&params) {
+            if !self.layout().connected {
+                return Err(Error::NotConnected);
+            }
+            let core = self.core.clone().ok_or(core::Error::Disconnected)?;
+            let pane = pane.to_owned();
+            return tokio::task::spawn_blocking(move || core.screen_text(&pane))
+                .await
+                .map_err(|_| core::Error::Disconnected)?;
+        }
+        let answer = self.call(ApiMethod::PaneRead, params).await?;
+        Ok(answer["read"]["text"]
+            .as_str()
+            .unwrap_or_default()
+            .to_owned())
+    }
+
     /// [`Hub::call`] for a request whose ids do not say where it goes, such
     /// as a new workspace: to the session this daemon follows by `session`'s
     /// name, else as `call` sends it. The primary's own name is not among
@@ -593,6 +555,7 @@ impl Hub {
     }
 
     fn reconcile(&self, layout: &Layout) {
+        self.observed.retain(|pane| self.observable(pane));
         let mut chats = self.chats.lock().unwrap_or_else(PoisonError::into_inner);
         chats.retain(|pane, (endpoint, chat)| {
             let keep = layout
@@ -701,7 +664,10 @@ fn program_dirs(
 /// work there joins the workspace Sheprd keeps for it.
 fn place<'a>(workspace: &'a str, folder: &'a str) -> core::Place<'a> {
     if core::is_new_workspace(workspace) {
-        return core::Place::New(folder);
+        return core::Place::New {
+            cwd: folder,
+            title: None,
+        };
     }
     let (session, id) = sessions::split_id(workspace);
     core::Place::Workspace(sheprd_session::Labelled { id, session })
@@ -783,6 +749,12 @@ fn direct_command_line(program: &Path, agent: Agent) -> String {
     }
 }
 
+/// Whether workspace `id` lives inside a WSL distribution, whose folders
+/// this computer's own processes cannot read.
+pub(crate) fn in_wsl(id: &str) -> bool {
+    sessions::in_wsl(id)
+}
+
 /// A terminal row, for other modules' tests.
 #[cfg(test)]
 pub(crate) fn layout_terminal(tab: &str, label: &str) -> Terminal {
@@ -795,6 +767,7 @@ pub(crate) fn layout_terminal(tab: &str, label: &str) -> Terminal {
             label: None,
             cwd: None,
             focused: true,
+            job: None,
         }],
         zoomed: false,
         agent: None,

@@ -5,11 +5,14 @@
 use crate::{
     ansi::{self, Color, Style},
     control::{
+        favorites::Favorites,
+        github::valid_login,
         pull_requests::{PullRequests, Tone, WorkspacePullRequest},
         tags::ComputerTags,
     },
     hub::{self, ChatRow, Layout, Summary},
     load::Load,
+    native::github::{LentHost, checkouts::Checkout, hosts::Recognized},
 };
 use serde::{Deserialize, Serialize};
 use sheprd_chat_protocol::{Cursor, Permission, Status, Transcript};
@@ -34,6 +37,11 @@ pub(crate) struct Home {
     /// promise of network reachability or repository authorization.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(crate) github: Option<bool>,
+    /// The GitHub accounts this computer would lend the device asking
+    /// (`GET /api/v2/github/token`), one per host; none while its switch is
+    /// off, and from older servers.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(crate) github_hosts: Vec<LentHost>,
     /// Whether the Herdr daemon is reachable now.
     pub(crate) connected: bool,
     /// Agents that need an answer or finished unseen: the app's badge.
@@ -79,8 +87,59 @@ pub(crate) struct Workspace {
     /// Commits on its branch that no pull request carries yet.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(crate) unopened_commits: Option<u64>,
+    /// The GitHub repository its checkout is on, for a phone to read
+    /// GitHub itself; absent when its remote is not on a GitHub host, until
+    /// first read, and from older servers.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(crate) github: Option<WorkspaceGitHub>,
     pub(crate) chats: Vec<Chat>,
     pub(crate) terminals: Vec<Terminal>,
+}
+
+/// The GitHub repository a checkout is on: its `upstream` remote's when
+/// that is on a GitHub host, as a fork's pull requests live there, else its
+/// `origin`'s.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub(crate) struct WorkspaceGitHub {
+    pub(crate) host: String,
+    pub(crate) owner: String,
+    pub(crate) repo: String,
+    /// Absent on a detached HEAD.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(crate) branch: Option<String>,
+    /// The commit checked out; absent before the first.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(crate) head: Option<String>,
+    /// The owner of the repository the branch is pushed to, such as a
+    /// fork's, so a phone can match a pull request's head; absent when it
+    /// is `owner` or unknown.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(crate) head_owner: Option<String>,
+}
+
+impl WorkspaceGitHub {
+    /// What `checkout` is on, when a remote is on a host `recognized`
+    /// counts as GitHub's.
+    pub(crate) fn of(checkout: &Checkout, recognized: &Recognized) -> Option<Self> {
+        let repository = [&checkout.upstream, &checkout.origin]
+            .into_iter()
+            .flatten()
+            .find(|repository| recognized.is_github(&repository.host))?;
+        let head_owner = checkout
+            .pushed()
+            .filter(|pushed| pushed.host == repository.host)
+            .map(|pushed| pushed.owner.as_str())
+            .filter(|owner| valid_login(owner) && !owner.eq_ignore_ascii_case(&repository.owner))
+            .map(str::to_owned);
+        Some(Self {
+            host: repository.host.clone(),
+            owner: repository.owner.clone(),
+            repo: repository.repo.clone(),
+            branch: checkout.branch.clone(),
+            head: checkout.head.clone(),
+            head_owner,
+        })
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -97,6 +156,9 @@ pub(crate) struct Chat {
     pub(crate) title: String,
     pub(crate) agent: Option<String>,
     pub(crate) status: AgentStatus,
+    /// Starred on some device (`control::favorites`); lists show it first.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub(crate) favorite: bool,
     /// Absent until the daemon's connection to the chat is up.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(crate) summary: Option<ChatSummary>,
@@ -111,6 +173,14 @@ pub(crate) struct ChatSummary {
     pub(crate) question: Option<Permission>,
     pub(crate) questions: usize,
     pub(crate) last_text: Option<String>,
+    /// The start of the first prompt, for a chat its agent has not titled;
+    /// absent before one is sent.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(crate) first_prompt: Option<String>,
+    /// What the chat's agent said of where it stands, when the person asked
+    /// (`POST /api/v2/chat/{pane}/summarize`); absent until then.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(crate) row_summary: Option<hub::RowSummary>,
     pub(crate) turn_started_ms: Option<u64>,
     /// When the latest turn ended; absent from older chat programs.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -180,12 +250,19 @@ pub(crate) struct Pane {
     pub(crate) label: Option<String>,
     pub(crate) cwd: Option<String>,
     pub(crate) focused: bool,
+    /// What runs in front of its shell; absent when the computer's Herdr
+    /// does not say, and from older servers.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(crate) job: Option<hub::Job>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub(crate) struct TerminalAgent {
     pub(crate) name: Option<String>,
     pub(crate) status: AgentStatus,
+    /// Its pane was starred on some device (`control::favorites`).
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub(crate) favorite: bool,
     /// The pane it runs in; absent from older servers.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(crate) pane: Option<String>,
@@ -195,6 +272,14 @@ pub(crate) struct TerminalAgent {
     /// When the daemon saw it last change state; unknown until it does.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(crate) changed_ms: Option<u64>,
+    /// What it last said, read off its screen: its latest paragraph, one
+    /// item to a line, bounded. Absent until read, and from older servers.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(crate) preview: Option<String>,
+    /// Whether its conversation opens as a read-only chat (`view: chat`
+    /// on its pane) beside the terminal; absent from older servers.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub(crate) transcript: bool,
 }
 
 /// A chat's whole transcript and the stream position it includes.
@@ -329,6 +414,8 @@ impl From<Summary> for ChatSummary {
             question: summary.question,
             questions: summary.questions,
             last_text: summary.last_text,
+            first_prompt: summary.first_prompt,
+            row_summary: summary.row_summary,
             turn_started_ms: summary.turn_started_ms,
             last_turn_ended_ms: summary.last_turn_ended_ms,
             usage_percent: summary.usage_percent,
@@ -336,7 +423,7 @@ impl From<Summary> for ChatSummary {
     }
 }
 
-fn chat(row: &ChatRow, summaries: &mut HashMap<String, Summary>) -> Chat {
+fn chat(row: &ChatRow, summaries: &mut HashMap<String, Summary>, favorites: &Favorites) -> Chat {
     let summary = summaries.remove(&row.pane);
     // Herdr may know an ACP chat only as `acp`, without the display name
     // `herdr-acp` reported; the chat's own transcript names its agent.
@@ -346,17 +433,24 @@ fn chat(row: &ChatRow, summaries: &mut HashMap<String, Summary>) -> Chat {
         .filter(|agent| !agent.is_empty())
         .map(str::to_owned)
         .or_else(|| row.agent.clone());
+    // A chat no one named shows its first prompt over the tab's label.
+    let title = summary
+        .as_ref()
+        .and_then(|summary| summary.first_prompt.clone())
+        .filter(|_| !row.named)
+        .unwrap_or_else(|| row.title.clone());
     Chat {
         pane: row.pane.clone(),
         tab: row.tab.clone(),
-        title: row.title.clone(),
+        title,
         agent,
         status: row.status,
+        favorite: favorites.contains(&row.pane),
         summary: summary.map(ChatSummary::from),
     }
 }
 
-fn terminal(terminal: &hub::Terminal) -> Terminal {
+fn terminal(terminal: &hub::Terminal, favorites: &Favorites) -> Terminal {
     Terminal {
         tab: terminal.tab.clone(),
         label: terminal.label.clone(),
@@ -371,14 +465,18 @@ fn terminal(terminal: &hub::Terminal) -> Terminal {
                 label: pane.label.clone(),
                 cwd: pane.cwd.clone(),
                 focused: pane.focused,
+                job: pane.job.clone(),
             })
             .collect(),
         agent: terminal.agent.as_ref().map(|agent| TerminalAgent {
             name: agent.name.clone(),
             status: agent.status,
+            favorite: favorites.contains(&agent.pane),
             pane: Some(agent.pane.clone()),
             title: agent.title.clone(),
             changed_ms: agent.changed_ms,
+            preview: None,
+            transcript: hub::observable(&agent.pane, agent.name.as_deref()),
         }),
         convert: terminal.convert.as_ref().map(|(pane, agent)| ConvertOffer {
             agent: agent.name().to_owned(),
@@ -390,12 +488,17 @@ fn terminal(terminal: &hub::Terminal) -> Terminal {
 /// Where a home is drawn from; `summaries` holds the chats whose
 /// connection is up, by pane.
 pub(crate) struct Sources<'a> {
+    /// What each folder's checkout is on, as last read.
+    pub(crate) checkouts: &'a HashMap<String, Checkout>,
     pub(crate) computer: &'a str,
+    pub(crate) favorites: &'a Favorites,
     pub(crate) fingerprint: &'a str,
     pub(crate) layout: &'a Layout,
     pub(crate) load: Option<Load>,
     pub(crate) summaries: HashMap<String, Summary>,
     pub(crate) pull_requests: &'a PullRequests,
+    /// The hosts this computer counts as GitHub's.
+    pub(crate) recognized: &'a Recognized,
     pub(crate) shortcuts_ms: u64,
     pub(crate) tags: ComputerTags,
     pub(crate) version: &'a str,
@@ -404,14 +507,34 @@ pub(crate) struct Sources<'a> {
 }
 
 impl Home {
+    /// Gives each terminal tab's agent its preview from `previews`, by the
+    /// pane it runs in.
+    pub(crate) fn preview_terminals(&mut self, previews: &HashMap<String, String>) {
+        let agents = self
+            .workspaces
+            .iter_mut()
+            .flat_map(|workspace| &mut workspace.terminals)
+            .filter_map(|terminal| terminal.agent.as_mut());
+        for agent in agents {
+            agent.preview = agent
+                .pane
+                .as_ref()
+                .and_then(|pane| previews.get(pane))
+                .cloned();
+        }
+    }
+
     pub(crate) fn project(sources: Sources<'_>) -> Self {
         let Sources {
+            checkouts,
             computer,
+            favorites,
             fingerprint,
             layout,
             load,
             mut summaries,
             pull_requests,
+            recognized,
             shortcuts_ms,
             tags,
             version,
@@ -435,12 +558,20 @@ impl Home {
                     }
                 }),
                 unopened_commits: unopened_commits(pull_requests, &layout.boot, workspace),
+                github: (!hub::in_wsl(&workspace.id))
+                    .then(|| checkouts.get(&workspace.cwd))
+                    .flatten()
+                    .and_then(|checkout| WorkspaceGitHub::of(checkout, recognized)),
                 chats: workspace
                     .chats
                     .iter()
-                    .map(|row| chat(row, &mut summaries))
+                    .map(|row| chat(row, &mut summaries, favorites))
                     .collect(),
-                terminals: workspace.terminals.iter().map(terminal).collect(),
+                terminals: workspace
+                    .terminals
+                    .iter()
+                    .map(|row| terminal(row, favorites))
+                    .collect(),
             })
             .collect();
         Self {
@@ -448,6 +579,7 @@ impl Home {
             computer: computer.to_owned(),
             fingerprint: fingerprint.to_owned(),
             github: None,
+            github_hosts: Vec::new(),
             connected: layout.connected,
             waiting,
             load,

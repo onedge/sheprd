@@ -1,7 +1,8 @@
 import SheprdRemoteCore
+import SheprdNearby
 import SwiftUI
 
-enum RootTab: Hashable { case home, workspaces, settings }
+enum RootTab: Hashable { case home, workspaces, pullRequests, settings }
 
 /// Home B: attention first, with Workspaces and its search, and Settings,
 /// as tabs, or
@@ -38,6 +39,10 @@ struct RootView: View {
             }
         }
         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { windowWidth = $0 }
+        #if DEBUG
+        // The simulator loop's made-up pull request (`-githubDemo`).
+        .overlay { PullRequestDemoRoot() }
+        #endif
         .environment(window)
         // Along the top edge on every screen; sheets carry their own.
         .overlay(alignment: .top) { SyncBar().ignoresSafeArea(edges: .top) }
@@ -154,7 +159,7 @@ struct RootView: View {
         TabView(selection: $tab) {
             Tab("Home", systemImage: "house", value: RootTab.home) {
                 NavigationStack(path: $homePath) {
-                    HomeTab(pairing: $window.pairing).withRoutes()
+                    HomeTab(pairing: $window.pairing).makesRoomForConnectionToast().withRoutes()
                 }
                 .environment(\.offersWorkspace, true)
                 .slidesTabBar(hidden: !homePath.isEmpty)
@@ -162,12 +167,16 @@ struct RootView: View {
             }
             .badge(model.fleet.waiting)
             Tab("Workspaces", systemImage: "square.stack.3d.up", value: RootTab.workspaces) {
-                NavigationStack(path: $workspacesPath) { WorkspacesTab(query: $workspacesQuery).withRoutes() }
+                NavigationStack(path: $workspacesPath) { WorkspacesTab(query: $workspacesQuery).makesRoomForConnectionToast().withRoutes() }
                     .slidesTabBar(hidden: !workspacesPath.isEmpty)
                     .connectionToast(pairing: $window.pairing)
             }
+            Tab("Pull Requests", systemImage: "arrow.triangle.pull", value: RootTab.pullRequests) {
+                NavigationStack { PullRequestsList().makesRoomForConnectionToast() }
+                    .connectionToast(pairing: $window.pairing)
+            }
             Tab("Settings", systemImage: "gearshape", value: RootTab.settings) {
-                NavigationStack { SettingsView() }
+                NavigationStack { SettingsView().makesRoomForConnectionToast() }
                     .connectionToast(pairing: $window.pairing)
             }
         }
@@ -189,7 +198,10 @@ extension RootView {
     /// chat, `-session YES` opens its session sheet and `-draft TEXT`
     /// types into the composer. `-voiceSay TEXT` runs a spoken command as
     /// if it were heard, as the simulator has no microphone, and
-    /// `-voiceThen TEXT` follows it with another.
+    /// `-voiceThen TEXT` follows it with another. `-sampleChat YES` opens a
+    /// made-up chat, for screenshots without anyone's real prompts, and
+    /// `-sampleChat effects` one with text sizes and message effects, and
+    /// `-sampleChat activity` one running sub-agents, shells, and a plan.
     func followLaunchArguments() async {
         let defaults = UserDefaults.standard
         if let link = defaults.string(forKey: "pairLink"),
@@ -204,6 +216,7 @@ extension RootView {
         }
         switch defaults.string(forKey: "tab") {
         case "workspaces": tab = .workspaces
+        case "pullRequests": tab = .pullRequests
         case "settings": tab = .settings
         default: break
         }
@@ -237,6 +250,13 @@ extension RootView {
                 workspacesPath.append(WorkspaceKey(device: machine.id, workspace: workspace))
             }
         }
+        if defaults.string(forKey: "sampleChat") == "activity" {
+            model.pendingRoute = .chat(.activitySample, title: "Rail on iOS")
+        } else if defaults.string(forKey: "sampleChat") == "effects" {
+            model.pendingRoute = .chat(.effectsSample, title: "Release checks")
+        } else if defaults.bool(forKey: "sampleChat") {
+            model.pendingRoute = .chat(.sample, title: "Weather widget")
+        }
         if let pane = defaults.string(forKey: "openTerm") {
             try? await Task.sleep(for: .seconds(2))
             if let item = model.fleet.terminalItems.first(where: { $0.terminal.panes.contains { $0.pane == pane } }) {
@@ -261,7 +281,7 @@ struct CreatingSheet: View {
 
 extension View {
     func withRoutes() -> some View {
-        navigationDestination(for: Route.self) { $0.screen }
+        navigationDestination(for: Route.self) { $0.screen.makesRoomForConnectionToast() }
     }
 
     /// Slides a tab's bar in and out with its stack. The screens pushed on

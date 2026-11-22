@@ -19,6 +19,9 @@ pub enum Command {
     OpenWorktree,
     /// The focused linked worktree's delete confirmation.
     RemoveWorktree,
+    /// Asks once, then removes every linked worktree on the selected device
+    /// whose pull request is merged.
+    RemoveMergedWorktrees,
     /// Go To, listing only the checkouts that have a note.
     WorktreeNotes,
     /// The focused checkout's note.
@@ -52,6 +55,9 @@ pub enum Command {
     ToggleMenuBar,
     /// Shows or hides the panel of mod sections on the window's right.
     ToggleModPanel,
+    /// Collapses every host in the sidebar, or expands them all when they
+    /// all are.
+    ToggleAllHosts,
     /// Moves keyboard focus to the next of the terminal, the title bar, the
     /// sidebar, and the status bar, where Tab moves between controls.
     FocusNextRegion,
@@ -105,6 +111,10 @@ pub enum Command {
     SplitEditor,
     OpenCode,
     OpenPx0,
+    /// A virtual Mac in a tab, or Settings when there is none or a choice.
+    OpenMachine,
+    /// Settings > Virtual Macs, where a machine is made from Apple's macOS.
+    NewMachine,
     /// The remote control pairing dialog.
     RemotePair,
     ToggleFullScreen,
@@ -115,6 +125,10 @@ pub enum Command {
     MoveTabNext,
     RenameTab,
     LastPane,
+    /// Steps through the panes this window focused across connected endpoints,
+    /// most recent first, while the shortcut's modifier stays held.
+    RecentPane,
+    RecentPaneReverse,
     /// Back through the panes this endpoint has focused.
     Back,
     Forward,
@@ -140,6 +154,13 @@ pub enum Command {
     NextAgent,
     AgentNumber(u8),
     ReloadConfig,
+}
+
+impl Command {
+    /// Ctrl-Tab and its reverse, which an open menu keeps for itself.
+    pub fn is_recent_pane(self) -> bool {
+        matches!(self, Self::RecentPane | Self::RecentPaneReverse)
+    }
 }
 
 pub struct CommandInfo {
@@ -199,6 +220,11 @@ pub const COMMANDS: &[CommandInfo] = &[
         command: Command::RemoveWorktree,
         name: "remove_worktree",
         message: "commands-remove-worktree",
+    },
+    CommandInfo {
+        command: Command::RemoveMergedWorktrees,
+        name: "remove_merged_worktrees",
+        message: "commands-remove-merged-worktrees",
     },
     CommandInfo {
         command: Command::WorktreeNotes,
@@ -349,6 +375,16 @@ pub const COMMANDS: &[CommandInfo] = &[
         command: Command::LastPane,
         name: "last_pane",
         message: "commands-last-pane",
+    },
+    CommandInfo {
+        command: Command::RecentPane,
+        name: "recent_pane",
+        message: "commands-recent-pane",
+    },
+    CommandInfo {
+        command: Command::RecentPaneReverse,
+        name: "recent_pane_reverse",
+        message: "commands-recent-pane-reverse",
     },
     CommandInfo {
         command: Command::Back,
@@ -596,6 +632,11 @@ pub const COMMANDS: &[CommandInfo] = &[
         message: "commands-toggle-mod-panel",
     },
     CommandInfo {
+        command: Command::ToggleAllHosts,
+        name: "toggle_all_hosts",
+        message: "commands-toggle-all-hosts",
+    },
+    CommandInfo {
         command: Command::FocusNextRegion,
         name: "focus_next_region",
         message: "commands-focus-next-region",
@@ -769,6 +810,16 @@ pub const COMMANDS: &[CommandInfo] = &[
         command: Command::OpenPx0,
         name: "open_px0",
         message: "commands-open-px0",
+    },
+    CommandInfo {
+        command: Command::OpenMachine,
+        name: "open_machine",
+        message: "commands-open-machine",
+    },
+    CommandInfo {
+        command: Command::NewMachine,
+        name: "new_machine",
+        message: "commands-new-machine",
     },
     CommandInfo {
         command: Command::RemotePair,

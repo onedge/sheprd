@@ -65,9 +65,8 @@ impl SheprdWindow {
         let view = self
             .endpoint_pr_view(0)
             .filter(|view| view.origin == Origin::Local);
-        let tokens = self
-            .endpoint_pr_profile(0)
-            .map(|profile| self.tokens_over(profile));
+        let tokens =
+            Some(self.tokens_over(self.endpoint_pr_profile(0))).filter(|tokens| !tokens.is_empty());
         let mut sources = Sources {
             boot_id: boot.clone(),
             ..Sources::default()

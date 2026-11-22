@@ -9,10 +9,17 @@ mod auto_accept;
 mod change;
 mod display;
 mod endpoint;
+mod excerpt;
 mod frame;
+mod harnesses;
 mod media;
+mod naming;
 mod notices;
+mod origin;
+mod pull_requests;
+mod questions;
 mod revisions;
+mod settings;
 mod wire;
 
 fn text(id: u64, kind: fn(String) -> EntryKind, value: &str) -> Entry {
@@ -55,6 +62,7 @@ fn permission(id: u64) -> Permission {
             kind: PermissionKind::AllowOnce,
             name: "Allow".to_owned(),
         }],
+        question: None,
         title: "Run cargo test?".to_owned(),
     }
 }

@@ -14,6 +14,8 @@ pub(crate) enum Page {
     #[cfg(feature = "coder")]
     AddCoder,
     AddDevice,
+    /// Adding a nearby Sheprd over Bluetooth, reached through its relays.
+    AddNearby,
     /// Add Device's tiles of the cloud providers its rail leaves out.
     #[cfg(feature = "cloud")]
     AddProvider,
@@ -23,6 +25,8 @@ pub(crate) enum Page {
     AgentSkill,
     /// The Linux window's application menu, from the native menu definitions.
     Application,
+    /// The one-time offer to move `Herdr.app` to `Sheprd.app`.
+    AppRename,
     AppUpdate,
     /// Approving an automation script, or enabling automations on a host.
     Automation,
@@ -62,6 +66,8 @@ pub(crate) enum Page {
     GitHub,
     /// The account menu's GitLab tokens, beside GitHub's sign-in.
     GitLab,
+    /// Confirming a restack of the focused branch onto its stack's base.
+    GitRestack,
     /// A group's "…" menu: opening tabs other than a terminal, closing
     /// tabs, and splitting.
     Group,
@@ -92,6 +98,8 @@ pub(crate) enum Page {
     PrComment,
     /// Choosing a merge method, and confirming it.
     PrMerge,
+    /// Confirming the open pull request joins or leaves the merge queue.
+    PrQueue,
     /// The open pull request's checks and review conversation.
     PrReview,
     /// Pairing a phone for remote control: the QR, then the approval.
@@ -104,6 +112,8 @@ pub(crate) enum Page {
     /// Confirming Sheprd on another machine should update itself.
     RemoteUpdate,
     RemoveDevice,
+    /// Confirming every merged worktree should be removed.
+    RemoveMerged,
     /// Confirming a saved WSL distribution should be forgotten.
     RemoveWsl,
     /// Naming a herdr-core tab or pane from its menu.
@@ -208,10 +218,12 @@ impl Page {
                 | Self::RemoveWsl
                 | Self::Git
                 | Self::GitCommit
+                | Self::GitRestack
                 | Self::RemoteDevices
                 | Self::PrReview
                 | Self::PrComment
                 | Self::PrMerge
+                | Self::PrQueue
                 | Self::CoreMenu
                 | Self::CoreMove
                 | Self::RenameCore
@@ -249,9 +261,11 @@ impl Page {
             self,
             Self::Git
                 | Self::GitCommit
+                | Self::GitRestack
                 | Self::PrReview
                 | Self::PrComment
                 | Self::PrMerge
+                | Self::PrQueue
                 | Self::OverviewReply
         )
     }

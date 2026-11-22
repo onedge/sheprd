@@ -4,6 +4,7 @@
 use super::*;
 use gpui::TestAppContext;
 
+mod relay;
 mod report;
 use sheprd_remote_control::control::hosts::HostPairing;
 use std::sync::Mutex;
@@ -56,6 +57,15 @@ fn the_host_list_is_sent_when_it_changes_or_the_daemon_restarts() {
 }
 
 static SENT: Mutex<Vec<Request>> = Mutex::new(Vec::new());
+/// The tests that send through `daemon` share `SENT`: they take turns, so
+/// one's `clear` never drops what another just sent.
+static SERIAL: Mutex<()> = Mutex::new(());
+
+fn serial() -> std::sync::MutexGuard<'static, ()> {
+    SERIAL
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+}
 
 fn daemon(_: &Path, request: &Request) -> Result<Response, control::Error> {
     SENT.lock().unwrap().push(request.clone());
@@ -71,6 +81,7 @@ fn on() -> RemoteConfig {
 
 #[gpui::test]
 fn a_host_not_allowed_waits_for_the_user_and_a_gone_host_fails(cx: &mut TestAppContext) {
+    let _serial = serial();
     SENT.lock().unwrap().clear();
     cx.update(|cx| {
         Supervisor::fixture(cx, on(), daemon);
@@ -80,6 +91,7 @@ fn a_host_not_allowed_waits_for_the_user_and_a_gone_host_fails(cx: &mut TestAppC
             Incoming {
                 sent: None,
                 pairings: vec![pairing("ssh:lab", true), pairing("ssh:gone", false)],
+                relays: Vec::new(),
                 revokes: None,
             },
         );
@@ -108,11 +120,13 @@ fn a_host_not_allowed_waits_for_the_user_and_a_gone_host_fails(cx: &mut TestAppC
 
 #[gpui::test]
 fn a_request_already_running_is_not_started_twice(cx: &mut TestAppContext) {
+    let _serial = serial();
     cx.update(|cx| {
         Supervisor::fixture(cx, on(), daemon);
         let incoming = || Incoming {
             sent: None,
             pairings: vec![pairing("ssh:lab", true)],
+            relays: Vec::new(),
             revokes: None,
         };
         Supervisor::take_incoming(cx, incoming());

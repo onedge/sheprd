@@ -1,0 +1,186 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Backtick" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "백틱"
+          }
+        }
+      }
+    },
+    "Dictation" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "받아쓰기"
+          }
+        }
+      }
+    },
+    "Down" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아래"
+          }
+        }
+      }
+    },
+    "Keyboard" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "키보드"
+          }
+        }
+      }
+    },
+    "Left" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "왼쪽"
+          }
+        }
+      }
+    },
+    "Minus" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "빼기"
+          }
+        }
+      }
+    },
+    "New line" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "줄바꿈"
+          }
+        }
+      }
+    },
+    "Pipe" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "파이프"
+          }
+        }
+      }
+    },
+    "Plus" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "더하기"
+          }
+        }
+      }
+    },
+    "Right" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오른쪽"
+          }
+        }
+      }
+    },
+    "Slash" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "슬래시"
+          }
+        }
+      }
+    },
+    "Space" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "스페이스"
+          }
+        }
+      }
+    },
+    "The computer has not sent this terminal yet." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터가 아직 이 터미널을 보내지 않았습니다."
+          }
+        }
+      }
+    },
+    "The computer is not paired." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터가 페어링되어 있지 않습니다."
+          }
+        }
+      }
+    },
+    "The computer's Sheprd is too old for this app. Update it there." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터의 Sheprd가 이 앱에 비해 너무 오래되었습니다. 그 컴퓨터에서 업데이트하세요."
+          }
+        }
+      }
+    },
+    "This phone is no longer paired with the computer." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 휴대폰은 더 이상 컴퓨터와 페어링되어 있지 않습니다."
+          }
+        }
+      }
+    },
+    "Tilde" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "물결표"
+          }
+        }
+      }
+    },
+    "Up" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "위"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

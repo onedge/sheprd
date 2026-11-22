@@ -345,6 +345,9 @@ impl SheprdWindow {
         if self.menu.input.is_some() && action != WorkspaceAction::NewWorktree {
             body = body.child(self.render_dialog_input(cx));
         }
+        if action == WorkspaceAction::Rename {
+            body = body.children(self.render_naming(cx));
+        }
         if let Some(error) = &self.menu.error {
             body = body.child(
                 div()
@@ -357,11 +360,18 @@ impl SheprdWindow {
                     .child(error.clone()),
             );
         }
-        if creating || removing {
+        if let Some(removal) = self.removal.as_ref().filter(|_| removing) {
+            body = body.child(self.render_removal_progress(removal));
+        } else if creating {
             // Dismissing only closes the panel; the daemon keeps the queued work.
             let waiting = match self.dispatch_job.as_ref().filter(|_| dispatching) {
                 Some(job) => fl!("workspace-dialog-job-waiting", status = job.status()),
-                None => fl!("workspace-dialog-daemon-waiting"),
+                None => self
+                    .menu
+                    .worktree
+                    .as_ref()
+                    .and_then(|source| source.reuse_notice.clone())
+                    .unwrap_or_else(|| fl!("workspace-dialog-daemon-waiting")),
             };
             body = body.child(
                 div()

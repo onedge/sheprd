@@ -100,6 +100,8 @@ impl SheprdWindow {
         let core_terminals = crate::core_terminals::CoreTerminals::shared(cx);
         // Another window, or an agent, may open or close a tab.
         let browser_tabs = cx.observe_global::<crate::browser::Store>(|_, cx| cx.notify());
+        let agent_favorites = crate::agent_favorites::AgentFavorites::current(cx);
+        let agent_favorites_changed = Self::observe_agent_favorites(cx);
         let device_tags = crate::device_tags::DeviceTags::current(cx);
         let device_tags_changed = Self::observe_device_tags(cx);
         let worktree_notes = Self::observe_worktree_notes(window, cx);
@@ -111,6 +113,7 @@ impl SheprdWindow {
                 this.publish_server_keymap(cx);
             } else {
                 this.shift_taps.cancel();
+                this.recent_panes.finish();
                 this.disarm_prefix();
                 this.cancel_terminal_mouse(cx);
                 // A drag cut short is dropped; a selection kept for an
@@ -133,6 +136,7 @@ impl SheprdWindow {
         let mut this = Self {
             // keep-sorted start
             _activation: activation,
+            _agent_favorites: agent_favorites_changed,
             _appearance: appearance_change,
             _browser_tabs: browser_tabs,
             _device_tags: device_tags_changed,
@@ -147,6 +151,7 @@ impl SheprdWindow {
             activation_deadline: None,
             active: window.is_window_active(),
             activity: Default::default(),
+            agent_favorites,
             agent_group: None,
             agent_sort: preferences::AgentSort::default(),
             agent_sort_modified: false,
@@ -161,6 +166,7 @@ impl SheprdWindow {
             browser,
             catalog,
             cell_width: 9.,
+            chat_rail_width: crate::panel_resize::CHAT_RAIL,
             chats: Default::default(),
             checkpoints: Default::default(),
             chrome_region: None,
@@ -207,6 +213,7 @@ impl SheprdWindow {
             flash: None,
             flash_motion: Default::default(),
             focus,
+            front_watch: Default::default(),
             git: git::Git::default(),
             git_anchor: Default::default(),
             gui_config_diagnostic,
@@ -228,6 +235,7 @@ impl SheprdWindow {
             last_input: None,
             last_pointer: None,
             last_queued_options: None,
+            last_typed: None,
             link_complaint: None,
             links: Default::default(),
             listening_ports: Default::default(),
@@ -267,6 +275,7 @@ impl SheprdWindow {
             prefix_armed: false,
             presentation: Default::default(),
             pressed_terminal_link: None,
+            recent_panes: Default::default(),
             regions: Vec::new(),
             remote_browser: Vec::new(),
             remote_updates: Default::default(),
@@ -325,6 +334,7 @@ impl SheprdWindow {
             title: WINDOW_TITLE.to_owned(),
             toast_motion: Default::default(),
             toasts_hidden: false,
+            traces: Default::default(),
             tunnels: Default::default(),
             update_preview: None,
             updater: updater::Updater::default(),

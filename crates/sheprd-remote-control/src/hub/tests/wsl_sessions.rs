@@ -97,6 +97,19 @@ fn a_wsl_session_routes_like_a_named_one_and_is_told_apart() {
 }
 
 #[test]
+fn a_workspace_uses_its_wsl_distribution_for_checkout_scripts() {
+    let name = "default@Ubuntu";
+    let target = ConnectTarget::Wsl {
+        distro: "Ubuntu".into(),
+        session: "default".into(),
+    };
+    let mut hub = Hub::offline(Layout::default());
+    Arc::get_mut(&mut hub).unwrap().sessions = Sessions::offline_with_target(name, target.clone());
+
+    assert_eq!(hub.workspace_target(Some(name)), target);
+}
+
+#[test]
 fn a_chat_in_a_distribution_is_listed_as_the_terminal_it_also_is() {
     let snapshot = snapshot(json!([agent("p1", "t1", json!([["acp", ENDPOINT]]))]));
     let layout = project_with(&snapshot, Chats::Terminals);
@@ -125,7 +138,13 @@ async fn a_chat_is_refused_in_a_distribution_whatever_else_could_run_it() {
 async fn a_new_workspace_is_refused_in_a_distribution() {
     let hub = Hub::offline(Layout::default());
     let refused = hub
-        .create_workspace("/home/me/repo", None, Agent::Codex, Some("default@Ubuntu"))
+        .create_workspace(NewWorkspace {
+            agent: Agent::Codex,
+            branch: None,
+            cwd: "/home/me/repo",
+            session: Some("default@Ubuntu"),
+            title: None,
+        })
         .await;
     assert!(matches!(refused, Err(Error::WslChat)));
 }

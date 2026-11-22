@@ -8,6 +8,8 @@ mod activity;
 mod composer;
 mod copy;
 mod disclosure;
+mod earlier;
+mod effects;
 mod embeds;
 mod entries;
 mod jump;
@@ -23,6 +25,7 @@ mod settings;
 mod shortcuts;
 mod summary;
 mod text;
+mod uploads;
 pub(super) mod viewer;
 mod widgets;
 mod working;
@@ -430,6 +433,9 @@ impl SheprdWindow {
                     .flex_1()
                     .min_h_0()
                     .flex()
+                    .when_some(Self::chat_wizz_shake(chat, cx), |view, (dx, dy)| {
+                        view.relative().left(px(dx)).top(px(dy))
+                    })
                     .child(
                         div()
                             .flex_1()
@@ -485,6 +491,7 @@ impl SheprdWindow {
                     )
                     .children(self.render_chat_rail(chat, bounds, cx)),
             )
+            .children(self.render_chat_screen(chat, cx))
             .children(self.render_chat_viewer(chat, bounds, cx))
             .into_any_element()
     }

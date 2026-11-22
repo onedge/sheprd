@@ -15,17 +15,29 @@ pub enum Error {
     Auth(#[from] crate::auth::Error),
     #[error(transparent)]
     Control(#[from] crate::control::Error),
+    #[error(transparent)]
+    Fleet(#[from] crate::control::fleet::Error),
+    #[cfg(feature = "server")]
+    #[error(transparent)]
+    FleetDaemon(#[from] crate::fleet::Error),
     #[cfg(feature = "server")]
     #[error(transparent)]
     Hub(#[from] crate::hub::Error),
     #[error("remote control I/O failed")]
     Io(#[from] io::Error),
+    #[error(transparent)]
+    PairingLink(#[from] crate::control::pairing_link::Error),
     #[cfg(feature = "server")]
     #[error(transparent)]
     Push(#[from] crate::push::Error),
     #[cfg(feature = "server")]
     #[error(transparent)]
     Relay(#[from] crate::relay::Error),
+    #[error(transparent)]
+    RelayLabel(#[from] crate::relay_label::Error),
+    #[cfg(feature = "server")]
+    #[error(transparent)]
+    SharedRelays(#[from] crate::relay::shared::Error),
     #[cfg(feature = "server")]
     #[error(transparent)]
     Tls(#[from] crate::tls::Error),

@@ -393,7 +393,7 @@ pub(super) struct Palette {
     selected: usize,
     scroll: UniformListScrollHandle,
     target: Option<Target>,
-    filter: Filter,
+    pub(super) filter: Filter,
     /// Narrows Go To to agents in one status; other filters ignore it.
     agent_filter: AgentFilter,
     query: String,
@@ -770,6 +770,7 @@ impl SheprdWindow {
                         self.live.supports_edit_scrollback || palette.core_view.is_some()
                     }
                     Command::ToggleMenuBar => crate::menus::IN_WINDOW,
+                    Command::OpenMachine | Command::NewMachine => cfg!(target_os = "macos"),
                     _ => true,
                 })
                 .map(|info| {

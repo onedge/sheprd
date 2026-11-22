@@ -10,6 +10,7 @@ chat-layout-imessage = iMessage
 chat-layout-ia = iA
 chat-layout-opencode = OpenCode
 chat-status-commands = commands
+chat-launcher-agent = Agent button
 chat-launcher-plus = On + hover
 chat-launcher-beside = After +
 chat-launcher-leading = Before tabs
@@ -201,9 +202,11 @@ chat-summary = Context summary
 chat-summary-show = Show
 chat-summary-hide = Hide
 
-# The side rail: the agent's plan and the files it changed.
+# The side rail: the agent's plan, the files it changed, and the pull
+# requests it worked on.
 chat-rail-plan = Plan
 chat-rail-changed = Changed
+chat-rail-pull-requests = Pull requests
 chat-rail-subagents = Sub-agents
 chat-rail-shells = Shells
 chat-rail-monitors = Monitors
@@ -248,6 +251,8 @@ chat-running-stopped = Stopped
 chat-settings-search = Search…
 chat-settings-hint = { $name }: { $value }
 chat-settings-mode = Mode
+chat-settings-agent = Agent
+chat-settings-auto-accept = Auto-accept
 chat-settings-auto-accept-on = Auto-accepting
 chat-settings-auto-accept-off = Asks first
 chat-settings-no-match = No match

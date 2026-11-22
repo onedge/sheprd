@@ -3,9 +3,11 @@ use super::*;
 use crate::protocol::{Call, Caller, MAX_WAIT_SECONDS, Request, Response};
 
 mod automation;
+mod create;
 mod local_ports;
 mod quota;
 mod security;
+mod stack;
 
 #[test]
 fn host_requests_have_a_stable_wire_form() {
@@ -31,6 +33,7 @@ fn host_requests_have_a_stable_wire_form() {
         HostOp::Unforward { port: 1 },
         HostOp::OpenPort { port: 8080 },
         HostOp::Usage,
+        HostOp::UsagePick,
         HostOp::System,
         HostOp::Security,
         HostOp::Cloud,
@@ -94,6 +97,8 @@ fn host_replies_round_trip() {
             name: "test".into(),
             outcome: "passed".into(),
         }],
+        stack: None,
+        queue: None,
     };
     for reply in [
         Reply::Pr {
@@ -145,6 +150,20 @@ fn host_replies_round_trip() {
             }],
             note: None,
         },
+        Reply::UsagePick(Box::new(UsagePick {
+            host: "Local".into(),
+            agent: Some("codex".into()),
+            instead_of: Some("claude".into()),
+            reason: Some("Claude is 87% used, resets in 2h 10m".into()),
+            candidates: vec![AgentRoom {
+                agent: "claude".into(),
+                room: RoomState::Tight,
+                used_percent: Some(87.),
+                resets_in_seconds: Some(7800),
+                runs_out_in_seconds: None,
+            }],
+            note: None,
+        })),
         Reply::System {
             load: None,
             note: Some("Not sampled".into()),

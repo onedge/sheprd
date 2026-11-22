@@ -1,5 +1,5 @@
-//! `pr`, `host`, `cloud add`, `ports`, `usage`, `system`, `security`, and
-//! `automation approve`: what the
+//! `pr`, `host`, `cloud add`, `ports`, `usage`, `usage pick`, `system`,
+//! `security`, and `automation approve`: what the
 //! window gathers about its hosts, read from the state it already keeps.
 //! Nothing here starts a lookup, a scan, or a sample of its own; a request
 //! answers from the latest one, and says why when there is none. The one
@@ -12,6 +12,7 @@ mod ports;
 mod pr;
 mod security;
 mod update;
+mod usage_pick;
 
 #[cfg(test)]
 mod tests;
@@ -58,6 +59,21 @@ pub(super) fn serve(
         HostOp::PrOpen => in_window(caller, cx, |view, window, cx| {
             pr::open(view, caller, window, cx)
         }),
+        HostOp::PrCreate {} => in_free_window(caller, cx, |view, window, cx| {
+            pr::create(view, caller, window, cx)
+        }),
+        HostOp::PrMerge => in_window(caller, cx, |view, window, cx| {
+            pr::ask(view, caller, crate::menu::PrChange::Merge, window, cx)
+        }),
+        HostOp::PrQueue { change } => in_window(caller, cx, |view, window, cx| {
+            pr::ask(
+                view,
+                caller,
+                crate::menu::PrChange::Queue(change),
+                window,
+                cx,
+            )
+        }),
         HostOp::Ports => in_window(caller, cx, |view, _, _| ports::list(view, caller)),
         HostOp::Forward { port } => in_window(caller, cx, |view, _, cx| {
             ports::forward(view, caller, port, cx)
@@ -71,6 +87,9 @@ pub(super) fn serve(
             return local_ports::act(caller, port, action, incoming, watches, cx);
         }
         HostOp::Usage => in_window(caller, cx, |view, _, _| usage(view, SystemTime::now())),
+        HostOp::UsagePick => in_window(caller, cx, |view, _, _| {
+            usage_pick::pick(view, SystemTime::now())
+        }),
         HostOp::System => in_window(caller, cx, |view, _, _| system(view)),
         HostOp::Security => in_window(caller, cx, |view, _, _| security::alerts(view)),
         HostOp::SecurityOpen { repository, item } => in_window(caller, cx, |view, window, cx| {

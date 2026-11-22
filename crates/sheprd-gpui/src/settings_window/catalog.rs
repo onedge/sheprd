@@ -338,9 +338,19 @@ pub(super) const CATALOG: &[Entry] = &[
     // One per `[features]` flag; a test checks none is missing.
     // keep-sorted start
     feature(Feature::AcpChats),
+    #[cfg(feature = "mcp")]
+    feature(Feature::Mcp),
     feature(Feature::QaMenu),
     feature(Feature::SidebarHoverMenu),
     // keep-sorted end
+    // Under the flags; its button works while the MCP server is on.
+    #[cfg(feature = "mcp")]
+    entry(
+        Section::General,
+        "general-mcp-config",
+        "mcp-settings-copy",
+        "mcp-settings-copy-description",
+    ),
     entry(
         Section::General,
         "general-copy-on-select",
@@ -468,6 +478,12 @@ pub(super) const CATALOG: &[Entry] = &[
         "chat-launcher",
         "settings-chat-launcher",
         "settings-chat-launcher-description",
+    ),
+    entry(
+        Section::Chat,
+        "chat-auto-convert",
+        "settings-chat-auto-convert",
+        "settings-chat-auto-convert-description",
     ),
     entry(
         Section::Chat,
@@ -629,6 +645,12 @@ pub(super) const CATALOG: &[Entry] = &[
     ),
     entry(
         Section::RemoteControl,
+        "remote-push-relay",
+        "settings-push-relay-title",
+        "settings-push-relay-description",
+    ),
+    entry(
+        Section::RemoteControl,
         "remote-idle",
         "settings-remote-idle",
         "settings-remote-idle-description",
@@ -644,6 +666,12 @@ pub(super) const CATALOG: &[Entry] = &[
         "remote-devices",
         "settings-remote-devices",
         "settings-remote-devices-description",
+    ),
+    entry(
+        Section::Fleet,
+        "fleet-create-row",
+        "settings-fleet-none",
+        "settings-fleet-none-description",
     ),
     entry(
         Section::Configuration,

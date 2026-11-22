@@ -3,7 +3,8 @@
 //! transcript with the protocol's own reducer, and broadcasts each step; it
 //! reconnects from its cursor when the connection drops, until the pane
 //! leaves the layout. Phones read the transcript and subscribe; nothing on
-//! the async side touches the socket.
+//! the async side touches the socket. An observed terminal agent's chat is
+//! the same, read from a `sheprd-acp observe` child instead (`observed`).
 
 use super::{Error, Result};
 use sheprd_chat_protocol::{
@@ -15,6 +16,7 @@ use std::{
     collections::HashMap,
     io::{BufReader, BufWriter, Read, Write},
     path::{Path, PathBuf},
+    process::{self, Child, Stdio},
     sync::{
         Arc, Mutex, MutexGuard, PoisonError,
         atomic::{AtomicBool, Ordering},
@@ -53,6 +55,8 @@ pub(crate) enum Event {
     },
     /// The program became reachable, or stopped being.
     Connection,
+    /// The row's summary started, arrived, or failed; only lists redraw.
+    Summary,
 }
 
 /// What a subscriber starts from.
@@ -72,6 +76,11 @@ pub(crate) struct Summary {
     pub(crate) questions: usize,
     /// The start of the agent's latest answer, on one line.
     pub(crate) last_text: Option<String>,
+    /// The start of the first prompt sent, on one line: what a row calls a
+    /// chat its agent has not titled.
+    pub(crate) first_prompt: Option<String>,
+    /// What the chat's agent last said of where it stands, when asked.
+    pub(crate) row_summary: Option<super::RowSummary>,
     pub(crate) turn_started_ms: Option<u64>,
     /// When the latest turn ended, for "5m ago" on an idle row.
     pub(crate) last_turn_ended_ms: Option<u64>,
@@ -93,16 +102,22 @@ pub(crate) fn last_turn_ended_ms(transcript: &Transcript) -> Option<u64> {
         .flatten()
 }
 
-/// The first `limit` characters of `text` on one line.
-pub(crate) fn excerpt(text: &str, limit: usize) -> String {
-    let line: String = text.split_whitespace().collect::<Vec<_>>().join(" ");
-    if line.chars().count() <= limit {
-        return line;
-    }
-    let mut cut: String = line.chars().take(limit.saturating_sub(1)).collect();
-    cut.push('…');
-    cut
+/// The start of the first prompt in `transcript` that says anything, on
+/// one line.
+pub(crate) fn first_prompt(transcript: &Transcript) -> Option<String> {
+    transcript
+        .entries
+        .iter()
+        .find_map(|entry| match &entry.kind {
+            sheprd_chat_protocol::EntryKind::User { text, .. } => {
+                Some(excerpt(text, 80)).filter(|line| !line.is_empty())
+            }
+            _ => None,
+        })
 }
+
+/// The first `limit` characters of `text` on one line.
+pub(crate) use sheprd_chat_protocol::excerpt::one_line as excerpt;
 
 #[derive(Default)]
 struct State {
@@ -118,7 +133,36 @@ pub(crate) struct Chat {
     writer: Mutex<Option<SyncSender<ClientMessage>>>,
     acks: Mutex<HashMap<CommandId, oneshot::Sender<Option<sheprd_chat_protocol::Rejection>>>>,
     closed: AtomicBool,
-    closer: Mutex<Option<Closer>>,
+    closer: Mutex<Option<Link>>,
+    /// Every chat's steps, for lists to redraw when the summary changes.
+    all: broadcast::Sender<(String, Event)>,
+    row_summary: Mutex<Option<super::RowSummary>>,
+}
+
+/// What ends a connection, from any thread: a socket's, or the observer
+/// child that is the other end of one.
+enum Link {
+    Socket(Closer),
+    Child(Arc<Mutex<Child>>),
+}
+
+impl Link {
+    fn close(&self) {
+        match self {
+            Self::Socket(closer) => closer.close(),
+            // Only a signal; the reader reaps the child.
+            Self::Child(child) => {
+                let _ = lock(child).kill();
+            }
+        }
+    }
+
+    fn try_clone(&self) -> std::io::Result<Self> {
+        Ok(match self {
+            Self::Socket(closer) => Self::Socket(closer.try_clone()?),
+            Self::Child(child) => Self::Child(child.clone()),
+        })
+    }
 }
 
 fn lock<T>(mutex: &Mutex<T>) -> MutexGuard<'_, T> {
@@ -133,8 +177,63 @@ impl Chat {
         address: PathBuf,
         all: broadcast::Sender<(String, Event)>,
     ) -> std::io::Result<Arc<Self>> {
+        let chat = Self::new(pane, all.clone());
+        let reader = chat.clone();
+        thread::Builder::new()
+            .name("herdr-remote-chat".into())
+            .spawn(move || reader.run(&address, &all))?;
+        Ok(chat)
+    }
+
+    /// Starts `observer`, a `sheprd-acp observe` command, and reads the
+    /// terminal agent's conversation from it once: it is not restarted, and
+    /// the chat closes when it ends. Its steps reach only its own
+    /// subscribers, never notifications: the agent's terminal has its own.
+    pub(crate) fn observe(
+        pane: String,
+        mut observer: process::Command,
+    ) -> std::io::Result<Arc<Self>> {
+        let mut child = observer
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::null())
+            .spawn()?;
+        let (Some(writer), Some(reader)) = (child.stdin.take(), child.stdout.take()) else {
+            let _ = child.kill();
+            let _ = child.wait();
+            return Err(std::io::ErrorKind::BrokenPipe.into());
+        };
+        // Its own channel, so its steps reach no notifications.
+        let (all, _) = broadcast::channel(1);
+        let chat = Self::new(pane, all.clone());
+        let child = Arc::new(Mutex::new(child));
+        let observed = chat.clone();
+        let spawned = thread::Builder::new()
+            .name("herdr-remote-observer".into())
+            .spawn({
+                let child = child.clone();
+                move || {
+                    observed.connected(reader, writer, Link::Child(child.clone()), None, &all);
+                    observed.closed.store(true, Ordering::SeqCst);
+                    // Said even when it never connected, so whoever waits
+                    // for its first transcript learns at once.
+                    lock(&observed.state).connected = false;
+                    observed.publish(Event::Connection, &all);
+                    let _ = lock(&child).wait();
+                }
+            });
+        if let Err(error) = spawned {
+            let mut child = lock(&child);
+            let _ = child.kill();
+            let _ = child.wait();
+            return Err(error);
+        }
+        Ok(chat)
+    }
+
+    fn new(pane: String, all: broadcast::Sender<(String, Event)>) -> Arc<Self> {
         let (events, _) = broadcast::channel(SUBSCRIBERS_QUEUE);
-        let chat = Arc::new(Self {
+        Arc::new(Self {
             pane,
             state: Mutex::new(State::default()),
             events,
@@ -142,12 +241,44 @@ impl Chat {
             acks: Mutex::new(HashMap::new()),
             closed: AtomicBool::new(false),
             closer: Mutex::new(None),
-        });
-        let reader = chat.clone();
-        thread::Builder::new()
-            .name("herdr-remote-chat".into())
-            .spawn(move || reader.run(&address, &all))?;
-        Ok(chat)
+            all,
+            row_summary: Mutex::new(None),
+        })
+    }
+
+    /// Whether it ended for good: closed, or an observer that finished.
+    pub(crate) fn is_closed(&self) -> bool {
+        self.closed.load(Ordering::SeqCst)
+    }
+
+    /// Whether the first transcript arrives within `within`: false when
+    /// the connection ends first, as an observer that cannot read the
+    /// conversation does, or nothing comes in time.
+    pub(crate) async fn opened(&self, within: Duration) -> bool {
+        let mut events = self.events.subscribe();
+        let deadline = tokio::time::sleep(within);
+        tokio::pin!(deadline);
+        loop {
+            if lock(&self.state).cursor.is_some() {
+                return true;
+            }
+            if self.is_closed() {
+                return false;
+            }
+            tokio::select! {
+                () = &mut deadline => return false,
+                event = events.recv() => {
+                    if matches!(event, Err(broadcast::error::RecvError::Closed)) {
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+
+    /// How many phones follow it now.
+    pub(crate) fn followers(&self) -> usize {
+        self.events.receiver_count()
     }
 
     /// The transcript now and a subscription to every step after it. The
@@ -195,6 +326,8 @@ impl Chat {
                     sheprd_chat_protocol::EntryKind::Agent { text } => Some(excerpt(text, 140)),
                     _ => None,
                 }),
+            first_prompt: first_prompt(transcript),
+            row_summary: lock(&self.row_summary).clone(),
             turn_started_ms: transcript.turn.map(|turn| turn.started_ms),
             last_turn_ended_ms: last_turn_ended_ms(transcript),
             agent: transcript.agent.clone(),
@@ -253,7 +386,7 @@ impl Chat {
                 && let Ok((reader, writer, closer)) = connection.split()
             {
                 retry = Duration::from_millis(500);
-                self.connected(reader, writer, closer, since, all);
+                self.connected(reader, writer, Link::Socket(closer), since, all);
             }
             self.set_connected(false, all);
             thread::sleep(retry);
@@ -265,7 +398,7 @@ impl Chat {
         &self,
         reader: impl Read,
         writer: impl Write + Send + 'static,
-        closer: Closer,
+        closer: Link,
         since: Option<Cursor>,
         all: &broadcast::Sender<(String, Event)>,
     ) {
@@ -359,6 +492,24 @@ impl Chat {
         }
     }
 
+    /// Marks a summary running from `now_ms`, unless one already is.
+    pub(crate) fn begin_summary(&self, now_ms: u64) -> bool {
+        let mut summary = lock(&self.row_summary);
+        if matches!(*summary, Some(super::RowSummary::Pending { .. })) {
+            return false;
+        }
+        *summary = Some(super::RowSummary::Pending { since_ms: now_ms });
+        drop(summary);
+        self.publish(Event::Summary, &self.all);
+        true
+    }
+
+    /// Keeps the summary, or why there is none, and redraws the lists.
+    pub(crate) fn finish_summary(&self, summary: super::RowSummary) {
+        *lock(&self.row_summary) = Some(summary);
+        self.publish(Event::Summary, &self.all);
+    }
+
     fn publish(&self, event: Event, all: &broadcast::Sender<(String, Event)>) {
         let _ = all.send((self.pane.clone(), event.clone()));
         let _ = self.events.send(event);
@@ -369,7 +520,7 @@ impl Chat {
 /// until the connection ends or a write fails.
 fn write(
     writer: impl Write,
-    closer: &Closer,
+    closer: &Link,
     hello: ClientMessage,
     queued: &Receiver<ClientMessage>,
 ) {

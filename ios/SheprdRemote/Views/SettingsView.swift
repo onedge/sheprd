@@ -12,6 +12,7 @@ struct SettingsView: View {
     @State private var editMode = EditMode.inactive
     #if DEBUG
     @State private var showingRelays = false
+    @State private var showingGitHub = false
     #endif
     @AppStorage(AppLock.setting, store: AppLock.store) private var requireFaceID = false
     @AppStorage(AppAppearance.key) private var appearance = AppAppearance.system
@@ -19,13 +20,16 @@ struct SettingsView: View {
     @AppStorage(VoiceSettings.confirmsKey) private var voiceConfirms = false
     @AppStorage(VoiceSettings.languageKey) private var voicePhoneLanguage = false
     @AppStorage(ActivityTokens.genericSetting) private var genericActivities = false
+    @AppStorage(RowLines.key) private var rowLines = RowLines.choices.lowerBound
+    @AppStorage(FeedbackSettings.soundsKey) private var effectSounds = true
+    @AppStorage(FeedbackSettings.hapticsKey) private var haptics = true
 
     var body: some View {
         List {
             Section {
                 ForEach(model.computers) { computer in
                     NavigationLink {
-                        ComputerScreen(device: computer.device)
+                        ComputerScreen(device: computer.device).makesRoomForConnectionToast()
                     } label: {
                         ComputerRow(computer: computer)
                     }
@@ -64,7 +68,16 @@ struct SettingsView: View {
             }
             Section {
                 NavigationLink {
-                    RelaysView()
+                    FleetSettingsView().makesRoomForConnectionToast()
+                } label: {
+                    LabeledContent("Fleet", value: fleetSummary)
+                }
+            } footer: {
+                Text("Your computers and phones, and the hosts they share. Joining lets this \(UIDevice.current.model) control all of them.")
+            }
+            Section {
+                NavigationLink {
+                    RelaysView().makesRoomForConnectionToast()
                 } label: {
                     LabeledContent("Relays", value: "\(model.savedRelays.relays.count)")
                 }
@@ -73,12 +86,36 @@ struct SettingsView: View {
             } footer: {
                 Text("A relay joins this \(UIDevice.current.model) to a computer when they are on different networks.")
             }
-            Section("Chats") {
+            Section {
+                GitHubSettingsRow()
+            } footer: {
+                Text("This \(UIDevice.current.model) reads pull requests and checks from GitHub with its own sign-in, or one a computer lends.")
+            }
+            Section {
+                Picker("Lines per Row", selection: $rowLines) {
+                    ForEach(RowLines.choices, id: \.self) { Text($0, format: .number).tag($0) }
+                }
                 NavigationLink {
-                    TextShortcutsView()
+                    TextShortcutsView().makesRoomForConnectionToast()
                 } label: {
                     LabeledContent("Text Shortcuts", value: "\(model.shortcuts.shortcuts.count)")
                 }
+            } header: {
+                Text("Chats")
+            } footer: {
+                Text("Lines per Row is how much of a chat's latest reply or summary its row shows in the lists.")
+            }
+            Section {
+                Toggle("Effect Sounds", isOn: $effectSounds)
+                if FeedbackSettings.canTap {
+                    Toggle("Haptics", isOn: $haptics)
+                }
+            } header: {
+                Text("Sounds & Haptics")
+            } footer: {
+                Text(FeedbackSettings.canTap
+                    ? "Effect sounds go with an agent's message effects, such as slam and fireworks, and stay quiet when the Ring/Silent switch is on silent. Haptics are what you feel on sending, answering, terminal keys, and effects."
+                    : "Effect sounds go with an agent's message effects, such as slam and fireworks, and stay quiet when the \(UIDevice.current.model) is muted.")
             }
             Section {
                 Toggle("Speak Results", isOn: $voiceSpeaks)
@@ -91,11 +128,33 @@ struct SettingsView: View {
             }
             Section("Terminal") {
                 NavigationLink {
-                    TerminalKeysView()
+                    TerminalKeysView().makesRoomForConnectionToast()
                 } label: {
                     let layout = model.termKeys.layout
                     LabeledContent("Terminal Keys", value: "\(layout.top.count + layout.bottom.count)")
                 }
+            }
+            PushRelaySection()
+            Section {
+                SelfTestPushRow()
+                ForEach(model.computers) { computer in
+                    VStack(alignment: .leading, spacing: 4) {
+                        Button {
+                            Task { await model.pushTests.send(to: computer) }
+                        } label: {
+                            Label("Send Test Push from \(computer.name)", systemImage: "bell.badge")
+                        }
+                        if let status = model.pushTests.status[computer.fingerprint] {
+                            Text(PushTests.text(status))
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            } header: {
+                Text("Notifications")
+            } footer: {
+                Text("Sends this phone a sealed notification now, from a computer or from this phone through the push relay, and shows whether it arrived.")
             }
             Section {
                 if !ActivityAuthorizationInfo().areActivitiesEnabled {
@@ -167,9 +226,21 @@ struct SettingsView: View {
         .environment(\.editMode, $editMode)
         #if DEBUG
         .task { if UserDefaults.standard.bool(forKey: "editComputers") { editMode = .active } }
-        .navigationDestination(isPresented: $showingRelays) { RelaysView() }
+        .navigationDestination(isPresented: $showingRelays) { RelaysView().makesRoomForConnectionToast() }
         .task { if UserDefaults.standard.bool(forKey: "openRelays") { showingRelays = true } }
+        .navigationDestination(isPresented: $showingGitHub) { GitHubSettingsView().makesRoomForConnectionToast() }
+        .task { if UserDefaults.standard.bool(forKey: "openGitHub") { showingGitHub = true } }
         #endif
+    }
+
+    /// Where this phone stands with the fleet, beside its row.
+    private var fleetSummary: String {
+        let membership = model.fleetMembership
+        if membership.admitted {
+            let count = membership.status?.view?.members.count ?? 0
+            return count == 1 ? "1 member" : "\(count) members"
+        }
+        return membership.record == nil ? "Not joined" : "Waiting"
     }
 }
 
@@ -188,9 +259,11 @@ private struct ComputerRow: View {
             } else if status == .outdated || machine?.needsUpdate == true {
                 ComputerStatusLine(status: .outdated).font(.caption)
             } else if let vouching = model.vouching(computer) {
-                Text("via \(model.displayName(vouching))").font(.caption).foregroundStyle(.secondary)
-            } else if let kind = computer.origins.lazy.map(OriginKind.init(origin:)).first(where: { $0 != .loopback }) {
-                Text(kind.label).font(.caption).foregroundStyle(.secondary)
+                let via = "via \(model.displayName(vouching))"
+                Text(computer.relay == nil ? via : "\(via) · \(Computer.relayLabel)")
+                    .font(.caption).foregroundStyle(.secondary)
+            } else if let label = computer.reachLabel {
+                Text(label).font(.caption).foregroundStyle(.secondary)
             }
         }
     }

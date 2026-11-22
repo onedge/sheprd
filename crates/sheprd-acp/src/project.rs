@@ -84,6 +84,12 @@ impl Projector {
         }
     }
 
+    /// A projector for another agent's conversation, which knows nothing of
+    /// this one but keeps its entry ids growing.
+    pub(crate) fn restart(&self) -> Self {
+        Self::after(EntryId(self.next))
+    }
+
     fn next_id(&mut self) -> EntryId {
         self.next += 1;
         EntryId(self.next)
@@ -733,6 +739,7 @@ pub(crate) fn tokens(result: &serde_json::Value) -> Option<Tokens> {
 
 pub(crate) fn session(id: &wire::SessionId, cwd: &std::path::Path) -> SessionInfo {
     SessionInfo {
+        continued: None,
         cwd: Some(cwd.display().to_string()),
         id: id.0.to_string(),
         title: None,

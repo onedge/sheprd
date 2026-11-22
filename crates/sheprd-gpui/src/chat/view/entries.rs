@@ -110,7 +110,8 @@ fn copy_placement(body: Option<&Body>) -> CopyPlacement {
 }
 
 impl SheprdWindow {
-    pub(super) fn render_chat_entry(
+    /// Row `index` as its entry draws it, whatever folds around it.
+    pub(super) fn render_chat_entry_shown(
         &self,
         pane_id: &str,
         index: usize,

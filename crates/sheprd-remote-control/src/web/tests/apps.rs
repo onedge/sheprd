@@ -75,6 +75,8 @@ async fn an_app_from_another_computer_is_admitted_once_approved() {
             allow: true,
             code: claim["code"].as_str().unwrap().to_owned(),
             hosts: Vec::new(),
+            share_github: true,
+            fleet: None,
         },
     );
     let (_, _, approved) = send(&state, from(APP, get(&status_path))).await;
@@ -136,6 +138,8 @@ async fn revoking_one_phone_leaves_another_from_the_same_app() {
                 allow: true,
                 code: claim["code"].as_str().unwrap().to_owned(),
                 hosts: Vec::new(),
+                share_github: true,
+                fleet: None,
             },
         );
         devices.push(
@@ -178,6 +182,8 @@ async fn a_denied_claim_admits_nothing() {
             allow: false,
             code: claim["code"].as_str().unwrap().to_owned(),
             hosts: Vec::new(),
+            share_github: true,
+            fleet: None,
         },
     );
     assert_eq!(
@@ -198,6 +204,8 @@ async fn a_claim_from_this_computers_own_page_records_no_app() {
             allow: true,
             code: claim["code"].as_str().unwrap().to_owned(),
             hosts: Vec::new(),
+            share_github: true,
+            fleet: None,
         },
     );
     assert!(state.apps.read().unwrap().is_empty());

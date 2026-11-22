@@ -1,11 +1,13 @@
 //! What the agent sends: responses to the session's requests, session updates,
 //! and its own requests (permission questions).
 
+use std::fmt::Write as _;
+
 use acp::v1 as wire;
 use serde_json::Value;
 use sheprd_chat_protocol::{
-    Change, NoticeLevel, Permission, PermissionId, PermissionKind, PermissionOption, Status,
-    TurnEnd, TurnSummary,
+    Change, NoticeLevel, Permission, PermissionId, PermissionKind, PermissionOption, Question,
+    Status, TurnEnd, TurnSummary,
 };
 
 use super::{Asked, Pending, Session, Update, now_ms};
@@ -22,6 +24,9 @@ impl<R: FnMut(Update)> Session<R> {
                     self.response(id, pending, result);
                 }
             }
+            // A resumed session replays history the transcript already
+            // shows.
+            Inbound::Notification { .. } if self.thread.replaying() => {}
             Inbound::Notification { method, params } => {
                 if method == "session/update" {
                     self.session_update(params);
@@ -50,31 +55,45 @@ impl<R: FnMut(Update)> Session<R> {
                 self.session_opened(matches!(pending, Pending::LoadSession), result);
             }
             Pending::Prompt => self.turn_ended(id, result),
-            Pending::SetOption => match result {
-                Ok(value) => {
-                    if let Some(options) = value.get("configOptions") {
-                        let options = project::options(Some(options));
-                        self.emit(Change::Options { options });
-                    }
+            Pending::SetOption => {
+                self.option_set(result);
+                self.carry_next();
+            }
+            Pending::SetMode(mode) => {
+                self.mode_set(mode, result);
+                self.carry_next();
+            }
+        }
+    }
+
+    fn option_set(&mut self, result: Result<Value, wire::Error>) {
+        match result {
+            Ok(value) => {
+                if let Some(options) = value.get("configOptions") {
+                    let options = project::options(Some(options));
+                    self.emit(Change::Options { options });
                 }
-                Err(error) => {
-                    let notice = self.projector.notice(
-                        NoticeLevel::Warning,
-                        format!("Could not change the setting: {}", error.message),
-                    );
-                    self.emit(notice);
-                }
-            },
-            Pending::SetMode(mode) => match result {
-                Ok(_) => self.emit(Change::CurrentMode { id: mode }),
-                Err(error) => {
-                    let notice = self.projector.notice(
-                        NoticeLevel::Warning,
-                        format!("Could not change mode: {}", error.message),
-                    );
-                    self.emit(notice);
-                }
-            },
+            }
+            Err(error) => {
+                let notice = self.projector.notice(
+                    NoticeLevel::Warning,
+                    format!("Could not change the setting: {}", error.message),
+                );
+                self.emit(notice);
+            }
+        }
+    }
+
+    fn mode_set(&mut self, mode: String, result: Result<Value, wire::Error>) {
+        match result {
+            Ok(_) => self.emit(Change::CurrentMode { id: mode }),
+            Err(error) => {
+                let notice = self.projector.notice(
+                    NoticeLevel::Warning,
+                    format!("Could not change mode: {}", error.message),
+                );
+                self.emit(notice);
+            }
         }
     }
 
@@ -123,6 +142,7 @@ impl<R: FnMut(Update)> Session<R> {
             }
             load => {
                 if load.is_some() {
+                    self.thread.resume_failed();
                     let notice = self.projector.notice(
                         NoticeLevel::Warning,
                         "This agent cannot continue a session; starting a new one.",
@@ -141,6 +161,27 @@ impl<R: FnMut(Update)> Session<R> {
     fn session_opened(&mut self, loaded: bool, result: Result<Value, wire::Error>) {
         let mut value = match result {
             Ok(value) => value,
+            // An agent switched back to that cannot continue its earlier
+            // session starts a new one, and is handed the conversation.
+            Err(error) if loaded && self.thread.replaying() => {
+                self.thread.resume_failed();
+                let notice = self.projector.notice(
+                    NoticeLevel::Warning,
+                    format!(
+                        "{} could not continue its earlier session ({}); starting a new one.",
+                        self.config.agent, error.message
+                    ),
+                );
+                self.emit(notice);
+                self.acp_session = None;
+                let cwd = self.config.cwd.clone();
+                self.request(
+                    "session/new",
+                    &wire::NewSessionRequest::new(cwd),
+                    Pending::NewSession,
+                );
+                return;
+            }
             Err(error) => {
                 let message = if error.code == wire::Error::auth_required().code {
                     match &self.config.login_hint {
@@ -179,20 +220,101 @@ impl<R: FnMut(Update)> Session<R> {
         };
         self.ready = true;
         (self.report)(Update::Opened(id.0.to_string()));
+        let continued = self.continued(loaded);
         self.emit(Change::Session {
-            session: Some(project::session(&id, &self.config.cwd)),
+            session: Some(sheprd_chat_protocol::SessionInfo {
+                continued,
+                ..project::session(&id, &self.config.cwd)
+            }),
         });
-        if let Some(modes) = modes {
-            self.emit(Change::Modes {
-                modes: Some(project::modes(modes)),
-            });
+        // The session's answer replaces whatever the chat showed while it
+        // started, the agent's known settings included, even when it
+        // offers none.
+        let modes = modes.map(project::modes);
+        if self.transcript.modes != modes {
+            self.emit(Change::Modes { modes });
         }
-        if !options.is_empty() {
+        if self.transcript.options != options {
             self.emit(Change::Options { options });
         }
+        self.learn(loaded);
         self.projector.close();
+        self.hand_over(loaded);
         self.status(Status::Idle);
+        if loaded {
+            // A continued session keeps its own settings.
+            self.config.settings = None;
+        }
+        self.carry_deferred();
+        self.carry_next();
         self.next_queued();
+    }
+
+    /// The notice under the conversation a continued session brought with
+    /// it, which the chat's first session places as it opens and every
+    /// later one, after a switch of agent too, keeps. A chat whose first
+    /// session is new, or brought nothing, has none.
+    fn continued(&mut self, loaded: bool) -> Option<sheprd_chat_protocol::EntryId> {
+        if let Some(divider) = self.divider {
+            return divider;
+        }
+        let divider = self.place_divider(loaded);
+        self.divider = Some(divider);
+        divider
+    }
+
+    fn place_divider(&mut self, loaded: bool) -> Option<sheprd_chat_protocol::EntryId> {
+        let brought = self.transcript.entries.iter().any(|entry| {
+            matches!(
+                entry.kind,
+                sheprd_chat_protocol::EntryKind::User { .. }
+                    | sheprd_chat_protocol::EntryKind::Agent { .. }
+            )
+        });
+        if !loaded || !brought {
+            return None;
+        }
+        let notice = self.projector.notice(
+            NoticeLevel::Info,
+            format!("Continued from {}'s earlier session", self.config.agent),
+        );
+        let Change::Push { entry } = &notice else {
+            return None;
+        };
+        let id = entry.id;
+        self.emit(notice);
+        Some(id)
+    }
+
+    /// The agent that took over opened its session: prepare what it is
+    /// handed with the next prompt, and say so.
+    fn hand_over(&mut self, loaded: bool) {
+        let Some(agent) = self.config.harness else {
+            return;
+        };
+        let Some((joining, handoff)) = self.thread.opened(agent, loaded, &self.transcript.entries)
+        else {
+            return;
+        };
+        let what = match joining {
+            super::thread::Joining::Fresh => "the conversation so far",
+            super::thread::Joining::Resume { .. } => "what happened since it last took part",
+        };
+        let mut text = format!(
+            "{} continues this conversation and gets {what} with your next prompt",
+            self.config.agent
+        );
+        if handoff.omitted > 0 {
+            let _ = write!(
+                text,
+                ": {} entries, {} more left out for length.",
+                handoff.kept, handoff.omitted
+            );
+        } else {
+            text.push('.');
+        }
+        let notice = self.projector.notice(NoticeLevel::Info, text);
+        self.emit(notice);
     }
 
     fn session_update(&mut self, params: Value) {
@@ -216,9 +338,22 @@ impl<R: FnMut(Update)> Session<R> {
         if self.acp_session.as_ref() != Some(&notification.session_id) {
             return;
         }
-        let changes = self
-            .projector
-            .update(&self.transcript, notification.update, now_ms());
+        let mut update = notification.update;
+        // A conversation the agent replays holds Sheprd's notes ahead of
+        // the person's words: they are hidden, as when they were sent, and
+        // say what the agent was already told.
+        if let wire::SessionUpdate::UserMessageChunk(chunk) = &mut update
+            && let wire::ContentBlock::Text(content) = &mut chunk.content
+            && let Some((note, rest)) = crate::context::split(&content.text)
+        {
+            self.context.heard(note);
+            if rest.is_empty() {
+                return;
+            }
+            content.text = rest.to_owned();
+        }
+        self.commands.keep(&update);
+        let changes = self.projector.update(&self.transcript, update, now_ms());
         self.emit_all(changes);
     }
 
@@ -239,6 +374,11 @@ impl<R: FnMut(Update)> Session<R> {
             }
         };
         let call_id = request.tool_call.tool_call_id.0.to_string();
+        let question = request
+            .meta
+            .as_ref()
+            .and_then(|meta| meta.get(crate::harness::out::QUESTION))
+            .and_then(|question| serde_json::from_value::<Question>(question.clone()).ok());
         let fields = request.tool_call.fields;
         let title = fields.title.clone();
         let tool = self.projector.tool(&self.transcript, &call_id, |tool| {
@@ -291,6 +431,7 @@ impl<R: FnMut(Update)> Session<R> {
                 call_id: Some(call_id),
                 id: permission,
                 options,
+                question,
                 title,
             },
         });
@@ -299,14 +440,31 @@ impl<R: FnMut(Update)> Session<R> {
 
     /// Answers one permission request, with an option or as cancelled.
     pub(super) fn resolve(&mut self, permission: PermissionId, option: Option<&str>) {
-        let Some(asked) = self.asked.remove(&permission) else {
-            return;
-        };
         let outcome = match option {
             Some(option) => wire::RequestPermissionOutcome::Selected(
                 wire::SelectedPermissionOutcome::new(option.to_owned()),
             ),
             None => wire::RequestPermissionOutcome::Cancelled,
+        };
+        self.respond(permission, outcome);
+    }
+
+    /// Answers a question with the person's choices or words, through the
+    /// option the agent's bridge reads them from.
+    pub(super) fn resolve_answers(&mut self, permission: PermissionId, answers: Vec<String>) {
+        let mut meta = serde_json::Map::new();
+        meta.insert(crate::harness::out::ANSWERS.to_owned(), answers.into());
+        let selected =
+            wire::SelectedPermissionOutcome::new(crate::harness::out::ANSWERS).meta(Some(meta));
+        self.respond(
+            permission,
+            wire::RequestPermissionOutcome::Selected(selected),
+        );
+    }
+
+    fn respond(&mut self, permission: PermissionId, outcome: wire::RequestPermissionOutcome) {
+        let Some(asked) = self.asked.remove(&permission) else {
+            return;
         };
         let response = wire::RequestPermissionResponse::new(outcome);
         let result = serde_json::to_value(response).map_err(|_| wire::Error::internal_error());
@@ -351,6 +509,9 @@ impl<R: FnMut(Update)> Session<R> {
             Ok(Err(_)) => (TurnEnd::Other, None, None),
             Err(error) => (TurnEnd::Failed, None, Some(error.message)),
         };
+        // A turn the agent rejected may not have read the handoff it
+        // carried, so the next prompt carries it again.
+        self.thread.turn_ended(error.is_some());
         if let Some(error) = error {
             let notice = self.projector.notice(NoticeLevel::Error, error);
             self.emit(notice);

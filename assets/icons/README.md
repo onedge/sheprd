@@ -28,7 +28,8 @@ rsvg-convert -w 1024 -h 1024 assets/icons/sheprd-avatar.svg \
 | `sheprd-icon.{svg,png}` | Rounded desktop tile and About image |
 | `sheprd-icon-badge.{svg,png}` | README tile with a notification badge |
 | `sheprd-icon-square.{svg,png}` | Full-bleed square artwork |
-| `sheprd-github-app.{svg,png}`, `sheprd-github-app-200.png` | GitHub App uploads; orange background included |
+| `sheprd-github-app.{svg,png}`, `sheprd-github-app-200.png` | GitHub App upload with the orange gradient included |
+| `sheprd-github-app-transparent.{svg,png}`, `sheprd-github-app-transparent-200.png` | Transparent cream paw for a GitHub App badge; set its badge background to `#d65f2a` |
 | `sheprd-linux{,-worktree}.svg` | Circular Linux desktop icons |
 | `Sheprd{,-worktree}.icns` | Multi-resolution macOS icons |
 | `Sheprd{,-worktree}.car` | macOS 26+ Icon Composer catalogs |
@@ -107,7 +108,7 @@ desktop margins must not be baked into these images. The paw fits both masks.
 ## Interface and service marks
 
 `plus.svg`, `close.svg`, `pencil.svg`, `trash.svg`, `chevron-up.svg`,
-`chevron-down.svg`, `git-branch.svg`, `sessions.svg`, `file.svg`, `teleport.svg`,
+`chevron-down.svg`, `collapse-all.svg`, `expand-all.svg`, `git-branch.svg`, `sessions.svg`, `file.svg`, `teleport.svg`,
 `teleport-back.svg`, `zoom.svg`, the `window-*.svg` controls, `pull-request.svg`,
 `issue.svg`, `beads.svg`, `user.svg`, `cpu.svg`, and `brain.svg` are original
 interface artwork.

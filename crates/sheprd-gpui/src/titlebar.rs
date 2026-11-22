@@ -52,7 +52,7 @@ impl SheprdWindow {
         // GitLab waiting for a token opens its page, once GitHub has an
         // account and nothing of its own to ask.
         if self.orchestrator_gitlab_needs_sign_in(cx)
-            && self.pr_profile().is_some()
+            && self.pr_signed_in()
             && !self.github_needs_attention()
             && self.github_rate_limit_message().is_none()
         {
@@ -61,16 +61,16 @@ impl SheprdWindow {
         }
         // Azure DevOps waiting for a token opens its page the same way.
         if self.orchestrator_needs_sign_in(crate::orchestrator::Provider::Azure, cx)
-            && self.pr_profile().is_some()
+            && self.pr_signed_in()
             && !self.github_needs_attention()
         {
             self.open_azure_page(window, cx);
             return;
         }
         self.menu.page = Some(Page::GitHub);
-        // A device already covered by the main account opens the page rather
-        // than starting a second sign-in for itself.
-        if connect && self.pr_profile().is_none() && !self.github_auth().loading_profile() {
+        // A device some account already reads with opens the page rather
+        // than starting another sign-in.
+        if connect && !self.pr_signed_in() && !self.github_auth().loading_profile() {
             self.start_github();
         }
         cx.notify();

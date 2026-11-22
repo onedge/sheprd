@@ -49,6 +49,10 @@ mod device_tag_groups;
 #[cfg(test)]
 mod devices_layout;
 #[cfg(test)]
+mod favorite_agents;
+#[cfg(test)]
+mod fold_all_hosts;
+#[cfg(test)]
 mod gpu_line;
 #[cfg(test)]
 mod host_agents;
@@ -605,6 +609,7 @@ pub(crate) fn fixture_window(window: &mut Window, cx: &mut Context<SheprdWindow>
         _terminal_focus: terminal_focus,
         chrome_region: None,
         hosted: false,
+        chat_rail_width: crate::panel_resize::CHAT_RAIL,
         chats: Default::default(),
         sound: Default::default(),
         bell: Default::default(),
@@ -640,6 +645,7 @@ pub(crate) fn fixture_window(window: &mut Window, cx: &mut Context<SheprdWindow>
         flash: None,
         flash_motion: Default::default(),
         configured_terminal_size: crate::config::Config::default().terminal.size,
+        front_watch: Default::default(),
         gui_config_diagnostic: Default::default(),
         icon_font_notice: Default::default(),
         // Keep the original geometry fixture explicit; density-switching tests
@@ -727,6 +733,7 @@ pub(crate) fn fixture_window(window: &mut Window, cx: &mut Context<SheprdWindow>
         pending_toast: None,
         toast_motion: Default::default(),
         toasts_hidden: false,
+        traces: Default::default(),
         pending_releases: Vec::new(),
         selected_generation: 0,
         live: {
@@ -737,6 +744,7 @@ pub(crate) fn fixture_window(window: &mut Window, cx: &mut Context<SheprdWindow>
         focus,
         options: ConnectOptions::default(),
         last_queued_options: None,
+        last_typed: None,
         pending_resize: None,
         last_input: None,
         last_pointer: None,
@@ -776,6 +784,7 @@ pub(crate) fn fixture_window(window: &mut Window, cx: &mut Context<SheprdWindow>
         painter: Default::default(),
         backdrop: Default::default(),
         device_themes: Default::default(),
+        recent_panes: Default::default(),
         regions: Vec::new(),
         mark_layer,
         marked: String::new(),
@@ -803,6 +812,7 @@ pub(crate) fn fixture_window(window: &mut Window, cx: &mut Context<SheprdWindow>
         sidebar_split_modified: false,
         sidebar_preferences: None,
         sidebar_modified: false,
+        agent_favorites: Default::default(),
         agent_group: None,
         agent_sort: Default::default(),
         agent_sort_modified: false,
@@ -830,6 +840,8 @@ pub(crate) fn fixture_window(window: &mut Window, cx: &mut Context<SheprdWindow>
         _notification_mutes: SheprdWindow::observe_notification_mutes(cx),
         browser: crate::browser::Browser::new(cx),
         _browser_tabs: cx.observe_global::<crate::browser::Store>(|_, cx| cx.notify()),
+        _agent_favorites: cx
+            .observe_global::<crate::agent_favorites::AgentFavorites>(|_, cx| cx.notify()),
         _device_tags: cx.observe_global::<crate::device_tags::DeviceTags>(|_, cx| cx.notify()),
         _worktree_notes: SheprdWindow::observe_worktree_notes(window, cx),
         prefix_armed: false,

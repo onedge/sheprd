@@ -8,10 +8,14 @@ use serde::{Deserialize, Serialize};
 use crate::{Author, CommandId, Image};
 
 mod activity;
+mod pull_request;
+mod question;
 mod question_answers;
 pub use activity::{
     Activity, ActivityKind, ActivityState, MAX_ACTIVITIES, MAX_ACTIVITY_TEXT, Running,
 };
+pub use pull_request::{MAX_PULL_REQUESTS, PullRequest, PullRequestAction};
+pub use question::{MAX_ANSWER_TEXT, MAX_QUESTION_CHOICES, Question, QuestionOption};
 pub use question_answers::{MAX_QUESTION_ANSWERS, MAX_QUESTION_TEXT, valid_question_answers};
 
 /// An entry's identity, assigned by the program in increasing order.
@@ -44,6 +48,12 @@ pub struct Transcript {
     pub commands: Vec<SlashCommand>,
     #[serde(default)]
     pub entries: Vec<Entry>,
+    /// The agents this chat may switch to while its agent is idle; `None`
+    /// for a chat started without `--choose`. Programs before agents could
+    /// change mid-conversation set it to `None` once a prompt reached the
+    /// agent.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub harnesses: Option<crate::Harnesses>,
     #[serde(default)]
     pub modes: Option<Modes>,
     /// The session's settings the agent lets a client change, such as the
@@ -55,6 +65,9 @@ pub struct Transcript {
     pub permissions: Vec<Permission>,
     #[serde(default)]
     pub plan: Vec<PlanEntry>,
+    /// Pull requests the agent worked on in this chat, oldest first.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub pull_requests: Vec<PullRequest>,
     /// Prompts waiting for the current turn to end, oldest first.
     #[serde(default)]
     pub queued: Vec<Queued>,
@@ -127,6 +140,11 @@ impl Transcript {
         self.activities
             .iter()
             .find(|activity| activity.call_id == call_id)
+    }
+
+    /// The pull request kept for the same repository and number as `pull`.
+    pub fn pull_request(&self, pull: &PullRequest) -> Option<&PullRequest> {
+        self.pull_requests.iter().find(|known| known.is(pull))
     }
 
     pub(crate) fn position(&self, id: EntryId) -> Option<usize> {
@@ -336,6 +354,10 @@ pub struct Permission {
     pub call_id: Option<String>,
     pub id: PermissionId,
     pub options: Vec<PermissionOption>,
+    /// The question in full, when the request is one the agent asked with
+    /// choices; answered with [`Command::AnswerQuestion`](crate::Command::AnswerQuestion).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub question: Option<Question>,
     pub title: String,
 }
 
@@ -462,6 +484,11 @@ impl Attachment {
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct SessionInfo {
+    /// The notice that closes the conversation a continued session brought
+    /// with it, such as a terminal agent's moved into this chat: entries up
+    /// to it came before this chat, and a client may fold them.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub continued: Option<EntryId>,
     #[serde(default)]
     pub cwd: Option<String>,
     pub id: String,

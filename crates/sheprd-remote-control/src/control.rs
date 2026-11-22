@@ -11,10 +11,18 @@
 use sheprd_chat_protocol::{read_frame, write_frame};
 pub mod app_update;
 pub mod changes;
+pub mod desktop;
 pub mod edited;
+pub mod favorites;
+pub mod fleet;
+pub mod github;
+pub mod host_relay;
 pub mod hosts;
 pub mod layout;
+pub mod pairing_link;
 pub mod pull_requests;
+pub mod push;
+pub mod relays;
 pub mod shortcuts;
 pub mod tags;
 use serde::{Deserialize, Serialize};
@@ -62,6 +70,13 @@ pub fn address(state_dir: &Path) -> PathBuf {
 /// Removes what a daemon's listener left in `state_dir`.
 pub fn release(state_dir: &Path) {
     sheprd_client::private_endpoint::release(&address(state_dir));
+}
+
+/// Whether a daemon accepts connections at `address` within `limit`. Sends
+/// nothing, so a daemon that is exiting cannot hold the caller for a reply.
+/// Blocking.
+pub fn answers(address: &Path, limit: Duration) -> bool {
+    sheprd_client::private_endpoint::Connection::connect(address, limit).is_ok()
 }
 
 /// Sends one request and waits for its response. Blocking.
@@ -116,6 +131,24 @@ pub enum Request {
         /// with too (`hosts`).
         #[serde(default, skip_serializing_if = "Vec::is_empty")]
         hosts: Vec<hosts::HostId>,
+        /// Whether the phone may borrow this computer's GitHub sign-in
+        /// (`github`), as the dialog's switch says. On unless an approval
+        /// says otherwise, as an older Sheprd's never does.
+        #[serde(default = "yes", skip_serializing_if = "is_yes")]
+        share_github: bool,
+        /// The fleet the dialog's fleet line agreed to, hex, when it was
+        /// shown ticked: a computer that claimed joins it, or this computer
+        /// joins the claimant's. One the fleet no longer matches is refused.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        fleet: Option<String>,
+    },
+    /// A pairing link for the open, unclaimed pairing `id`
+    /// (`pairing_link`): a second token, claimable for two minutes through
+    /// this computer's relays, which the dialog copies so another Sheprd
+    /// can pair from any network. Refused while no relay listens. A new
+    /// link replaces the previous one.
+    PairLink {
+        id: PairingId,
     },
     /// Closes the dialog's pairing; its token stops working.
     CancelPairing {
@@ -126,6 +159,14 @@ pub enum Request {
     /// dropped at once. Sheprd asks the user before sending it.
     Revoke {
         device: DeviceId,
+    },
+    /// Whether `device` may borrow this computer's GitHub sign-in. Turned
+    /// off, the device gets no further token; one it holds keeps working
+    /// until it expires, or, from `gh`, until `gh` signs out.
+    #[serde(rename = "share_github")]
+    ShareGitHub {
+        device: DeviceId,
+        share: bool,
     },
     /// Stops the daemon. The service manager does not restart it.
     Shutdown,
@@ -200,16 +241,36 @@ pub enum Request {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         offer: Option<tags::ComputerTags>,
     },
+    /// This computer's favorite agents: stars or unstars one pane, if
+    /// `change` says so, and answers with the favorites that stand
+    /// (`favorites`).
+    Favorites {
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        change: Option<favorites::Change>,
+    },
     /// This computer's text shortcuts: offers Sheprd's copy, if any, and
     /// answers with the ones that stand (`shortcuts`).
     Shortcuts {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         offer: Option<shortcuts::TextShortcuts>,
     },
+    /// Relays Sheprd on another computer shares with this one, replacing
+    /// what that computer shared before (`relays`). Answered with every
+    /// relay the daemon listens on now. Sheprd never sends it to its own
+    /// daemon, which follows `[remote] relays`.
+    ShareRelays(relays::Offer),
+    /// This computer's listen tokens changed (`app::relay_tokens`): read
+    /// them again and reconnect the relays whose token changed. Answered
+    /// with [`Response::Done`].
+    RelayTokens,
     /// On a host: adds a phone another computer's user allowed, as
     /// `herdr-remote-control enroll` asks. Sheprd never sends it to its
     /// own daemon.
     Enroll(hosts::Enroll),
+    /// The fleet (`fleet::sync::Ask`): its state, founding it, admitting
+    /// and removing members, sharing hosts, and operations carried from
+    /// another member.
+    Fleet(Box<fleet::sync::Ask>),
     /// Where the app's updater stands, sent with each poll while a window
     /// runs it. Answered with whether a phone asked to update. `instance`
     /// names this run of the app: a request is only for the run a phone saw.
@@ -230,6 +291,41 @@ pub enum Request {
         id: changes::AskId,
         answer: layout::Answer,
     },
+    /// Takes the phones' requests to carry their relay keys to another of
+    /// their computers (`host_relay`) that Sheprd has not taken yet. An
+    /// older daemon refuses it, and Sheprd then carries none.
+    HostRelays,
+    /// What carrying `relay` came to.
+    HostRelayed {
+        /// The phone, as this computer knows it.
+        device: DeviceId,
+        /// Boxed, as the largest request, so every request stays small.
+        relay: Box<host_relay::Request>,
+        outcome: Box<host_relay::Outcome>,
+    },
+    /// On a host: keeps a phone's relay keys, signed with its own device
+    /// key there, as `herdr-remote-control relay-enroll` asks.
+    RelayEnroll(Box<host_relay::Request>),
+    /// Takes the phones' asks for Sheprd's GitHub sign-in, waiting up to
+    /// [`ASK_WAIT`] for one. Sheprd sends it while a phone is connected or
+    /// its status counts asks waiting (`Status::github_asks`).
+    #[serde(rename = "github_lease_asks")]
+    GitHubLeaseAsks {
+        /// Sheprd's main github.com account now, which phones are told
+        /// this computer lends; `None` when it has none.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        login: Option<String>,
+    },
+    /// Sheprd's answer to a [`github::LeaseAsk`].
+    #[serde(rename = "github_lease")]
+    GitHubLease {
+        id: changes::AskId,
+        answer: github::LeaseAnswer,
+    },
+    /// How iPhone pushes leave this computer and how the last of each kind
+    /// went (`push`). Read-only, and it names no token, handle, or device.
+    /// An older daemon closes without answering.
+    PushStatus,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -238,6 +334,11 @@ pub enum Response {
     Status(Status),
     Offer(Offer),
     Pairing(PairingState),
+    /// A pairing link, and how long it may be claimed.
+    PairLink {
+        link: String,
+        expires_in_ms: u64,
+    },
     Devices {
         devices: Vec<Device>,
     },
@@ -272,8 +373,14 @@ pub enum Response {
         revokes: Vec<hosts::HostRevoke>,
     },
     Enrolled(hosts::Enrolled),
+    Fleet(Box<fleet::sync::Answer>),
     Tags(tags::ComputerTags),
+    Favorites(favorites::Favorites),
     Shortcuts(shortcuts::TextShortcuts),
+    /// The relays the daemon listens on, its own and those shared with it.
+    Relays {
+        relays: Vec<String>,
+    },
     AppUpdate {
         /// A phone asked to update since the last report. Taken by reading.
         requested: bool,
@@ -285,6 +392,15 @@ pub enum Response {
         #[serde(default, skip_serializing_if = "Vec::is_empty")]
         layout: Vec<layout::Ask>,
     },
+    HostRelays {
+        jobs: Vec<host_relay::Job>,
+    },
+    Relayed(host_relay::Outcome),
+    #[serde(rename = "github_lease_asks")]
+    GitHubLeaseAsks {
+        asks: Vec<github::LeaseAsk>,
+    },
+    PushStatus(push::PushStatus),
 }
 
 /// The daemon's answer to a nearby phone's first step, the same JSON over
@@ -325,6 +441,8 @@ pub enum ErrorCode {
     Unsupported,
     /// Nearby pairing needs the pairing dialog open on the computer.
     NoPairing,
+    /// A pairing link needs this computer to listen on a relay.
+    NoRelays,
     /// The daemon could not write its state; nothing changed, and the
     /// same request may succeed later.
     Unsaved,
@@ -357,10 +475,38 @@ pub struct Status {
     pub devices: usize,
     /// Devices with an open stream now.
     pub connected: usize,
+    /// Phones' asks for Sheprd's GitHub sign-in waiting to be taken
+    /// (`Request::GitHubLeaseAsks`); an older daemon has none.
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub github_asks: usize,
     /// Each relay this computer listens on, by endpoint; absent when it
     /// listens on none, or the daemon is older.
     #[serde(default, skip_serializing_if = "std::collections::BTreeMap::is_empty")]
-    pub relays: std::collections::BTreeMap<String, RelayState>,
+    pub relays: std::collections::BTreeMap<String, RelayStatus>,
+}
+
+/// One relay as `sheprd remote status` shows it: where it stands, and the
+/// label `[remote] relays` gives it, whose fields an older daemon omits.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct RelayStatus {
+    #[serde(flatten)]
+    pub label: crate::relay_label::RelayLabel,
+    #[serde(flatten)]
+    pub state: RelayState,
+    /// Whether the daemon listens there with a listen token, its own or
+    /// one shared with it. An older daemon leaves it out.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub token: bool,
+}
+
+impl From<RelayState> for RelayStatus {
+    fn from(state: RelayState) -> Self {
+        Self {
+            label: crate::relay_label::RelayLabel::default(),
+            state,
+            token: false,
+        }
+    }
 }
 
 /// Where one relay stands.
@@ -368,7 +514,13 @@ pub struct Status {
 #[serde(rename_all = "snake_case", tag = "state")]
 pub enum RelayState {
     Connecting,
-    Listening,
+    Listening {
+        /// The round trip to the relay, in milliseconds, which tells how
+        /// near it is; absent until measured, or from an older daemon. An
+        /// older app reads the state and ignores it.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        rtt_ms: Option<u32>,
+    },
     /// The last attempt failed; another follows.
     Failed {
         error: String,
@@ -440,6 +592,16 @@ pub enum PairingState {
         /// computer's API, so the dialog names it.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         app: Option<String>,
+        /// Another computer's Sheprd asking to open terminals here over SSH,
+        /// through this computer's relays: approving adds its key to
+        /// `~/.ssh/authorized_keys`, so the dialog says so.
+        #[serde(default, skip_serializing_if = "is_no")]
+        ssh: bool,
+        /// What that computer asked of the fleet beside pairing: to join
+        /// this computer's, or to bring this computer into its own
+        /// (`fleet::bluetooth`). The dialog says so, with a line to agree.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        fleet: Option<fleet::bluetooth::Asked>,
     },
     Approved {
         device: DeviceId,
@@ -459,6 +621,9 @@ pub struct Device {
     pub push: bool,
     /// Whether it has a stream open now.
     pub connected: bool,
+    /// Whether it may borrow this computer's GitHub sign-in (`github`).
+    #[serde(default = "yes")]
+    pub share_github: bool,
     /// The computer that vouched for it, when another computer's user
     /// allowed it (`hosts`).
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -466,6 +631,27 @@ pub struct Device {
     /// The other hosts it was paired with from here, or may be.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub hosts: Vec<hosts::HostLink>,
+}
+
+/// Serde's default for a switch that is on unless said otherwise.
+fn yes() -> bool {
+    true
+}
+
+/// Whether a switch is on, so it is left out; serde passes a reference.
+#[allow(clippy::trivially_copy_pass_by_ref)]
+fn is_yes(value: &bool) -> bool {
+    *value
+}
+
+#[allow(clippy::trivially_copy_pass_by_ref)]
+fn is_no(value: &bool) -> bool {
+    !*value
+}
+
+#[allow(clippy::trivially_copy_pass_by_ref)]
+fn is_zero(value: &usize) -> bool {
+    *value == 0
 }
 
 #[cfg(test)]
