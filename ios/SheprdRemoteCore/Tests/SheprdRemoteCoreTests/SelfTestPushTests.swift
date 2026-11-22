@@ -155,11 +155,11 @@ import Testing
 
     @Test func eachFailureSaysWhereItStopped() {
         #expect(PushRelayOutcome.delivered.failure == nil)
-        #expect(PushRelayOutcome.expired.failure?.contains("attests again") == true)
-        #expect(PushRelayOutcome.gone.failure?.contains("token") == true)
-        #expect(PushRelayOutcome.limited.failure?.contains("limiting") == true)
-        #expect(PushRelayOutcome.refused.failure?.contains("refused") == true)
-        #expect(PushRelayOutcome.unavailable.failure?.contains("unavailable") == true)
+        #expect(PushRelayOutcome.expired.failure == catalogLabel("The push relay credential ran out. This phone attests again on the next try; send it again."))
+        #expect(PushRelayOutcome.gone.failure == catalogLabel("APNs no longer knows this phone's notification token. Reopen the app to get a new one, then try again."))
+        #expect(PushRelayOutcome.limited.failure == catalogLabel("The push relay or APNs is limiting pushes to this phone. Try again in a minute."))
+        #expect(PushRelayOutcome.refused.failure == catalogLabel("The push relay refused this phone's handle. This phone attests again on the next try; send it again."))
+        #expect(PushRelayOutcome.unavailable.failure == catalogLabel("The push relay or APNs is unavailable right now. Try again later."))
         #expect(PushRelayOutcome.unknown(status: 418).failure?.contains("418") == true)
         #expect(PushRelayOutcome.expired.needsNewCredential && PushRelayOutcome.refused.needsNewCredential)
         #expect(!PushRelayOutcome.gone.needsNewCredential && !PushRelayOutcome.limited.needsNewCredential)

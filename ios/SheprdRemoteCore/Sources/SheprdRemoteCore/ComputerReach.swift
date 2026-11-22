@@ -19,5 +19,5 @@ extension Computer {
         } ?? []
     }
 
-    public static let relayLabel = "Relay"
+    public static let relayLabel = String(localized: "Relay", bundle: .module)
 }

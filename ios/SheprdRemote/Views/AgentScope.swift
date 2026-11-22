@@ -94,7 +94,7 @@ struct AgentFilterMenu: View {
                     ForEach(choices) { choice in
                         let chosen = scope == choice.scope || choice.places.contains { $0.scope == scope }
                         Menu {
-                            option("All of \(choice.name)", scope: choice.scope, active: scope)
+                            option(String(localized: "All of \(choice.name)"), scope: choice.scope, active: scope)
                             Section {
                                 ForEach(choice.places) { place in
                                     option(label(place, in: choice), scope: place.scope, active: scope)

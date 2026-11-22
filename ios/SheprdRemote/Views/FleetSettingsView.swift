@@ -41,7 +41,7 @@ struct FleetSettingsView: View {
                     Label("Waiting for approval", systemImage: "hourglass")
                     Button("Cancel", role: .destructive) { membership.cancelJoin() }
                 } footer: {
-                    let name = model.computers.first { $0.device == record.through }.map(model.displayName) ?? "your computer"
+                    let name = model.computers.first { $0.device == record.through }.map(model.displayName) ?? String(localized: "your computer")
                     Text("Allow this \(UIDevice.current.model) in Sheprd on \(name), in Settings > Fleet.")
                 }
             } else if let computer = membership.joinable {
@@ -66,7 +66,7 @@ struct FleetSettingsView: View {
         .refreshable { await refresh() }
         .task { await refresh() }
         .confirmationDialog(
-            removingMember.map { "Remove \($0.name)?" } ?? "",
+            removingMember.map { String(localized: "Remove \($0.name)?") } ?? "",
             isPresented: Binding(get: { removingMember != nil }, set: { if !$0 { removingMember = nil } }),
             titleVisibility: .visible,
             presenting: removingMember
@@ -82,7 +82,7 @@ struct FleetSettingsView: View {
             Text("Every host drops it as soon as the removal reaches it. It can only come back with a new key and a new approval.")
         }
         .confirmationDialog(
-            removingHost.map { "Remove \($0.name) Everywhere?" } ?? "",
+            removingHost.map { String(localized: "Remove \($0.name) Everywhere?") } ?? "",
             isPresented: Binding(get: { removingHost != nil }, set: { if !$0 { removingHost = nil } }),
             titleVisibility: .visible,
             presenting: removingHost
@@ -147,14 +147,15 @@ struct FleetSettingsView: View {
     /// What runs on a host and how it is reached, in a few words.
     private static func path(_ host: API.FleetHost, status: API.FleetStatus?) -> String {
         let kind = switch host.kind {
-        case .member: "Computer"
-        case .sheprd: "Sheprd host"
-        case .agent: "SSH host"
+        case .member: String(localized: "Computer")
+        case .sheprd: String(localized: "Sheprd host")
+        case .agent: String(localized: "SSH host")
         }
-        if host.held { return "\(kind) · Held until someone picks its keys" }
-        if status?.origins(of: host.id).isEmpty == false { return "\(kind) · Direct" }
+        if host.held { return String(localized: "\(kind) · Held until someone picks its keys") }
+        if status?.origins(of: host.id).isEmpty == false { return String(localized: "\(kind) · Direct") }
         let relays = host.relays.count
-        return relays == 0 ? "\(kind) · Not yet reached" : "\(kind) · Relay (\(relays == 1 ? "1 relay" : "\(relays) relays"))"
+        if relays == 0 { return String(localized: "\(kind) · Not yet reached") }
+        return relays == 1 ? String(localized: "\(kind) · Relay (1 relay)") : String(localized: "\(kind) · Relay (\(relays) relays)")
     }
 
     private func remove(_ member: API.FleetMember, _ reason: FleetLog.Reason) {

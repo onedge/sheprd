@@ -24,8 +24,8 @@ enum FleetKey {
 
         var errorDescription: String? {
             switch self {
-            case .accessControl: "Could not set up the fleet key's access control."
-            case .noSecureEnclave: "This device has no Secure Enclave to keep a fleet key in."
+            case .accessControl: String(localized: "Could not set up the fleet key's access control.")
+            case .noSecureEnclave: String(localized: "This device has no Secure Enclave to keep a fleet key in.")
             }
         }
     }

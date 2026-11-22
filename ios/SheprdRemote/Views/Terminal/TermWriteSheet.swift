@@ -60,10 +60,10 @@ struct TermWriteSheet: View {
 
     private var summary: String {
         let bytes = draft.utf8.count
-        guard !tooLong else { return "Too long to paste; the limit is 1 MB." }
+        guard !tooLong else { return String(localized: "Too long to paste; the limit is 1 MB.") }
         let lines = draft.isEmpty ? 0 : draft.split(separator: "\n", omittingEmptySubsequences: false).count
         let size = ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
-        return "\(lines) \(lines == 1 ? "line" : "lines"), \(size)"
+        return lines == 1 ? String(localized: "1 line, \(size)") : String(localized: "\(lines) lines, \(size)")
     }
 }
 
@@ -78,8 +78,8 @@ struct TermFile: Sendable {
 
         var errorDescription: String? {
             switch self {
-            case let .tooLarge(name): "\(name) is larger than 16 MB."
-            case let .unreadable(name): "\(name) could not be read."
+            case let .tooLarge(name): String(localized: "\(name) is larger than 16 MB.")
+            case let .unreadable(name): String(localized: "\(name) could not be read.")
             }
         }
     }

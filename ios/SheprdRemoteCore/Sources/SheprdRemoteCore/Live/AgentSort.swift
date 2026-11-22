@@ -64,7 +64,7 @@ public enum AgentSort: String, CaseIterable, Identifiable, Sendable {
         let favorites = all.filter(\.facts.favorite)
         let rest = favorites.isEmpty ? all : all.filter { !$0.facts.favorite }
         let starred = favorites.isEmpty ? [] : [
-            Section(id: Self.favoritesID, title: "Favorites", items: Self.newestFirst(favorites).map(\.item)),
+            Section(id: Self.favoritesID, title: String(localized: "Favorites", bundle: .module), items: Self.newestFirst(favorites).map(\.item)),
         ]
         return starred + ordered(rest)
     }

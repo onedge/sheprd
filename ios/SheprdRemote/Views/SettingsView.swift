@@ -238,9 +238,9 @@ struct SettingsView: View {
         let membership = model.fleetMembership
         if membership.admitted {
             let count = membership.status?.view?.members.count ?? 0
-            return count == 1 ? "1 member" : "\(count) members"
+            return count == 1 ? String(localized: "1 member") : String(localized: "\(count) members")
         }
-        return membership.record == nil ? "Not joined" : "Waiting"
+        return membership.record == nil ? String(localized: "Not joined") : String(localized: "Waiting")
     }
 }
 

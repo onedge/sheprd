@@ -86,15 +86,15 @@ struct ChatPullRequestList: View {
 private extension ChatPullRequest.Action {
     var word: String {
         switch self {
-        case .created: "created"
-        case .pushed: "pushed"
-        case .edited: "edited"
-        case .commented: "commented"
-        case .reviewed: "reviewed"
-        case .ready: "marked ready"
-        case .merged: "merged"
-        case .closed: "closed"
-        case .reopened: "reopened"
+        case .created: String(localized: "created")
+        case .pushed: String(localized: "pushed")
+        case .edited: String(localized: "edited")
+        case .commented: String(localized: "commented")
+        case .reviewed: String(localized: "reviewed")
+        case .ready: String(localized: "marked ready")
+        case .merged: String(localized: "merged")
+        case .closed: String(localized: "closed")
+        case .reopened: String(localized: "reopened")
         case .other: ""
         }
     }

@@ -50,11 +50,11 @@ enum PullRequestLook: Hashable {
 
     var label: String {
         switch self {
-        case .open: "Open"
-        case .draft: "Draft"
-        case .merged: "Merged"
-        case .closed: "Closed"
-        case .unknown: "Pull request"
+        case .open: String(localized: "Open")
+        case .draft: String(localized: "Draft")
+        case .merged: String(localized: "Merged")
+        case .closed: String(localized: "Closed")
+        case .unknown: String(localized: "Pull request")
         }
     }
 
@@ -81,9 +81,9 @@ extension GitHubPullRequest.ReviewDecision {
     /// Its label; nil when nobody needs to review.
     var look: (label: String, symbol: String, color: Color)? {
         switch self {
-        case .approved: ("Approved", "checkmark.seal.fill", .green)
-        case .changesRequested: ("Changes requested", "exclamationmark.bubble.fill", .red)
-        case .reviewRequired: ("Review required", "eye", .orange)
+        case .approved: (String(localized: "Approved"), "checkmark.seal.fill", .green)
+        case .changesRequested: (String(localized: "Changes requested"), "exclamationmark.bubble.fill", .red)
+        case .reviewRequired: (String(localized: "Review required"), "eye", .orange)
         case .none: nil
         }
     }
@@ -189,10 +189,10 @@ enum PullRequestLink {
         guard let date else { return "" }
         let seconds = max(now.timeIntervalSince(date), 0)
         switch seconds {
-        case ..<60: return "now"
-        case ..<3600: return "\(Int(seconds / 60))m"
-        case ..<86400: return "\(Int(seconds / 3600))h"
-        case ..<(30 * 86400): return "\(Int(seconds / 86400))d"
+        case ..<60: return String(localized: "now")
+        case ..<3600: return String(localized: "\(Int(seconds / 60))m")
+        case ..<86400: return String(localized: "\(Int(seconds / 3600))h")
+        case ..<(30 * 86400): return String(localized: "\(Int(seconds / 86400))d")
         default: return date.formatted(.dateTime.month(.abbreviated).day())
         }
     }

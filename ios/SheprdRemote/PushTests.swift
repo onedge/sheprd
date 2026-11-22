@@ -51,26 +51,26 @@ final class PushTests {
             answer = try await session.client.sendTestPush(id: id, bearer: session.token)
         } catch RemoteError.status(503, _) {
             status[key] = .failed(PushRelaySetting.isOn
-                ? "\(computer.name) has the push relay off. Turn it on in Sheprd's Remote control settings there."
-                : "\(computer.name) cannot push to this phone while the push relay is off here. Turn it on here, and check it is not turned off in Sheprd's Remote control settings there.")
+                ? String(localized: "\(computer.name) has the push relay off. Turn it on in Sheprd's Remote control settings there.")
+                : String(localized: "\(computer.name) cannot push to this phone while the push relay is off here. Turn it on here, and check it is not turned off in Sheprd's Remote control settings there."))
             return
         } catch let RemoteError.status(400, text) where text.contains("not registered") {
             status[key] = .failed(PushRelaySetting.isOn
-                ? "\(computer.name) has no push relay handle from this phone that it can use. Allow notifications for Sheprd and reopen the app."
-                : "\(computer.name) pushes only through the push relay, which is off here. Turn it on above.")
+                ? String(localized: "\(computer.name) has no push relay handle from this phone that it can use. Allow notifications for Sheprd and reopen the app.")
+                : String(localized: "\(computer.name) pushes only through the push relay, which is off here. Turn it on above."))
             return
         } catch {
-            status[key] = .failed("Could not ask \(computer.name): \(error.localizedDescription)")
+            status[key] = .failed(String(localized: "Could not ask \(computer.name): \(error.localizedDescription)"))
             return
         }
         switch answer.outcome {
         case .delivered:
             status[key] = .waiting
         case .gone:
-            status[key] = .failed("APNs no longer knows this phone's token. Reopen the app to send a new one, then try again.")
+            status[key] = .failed(String(localized: "APNs no longer knows this phone's token. Reopen the app to send a new one, then try again."))
             return
         case .limited:
-            status[key] = .failed("APNs or the push relay is limiting pushes to this phone. Try again in a minute.")
+            status[key] = .failed(String(localized: "APNs or the push relay is limiting pushes to this phone. Try again in a minute."))
             return
         case .refused where answer.reason == nil && answer.status == 403:
             // The push relay gives no reason; 403 is a handle it no longer
@@ -78,15 +78,15 @@ final class PushTests {
             // handles, as reusing the cached ones would fail the same way.
             let failure = await tokens.pushRelayRejected(by: computer)
             status[key] = .failed(failure.map {
-                "The push relay no longer took this phone's handle, and sending \(computer.name) a new one failed: \($0)"
-            } ?? "The push relay no longer took this phone's handle. A new one was sent to \(computer.name); try again.")
+                String(localized: "The push relay no longer took this phone's handle, and sending \(computer.name) a new one failed: \($0)")
+            } ?? String(localized: "The push relay no longer took this phone's handle. A new one was sent to \(computer.name); try again."))
             return
         case .refused:
             let reason = answer.reason ?? "HTTP \(answer.status ?? 0)"
-            status[key] = .failed("APNs or the push relay refused it: \(reason).")
+            status[key] = .failed(String(localized: "APNs or the push relay refused it: \(reason)."))
             return
         case .unreachable:
-            status[key] = .failed("\(computer.name) could not reach APNs or the push relay.")
+            status[key] = .failed(String(localized: "\(computer.name) could not reach APNs or the push relay."))
             return
         }
         status[key] = await arrival(of: id, sent: started)
@@ -98,18 +98,18 @@ final class PushTests {
         guard ownStatus != .sending, ownStatus != .waiting else { return }
         ownStatus = .sending
         guard PushRelaySetting.isOn else {
-            ownStatus = .failed("This phone has no APNs key of its own, so it can only push itself through the push relay. Turn on Use the Push Relay above.")
+            ownStatus = .failed(String(localized: "This phone has no APNs key of its own, so it can only push itself through the push relay. Turn on Use the Push Relay above."))
             return
         }
         // `alertToken` says why when there is none.
         guard let token = await alertToken() else { return }
         let relay = tokens.pushRelay
         guard let credential = await relay.usableCredential() else {
-            ownStatus = .failed("The push relay has not let this phone in: \(relay.lastError ?? "turn the push relay off and on again.")")
+            ownStatus = .failed(String(localized: "The push relay has not let this phone in: \(relay.lastError ?? String(localized: "turn the push relay off and on again."))"))
             return
         }
         guard let handle = relay.handle(for: token, kind: .alert, credential: credential) else {
-            ownStatus = .failed("Could not make a push relay handle for this phone's notification token.")
+            ownStatus = .failed(String(localized: "Could not make a push relay handle for this phone's notification token."))
             return
         }
         let id = UUID().uuidString
@@ -117,7 +117,7 @@ final class PushTests {
         do {
             request = try SelfTestPush.request(id: id, handle: handle, device: NotifyKey.own().publicKey)
         } catch {
-            ownStatus = .failed("Could not seal the test to this phone's own key: \(error.localizedDescription)")
+            ownStatus = .failed(String(localized: "Could not seal the test to this phone's own key: \(error.localizedDescription)"))
             return
         }
         let started = Date()
@@ -125,7 +125,7 @@ final class PushTests {
         do {
             outcome = try await relay.push(request)
         } catch {
-            ownStatus = .failed("Could not reach the push relay: \(error.localizedDescription)")
+            ownStatus = .failed(String(localized: "Could not reach the push relay: \(error.localizedDescription)"))
             return
         }
         if let failure = outcome.failure {
@@ -145,7 +145,7 @@ final class PushTests {
     private func alertToken() async -> String? {
         if let token = tokens.alert { return token }
         guard await AppDelegate.enableAlerts() else {
-            ownStatus = .failed("Notifications are off for Sheprd. Allow them in the iPhone's Settings, then try again.")
+            ownStatus = .failed(String(localized: "Notifications are off for Sheprd. Allow them in the iPhone's Settings, then try again."))
             return nil
         }
         let deadline = ContinuousClock.now + Self.tokenPatience
@@ -153,7 +153,7 @@ final class PushTests {
             if let token = tokens.alert { return token }
             try? await Task.sleep(for: .milliseconds(100))
         }
-        ownStatus = .failed("iOS has not given this phone a notification token yet. Check that it is online, then try again.")
+        ownStatus = .failed(String(localized: "iOS has not given this phone a notification token yet. Check that it is online, then try again."))
         return nil
     }
 
@@ -166,15 +166,15 @@ final class PushTests {
             }
             try? await Task.sleep(for: .milliseconds(250))
         }
-        return .failed("APNs took it, but it did not arrive within 30 seconds. Check that notifications are on for Sheprd and Focus allows them.")
+        return .failed(String(localized: "APNs took it, but it did not arrive within 30 seconds. Check that notifications are on for Sheprd and Focus allows them."))
     }
 
     /// The line Settings shows under a computer's button.
     static func text(_ status: Status) -> String {
         switch status {
-        case .sending: "Sending…"
-        case .waiting: "Sent. Waiting for it to arrive…"
-        case let .arrived(seconds): "Arrived in \(seconds.formatted(.number.precision(.fractionLength(1)))) s."
+        case .sending: String(localized: "Sending…")
+        case .waiting: String(localized: "Sent. Waiting for it to arrive…")
+        case let .arrived(seconds): String(localized: "Arrived in \(seconds.formatted(.number.precision(.fractionLength(1)))) s.")
         case let .failed(why): why
         }
     }

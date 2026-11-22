@@ -68,8 +68,9 @@ struct ChatTurn: View {
 
     static func stepsLine(_ tools: [Tool]) -> String {
         let edited = Set(tools.filter { $0.kind == .edit }.flatMap(\.locations)).count
-        let steps = "\(tools.count) step\(tools.count == 1 ? "" : "s")"
-        return edited > 0 ? "\(steps) · \(edited) file\(edited == 1 ? "" : "s") changed" : steps
+        let steps = tools.count == 1 ? String(localized: "1 step") : String(localized: "\(tools.count) steps")
+        guard edited > 0 else { return steps }
+        return edited == 1 ? String(localized: "\(steps) · 1 file changed") : String(localized: "\(steps) · \(edited) files changed")
     }
 
     private static func diffs(_ tool: Tool) -> [(path: String, old: String?, new: String)] {

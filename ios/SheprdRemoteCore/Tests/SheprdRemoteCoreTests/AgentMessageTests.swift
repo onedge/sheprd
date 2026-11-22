@@ -80,7 +80,7 @@ import Testing
             #expect(!effect.label.isEmpty)
         }
         #expect(ScreenEffect.confetti.label == "Confetti")
-        #expect(BubbleEffect.ink.label == "Invisible ink")
+        #expect(BubbleEffect.ink.label == catalogLabel("Invisible ink"))
     }
 
     @Test func theGistIsTheFirstParagraphsWords() {

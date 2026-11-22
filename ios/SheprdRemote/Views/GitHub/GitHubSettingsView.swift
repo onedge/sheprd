@@ -86,7 +86,7 @@ struct GitHubSettingsView: View {
             try await signIn?.signOut()
             problem = nil
         } catch {
-            problem = "The sign-in could not be deleted from the Keychain."
+            problem = String(localized: "The sign-in could not be deleted from the Keychain.")
         }
         // What was read with the account goes with it.
         GitHubDirect.shared.forgetDirectReads()
@@ -103,7 +103,7 @@ private struct GitHubComSection: View {
     var body: some View {
         Section {
             if let own = account.own {
-                AccountLine(login: own.login, title: own.login, detail: "Signed in on this \(UIDevice.current.model)",
+                AccountLine(login: own.login, title: own.login, detail: String(localized: "Signed in on this \(UIDevice.current.model)"),
                             detailImage: UIDevice.current.userInterfaceIdiom == .pad ? "ipad" : "iphone")
                 LabeledContent("Token", value: GitHubTimes.renewal(own.expiresAt))
                 LabeledContent("Fallback") {
@@ -121,10 +121,10 @@ private struct GitHubComSection: View {
                 }
             } else {
                 if let lent = account.lent {
-                    AccountLine(login: lent.login, title: "Using \(lent.login) from \(lent.computer)",
+                    AccountLine(login: lent.login, title: String(localized: "Using \(lent.login) from \(lent.computer)"),
                                 detail: GitHubTimes.lentDetail(lent), detailImage: "laptopcomputer")
                 } else {
-                    AccountLine(login: nil, title: "Not signed in", detail: "No computer lends an account", detailImage: "person.crop.circle.badge.questionmark")
+                    AccountLine(login: nil, title: String(localized: "Not signed in"), detail: String(localized: "No computer lends an account"), detailImage: "person.crop.circle.badge.questionmark")
                 }
                 Button(action: signIn) {
                     Text("Sign In on This \(UIDevice.current.model)").frame(maxWidth: .infinity)
@@ -141,18 +141,18 @@ private struct GitHubComSection: View {
     private var footer: String {
         let device = UIDevice.current.model
         if account.problem == .refreshRejected {
-            return "GitHub no longer accepts this \(device)'s sign-in: it was revoked, or expired. Sign in again to read GitHub directly."
+            return String(localized: "GitHub no longer accepts this \(device)'s sign-in: it was revoked, or expired. Sign in again to read GitHub directly.")
         }
         if account.own != nil {
             guard let lent = account.lent else {
-                return "Signing out deletes this \(device)'s tokens. To revoke Sheprd's access itself, use Applications in your GitHub settings."
+                return String(localized: "Signing out deletes this \(device)'s tokens. To revoke Sheprd's access itself, use Applications in your GitHub settings.")
             }
-            return "Your computers' accounts are the fallback: when this \(device) is signed out or its sign-in fails, it reads with the one \(lent.computer) lends."
+            return String(localized: "Your computers' accounts are the fallback: when this \(device) is signed out or its sign-in fails, it reads with the one \(lent.computer) lends.")
         }
         if let lent = account.lent {
-            return "This \(device)'s own sign-in comes first; \(lent.computer)'s stays as the fallback."
+            return String(localized: "This \(device)'s own sign-in comes first; \(lent.computer)'s stays as the fallback.")
         }
-        return "Sign in to read pull requests and checks on this \(device) without a computer."
+        return String(localized: "Sign in to read pull requests and checks on this \(device) without a computer.")
     }
 }
 
@@ -165,7 +165,7 @@ private struct LentHostSection: View {
     var body: some View {
         Section {
             if let lent = account.lent {
-                AccountLine(login: lent.login, title: account.host.name, detail: "\(lent.login) from \(lent.computer)\(lent.source == .gh ? " · gh" : "")",
+                AccountLine(login: lent.login, title: account.host.name, detail: lent.source == .gh ? String(localized: "\(lent.login) from \(lent.computer) · gh") : String(localized: "\(lent.login) from \(lent.computer)"),
                             detailImage: "laptopcomputer")
                 LabeledContent("Lent by") { IconText(lent.computer, systemImage: "laptopcomputer") }
                 LabeledContent("Source", value: GitHubTimes.source(lent.source))
@@ -202,39 +202,39 @@ private struct AccountLine: View {
 /// How Settings words a token's source and time.
 enum GitHubTimes {
     static func renewal(_ expires: Date?, now: Date = .now) -> String {
-        guard let expires else { return "Does not expire" }
-        return "Renews in \(span(expires.timeIntervalSince(now)))"
+        guard let expires else { return String(localized: "Does not expire") }
+        return String(localized: "Renews in \(span(expires.timeIntervalSince(now)))")
     }
 
     static func lentDetail(_ lent: GitHubHostAccount.Lent, now: Date = .now) -> String {
         switch lent.source {
         case .sheprd?:
-            lent.expiresAt.map { "Sheprd sign-in · renews in \(span($0.timeIntervalSince(now)))" } ?? "Sheprd sign-in"
+            lent.expiresAt.map { String(localized: "Sheprd sign-in · renews in \(span($0.timeIntervalSince(now)))") } ?? String(localized: "Sheprd sign-in")
         case .gh?: "GitHub CLI (gh)"
-        case .other?, nil: "Lent by \(lent.computer)"
+        case .other?, nil: String(localized: "Lent by \(lent.computer)")
         }
     }
 
     static func source(_ source: LeaseSource?) -> String {
         switch source {
-        case .sheprd?: "Sheprd sign-in"
+        case .sheprd?: String(localized: "Sheprd sign-in")
         case .gh?: "GitHub CLI (gh)"
-        case .other?: "Other"
-        case nil: "Not borrowed yet"
+        case .other?: String(localized: "Other")
+        case nil: String(localized: "Not borrowed yet")
         }
     }
 
     static func expiry(_ lent: GitHubHostAccount.Lent, now: Date = .now) -> String {
-        if let expires = lent.expiresAt { return "In \(span(expires.timeIntervalSince(now)))" }
-        return lent.source == nil ? "Unknown" : "Never"
+        if let expires = lent.expiresAt { return String(localized: "In \(span(expires.timeIntervalSince(now)))") }
+        return lent.source == nil ? String(localized: "Unknown") : String(localized: "Never")
     }
 
     /// "6 h", "12 min", or "now".
     static func span(_ seconds: TimeInterval) -> String {
         switch seconds {
         case ..<60: "now"
-        case ..<3600: "\(Int(seconds / 60)) min"
-        default: "\(Int(seconds / 3600)) h"
+        case ..<3600: String(localized: "\(Int(seconds / 60)) min")
+        default: String(localized: "\(Int(seconds / 3600)) h")
         }
     }
 }

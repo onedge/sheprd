@@ -81,13 +81,13 @@ struct PushRelaySection: View {
     /// whether the last registration reached it.
     static func label(_ delivery: ActivityTokens.Delivery?, reached: Bool, pushRelay: Bool) -> String {
         if !reached {
-            return "Not reached; tried again when online"
+            return String(localized: "Not reached; tried again when online")
         }
         return switch delivery {
-        case .pushRelay: pushRelay ? "Push relay" : "Push relay, off here"
-        case .off: "No push set up"
-        case .unknown: "Not reported"
-        case nil: "Not asked yet"
+        case .pushRelay: pushRelay ? String(localized: "Push relay") : String(localized: "Push relay, off here")
+        case .off: String(localized: "No push set up")
+        case .unknown: String(localized: "Not reported")
+        case nil: String(localized: "Not asked yet")
         }
     }
 }

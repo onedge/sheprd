@@ -112,7 +112,7 @@ struct PromptCard: View {
     private func banner(_ terminal: Route) -> some View {
         HStack(spacing: 10) {
             Image(systemName: "hand.raised.fill").foregroundStyle(Home.AgentStatus.blocked.color)
-            Text("\(agent.isEmpty ? "The agent" : agent) is waiting for you in the terminal")
+            Text("\(agent.isEmpty ? String(localized: "The agent") : agent) is waiting for you in the terminal")
                 .font(.subheadline.weight(.medium))
             Spacer(minLength: 0)
             RouteLink(terminal) { Text("Open").font(.subheadline.weight(.semibold)) }

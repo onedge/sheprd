@@ -26,7 +26,7 @@ struct GitHubSignInSheetView: View {
                         Button(signedIn ? "Done" : "Cancel") { close() }
                     }
                 }
-                .navigationTitle(signedIn ? "Signed In" : "Sign In to GitHub")
+                .navigationTitle(signedIn ? String(localized: "Signed In") : String(localized: "Sign In to GitHub"))
                 .navigationBarTitleDisplayMode(.inline)
         }
         .presentationDetents([.large])
@@ -55,9 +55,9 @@ struct GitHubSignInSheetView: View {
                         .foregroundStyle(problem == nil ? AnyShapeStyle(.tint) : AnyShapeStyle(.red))
                         .padding(.top, 12)
                         .accessibilityHidden(true)
-                    Text(problem?.title ?? "Enter this code on GitHub")
+                    Text(problem?.title ?? String(localized: "Enter this code on GitHub"))
                         .font(.title2.weight(.semibold)).multilineTextAlignment(.center)
-                    Text(problem?.detail ?? "Copy it, then open GitHub and paste it. This iPhone then reads your pull requests and checks from GitHub.")
+                    Text(problem?.detail ?? String(localized: "Copy it, then open GitHub and paste it. This iPhone then reads your pull requests and checks from GitHub."))
                         .font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
                     codeBox
                     status
@@ -74,11 +74,11 @@ struct GitHubSignInSheetView: View {
         let device = UIDevice.current.model
         switch sheet.step {
         case .expired:
-            return ("This code expired", "Codes last 15 minutes. Get a new one and enter it on GitHub.", "clock.badge.xmark")
+            return (String(localized: "This code expired"), String(localized: "Codes last 15 minutes. Get a new one and enter it on GitHub."), "clock.badge.xmark")
         case .denied:
-            return ("GitHub denied the sign-in", "Cancel was chosen on GitHub, or an owner refused the request. Nothing was saved on this \(device).", "xmark.octagon")
+            return (String(localized: "GitHub denied the sign-in"), String(localized: "Cancel was chosen on GitHub, or an owner refused the request. Nothing was saved on this \(device)."), "xmark.octagon")
         case let .failed(error):
-            return ("Could not sign in", Self.explain(error, device: device), "exclamationmark.triangle")
+            return (String(localized: "Could not sign in"), Self.explain(error, device: device), "exclamationmark.triangle")
         default:
             return nil
         }
@@ -86,10 +86,10 @@ struct GitHubSignInSheetView: View {
 
     private static func explain(_ error: GitHubSignInError, device: String) -> String {
         switch error {
-        case .unreachable: "GitHub could not be reached. Check the connection and try again."
-        case .refused: "GitHub refused the sign-in. An organization policy may not allow it."
-        case .storage: "The sign-in could not be kept in this \(device)'s Keychain."
-        default: "GitHub answered in a way this \(device) did not expect. Try again."
+        case .unreachable: String(localized: "GitHub could not be reached. Check the connection and try again.")
+        case .refused: String(localized: "GitHub refused the sign-in. An organization policy may not allow it.")
+        case .storage: String(localized: "The sign-in could not be kept in this \(device)'s Keychain.")
+        default: String(localized: "GitHub answered in a way this \(device) did not expect. Try again.")
         }
     }
 
@@ -147,7 +147,7 @@ struct GitHubSignInSheetView: View {
             Button {
                 Task { await start() }
             } label: {
-                Text(sheet.step == .expired ? "Get a New Code" : "Try Again").frame(maxWidth: .infinity)
+                Text(sheet.step == .expired ? String(localized: "Get a New Code") : String(localized: "Try Again")).frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent).controlSize(.large)
         } else {
@@ -259,7 +259,7 @@ private struct SignedInList: View {
                 VStack(spacing: 6) {
                     PullRequestAvatar(login: login, size: 64)
                     Text(verbatim: login).font(.title3.weight(.semibold))
-                    IconText("Signed in on this \(UIDevice.current.model)", systemImage: "checkmark.seal.fill")
+                    IconText(String(localized: "Signed in on this \(UIDevice.current.model)"), systemImage: "checkmark.seal.fill")
                         .font(.subheadline).foregroundStyle(.green)
                 }
                 .frame(maxWidth: .infinity)
@@ -310,9 +310,9 @@ private struct OrganizationRow: View {
 
     @ViewBuilder private var access: some View {
         switch organization.access {
-        case .all: IconText("All repositories", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
-        case .selected: IconText("Selected repositories", systemImage: "checkmark.circle").foregroundStyle(.green)
-        case .publicOnly: IconText("Public repositories only", systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange)
+        case .all: IconText(String(localized: "All repositories"), systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+        case .selected: IconText(String(localized: "Selected repositories"), systemImage: "checkmark.circle").foregroundStyle(.green)
+        case .publicOnly: IconText(String(localized: "Public repositories only"), systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange)
         }
     }
 }

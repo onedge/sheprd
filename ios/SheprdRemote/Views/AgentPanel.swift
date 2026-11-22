@@ -166,12 +166,12 @@ enum PanelSection: CaseIterable, Identifiable, Hashable {
 
     var title: String {
         switch self {
-        case .subagents: "Sub-agents"
-        case .shells: "Shells"
-        case .monitors: "Monitors"
-        case .plan: "Plan"
-        case .changed: "Changed"
-        case .pullRequests: "Pull requests"
+        case .subagents: String(localized: "Sub-agents")
+        case .shells: String(localized: "Shells")
+        case .monitors: String(localized: "Monitors")
+        case .plan: String(localized: "Plan")
+        case .changed: String(localized: "Changed")
+        case .pullRequests: String(localized: "Pull requests")
         }
     }
 
@@ -211,15 +211,15 @@ enum PanelSection: CaseIterable, Identifiable, Hashable {
         case .subagents, .shells, .monitors:
             guard let kind else { return "" }
             let group = transcript.activityGroup(kind)
-            return group.running.isEmpty ? "\(group.ended.count) ended" : "\(group.running.count) running"
+            return group.running.isEmpty ? String(localized: "\(group.ended.count) ended") : String(localized: "\(group.running.count) running")
         case .plan:
             return "\(transcript.plan.count { $0.status == .completed }) of \(transcript.plan.count)"
         case .changed:
             let count = transcript.changedFiles.count
-            return "\(count) file\(count == 1 ? "" : "s")"
+            return count == 1 ? String(localized: "1 file") : String(localized: "\(count) files")
         case .pullRequests:
             let count = transcript.pullRequests.count
-            return "\(count) pull request\(count == 1 ? "" : "s")"
+            return count == 1 ? String(localized: "1 pull request") : String(localized: "\(count) pull requests")
         }
     }
 }
@@ -280,16 +280,16 @@ private struct Overview: View {
             guard let kind = section.kind else { return ("", "", false) }
             let group = transcript.activityGroup(kind)
             return group.running.isEmpty
-                ? ("\(group.ended.count)", "ended", false)
-                : ("\(group.running.count)", "running", true)
+                ? ("\(group.ended.count)", String(localized: "ended"), false)
+                : ("\(group.running.count)", String(localized: "running"), true)
         case .plan:
             return ("\(Int(planDone))/\(transcript.plan.count)", "", transcript.plan.contains { $0.status == .inProgress })
         case .changed:
             let count = transcript.changedFiles.count
-            return ("\(count)", count == 1 ? "file" : "files", false)
+            return ("\(count)", count == 1 ? String(localized: "file") : String(localized: "files"), false)
         case .pullRequests:
             let count = transcript.pullRequests.count
-            return ("\(count)", count == 1 ? "pull request" : "pull requests", false)
+            return ("\(count)", count == 1 ? String(localized: "pull request") : String(localized: "pull requests"), false)
         }
     }
 }
@@ -411,9 +411,9 @@ private struct EndedRow: View {
 
     var body: some View {
         let (symbol, tint, word): (String, Color, String) = switch activity.state {
-        case .failed: ("xmark.circle.fill", .red, "Failed")
-        case .killed: ("stop.circle.fill", .secondary, "Stopped")
-        case .running, .finished: ("checkmark.circle.fill", .green, "Done")
+        case .failed: ("xmark.circle.fill", .red, String(localized: "Failed"))
+        case .killed: ("stop.circle.fill", .secondary, String(localized: "Stopped"))
+        case .running, .finished: ("checkmark.circle.fill", .green, String(localized: "Done"))
         }
         HStack(alignment: .firstTextBaseline, spacing: 10) {
             Image(systemName: symbol).foregroundStyle(tint).accessibilityLabel(word)
@@ -482,7 +482,7 @@ struct AgentPanelButton: View {
             }
         }
         .accessibilityLabel("Activity")
-        .accessibilityValue(running > 0 ? "\(running) running" : "")
+        .accessibilityValue(running > 0 ? String(localized: "\(running) running") : "")
         .accessibilityHint("Shows sub-agents, shells, the plan, changed files, and pull requests")
     }
 }

@@ -105,7 +105,7 @@ struct PullRequestsList: View {
     /// any ask, then Mine.
     private func indexParts(_ lists: PullRequestLists) -> [EdgeIndex.Part] {
         let parts: [(Part, String, [GitHubSearchPull])] = [
-            (.requested, "Review requested", lists.reviewRequested), (.mine, "Mine", lists.mine),
+            (.requested, String(localized: "Review requested"), lists.reviewRequested), (.mine, String(localized: "Mine"), lists.mine),
         ]
         return parts.filter { !$0.2.isEmpty }.map { part, title, pulls in
             EdgeIndex.Part(target: part.header, title: title, rows: pulls.map { (part.row($0), $0.dot) })
@@ -124,7 +124,7 @@ struct PullRequestsList: View {
             Section {
                 ForEach(lists.mine.map { Listed(part: .mine, pull: $0) }) { row($0.pull, showsAuthor: false) }
             } header: {
-                header("Mine", shown: lists.mine.count, total: lists.mineTotal, part: .mine)
+                header(String(localized: "Mine"), shown: lists.mine.count, total: lists.mineTotal, part: .mine)
             }
         }
     }
@@ -133,7 +133,7 @@ struct PullRequestsList: View {
         Section {
             ForEach(lists.reviewRequested.map { Listed(part: .requested, pull: $0) }) { row($0.pull, showsAuthor: true) }
         } header: {
-            header("Review requested", shown: lists.reviewRequested.count, total: lists.reviewRequestedTotal, part: .requested)
+            header(String(localized: "Review requested"), shown: lists.reviewRequested.count, total: lists.reviewRequestedTotal, part: .requested)
         }
     }
 
@@ -284,10 +284,10 @@ private struct PullRequestListRow: View {
         Group {
             if let first = places.first {
                 let others = Set(places.map(\.device)).subtracting([first.device]).count
-                IconText(others == 0 ? "Workspace on \(first.computer)" : "Workspace on \(first.computer) and \(others) more",
+                IconText(others == 0 ? String(localized: "Workspace on \(first.computer)") : String(localized: "Workspace on \(first.computer) and \(others) more"),
                          systemImage: "laptopcomputer")
             } else {
-                IconText("No workspace on any computer", systemImage: "icloud")
+                IconText(String(localized: "No workspace on any computer"), systemImage: "icloud")
             }
         }
         .font(.caption2)

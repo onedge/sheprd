@@ -93,8 +93,8 @@ struct ChatLiveActivity: Widget {
         switch state.phase {
         case .working: String(localized: "\(facts.agent) is working")
         case .question: String(localized: "\(facts.agent) needs an answer")
-        case .finished: "\(facts.agent) finished"
-        case .failed: "\(facts.agent) stopped"
+        case .finished: String(localized: "\(facts.agent) finished")
+        case .failed: String(localized: "\(facts.agent) stopped")
         }
     }
 }

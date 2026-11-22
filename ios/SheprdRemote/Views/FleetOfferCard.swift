@@ -39,12 +39,12 @@ private struct FleetOfferCard: View {
         let membership = model.fleetMembership
         let (title, detail, action): (String, String, String) = switch offer {
         case let .join(computer):
-            ("\(model.displayName(computer)) is in a fleet", "Join it to control all your computers", "Join")
+            (String(localized: "\(model.displayName(computer)) is in a fleet"), String(localized: "Join it to control all your computers"), String(localized: "Join"))
         case let .add(hosts):
             (
-                "Your fleet has \(hosts.count == 1 ? "1 more computer" : "\(hosts.count) more computers") you can control",
+                hosts.count == 1 ? String(localized: "Your fleet has 1 more computer you can control") : String(localized: "Your fleet has \(hosts.count) more computers you can control"),
                 hosts.map(\.name).joined(separator: ", "),
-                "Add"
+                String(localized: "Add")
             )
         }
         return HStack(spacing: 10) {

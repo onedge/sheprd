@@ -226,11 +226,11 @@ private struct ReviewerChips: View {
 
     private func label(_ reviewer: PullRequestDetail.Reviewer) -> String {
         switch reviewer.verdict {
-        case .approved?: "\(reviewer.name) approved"
-        case .changesRequested?: "\(reviewer.name) requested changes"
-        case .commented?: "\(reviewer.name) commented"
-        case .dismissed?: "\(reviewer.name)'s review was dismissed"
-        case .pending?, nil: "\(reviewer.name), review requested"
+        case .approved?: String(localized: "\(reviewer.name) approved")
+        case .changesRequested?: String(localized: "\(reviewer.name) requested changes")
+        case .commented?: String(localized: "\(reviewer.name) commented")
+        case .dismissed?: String(localized: "\(reviewer.name)'s review was dismissed")
+        case .pending?, nil: String(localized: "\(reviewer.name), review requested")
         }
     }
 }

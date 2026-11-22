@@ -253,7 +253,7 @@ final class FleetMembership {
     func remove(member: String, reason: FleetLog.Reason) async {
         guard let id = FleetLog.data(hex: member) else { return }
         let leaving = member == record?.member
-        let posted = await sign("Remove this member from your fleet", [
+        let posted = await sign(String(localized: "Remove this member from your fleet"), [
             .remove(member: id.hexString, reason: leaving ? .left : reason),
         ])
         // Left once a computer took it, whatever failed before it.
@@ -263,7 +263,7 @@ final class FleetMembership {
     /// Removes a host from the whole fleet.
     func removeHost(_ host: String) async {
         guard let id = FleetLog.data(hex: host) else { return }
-        await sign("Remove this host from your fleet", [.hostRemove(host: id.hexString)])
+        await sign(String(localized: "Remove this host from your fleet"), [.hostRemove(host: id.hexString)])
     }
 
     /// Signs one `Link` per host, with a new device key for each, so those
@@ -272,7 +272,7 @@ final class FleetMembership {
     /// so a link that lands loses none of them: the next sync finishes them.
     func link(_ hosts: [API.FleetHost]) async {
         guard var record, record.admitted else { return }
-        let reason = hosts.count == 1 ? "Add \(hosts[0].name)" : "Add \(hosts.count) computers"
+        let reason = hosts.count == 1 ? String(localized: "Add \(hosts[0].name)") : String(localized: "Add \(hosts.count) computers")
         var made: [FleetPendingLink] = []
         // Hosts whose key was made just now: only theirs may go on a
         // refusal. A key reused from an earlier post waits for that post.
@@ -527,7 +527,7 @@ final class FleetMembership {
             return .nothing
         }
         guard let current = replica else {
-            problem = "This \(UIDevice.current.model) has no copy of the fleet yet. Connect to one of its computers first."
+            problem = String(localized: "This \(UIDevice.current.model) has no copy of the fleet yet. Connect to one of its computers first.")
             return .nothing
         }
         let drafts: [FleetDrafted]
@@ -540,7 +540,7 @@ final class FleetMembership {
         // A copy missing some of what this phone signed would reuse a
         // sequence number, which the fleet takes for a stolen key.
         guard let first = drafts.first, first.seq > (self.record?.signedSeq ?? record.signedSeq ?? 0) else {
-            problem = "This \(UIDevice.current.model)'s copy of the fleet lacks something it signed. Connect to a computer of your fleet that has it, then try again."
+            problem = String(localized: "This \(UIDevice.current.model)'s copy of the fleet lacks something it signed. Connect to a computer of your fleet that has it, then try again.")
             return .nothing
         }
         let key: FleetKey
@@ -578,7 +578,7 @@ final class FleetMembership {
             // held waiting there, say. Another computer may take it.
             guard outcome.undelivered else { return .taken }
         }
-        problem = "Signed. It goes to your fleet the next time this \(UIDevice.current.model) reaches one of its computers."
+        problem = String(localized: "Signed. It goes to your fleet the next time this \(UIDevice.current.model) reaches one of its computers.")
         return .unknown
     }
 
@@ -658,15 +658,15 @@ final class FleetMembership {
 
     private static func describe(_ error: Error) -> String {
         switch error {
-        case FleetLogError.refused(rule: "signer"): "This \(UIDevice.current.model) is no longer a member of the fleet."
-        case FleetLogError.refused(rule: "unknown"): "That member is no longer in the fleet."
-        case FleetLogError.refused: "Your fleet would refuse it, so nothing was signed."
-        case FleetMembershipError.notKept: "This \(UIDevice.current.model) could not save it, so nothing was sent."
-        case FleetClientError.noFleet: "That computer is no longer in a fleet."
-        case FleetClientError.notMember: "This \(UIDevice.current.model) is not a member of that fleet yet."
-        case let FleetClientError.refused(count): "The fleet refused \(count == 1 ? "it" : "\(count) of them")."
-        case RemoteError.status(429, _): "Too many devices are waiting to join. Try again in a few minutes."
-        case RemoteError.status(404, _): "That computer's Sheprd does not know fleets yet. Update it first."
+        case FleetLogError.refused(rule: "signer"): String(localized: "This \(UIDevice.current.model) is no longer a member of the fleet.")
+        case FleetLogError.refused(rule: "unknown"): String(localized: "That member is no longer in the fleet.")
+        case FleetLogError.refused: String(localized: "Your fleet would refuse it, so nothing was signed.")
+        case FleetMembershipError.notKept: String(localized: "This \(UIDevice.current.model) could not save it, so nothing was sent.")
+        case FleetClientError.noFleet: String(localized: "That computer is no longer in a fleet.")
+        case FleetClientError.notMember: String(localized: "This \(UIDevice.current.model) is not a member of that fleet yet.")
+        case let FleetClientError.refused(count): count == 1 ? String(localized: "The fleet refused it.") : String(localized: "The fleet refused \(count) of them.")
+        case RemoteError.status(429, _): String(localized: "Too many devices are waiting to join. Try again in a few minutes.")
+        case RemoteError.status(404, _): String(localized: "That computer's Sheprd does not know fleets yet. Update it first.")
         default: error.localizedDescription
         }
     }

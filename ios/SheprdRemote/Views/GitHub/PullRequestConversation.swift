@@ -10,7 +10,7 @@ struct PullRequestConversation: View {
 
     var body: some View {
         Section {
-            TimelineRow(actor: detail.author, title: "\(detail.author ?? "Someone") opened this",
+            TimelineRow(actor: detail.author, title: String(localized: "\(detail.author ?? String(localized: "Someone")) opened this"),
                         date: detail.createdAt, last: detail.timeline.isEmpty && detail.earlierItems == 0) {
                 if detail.body.isEmpty {
                     Text("No description provided.").font(.subheadline).foregroundStyle(.secondary).italic()
@@ -36,12 +36,12 @@ private struct TimelineItemRow: View {
     let item: PullRequestDetail.TimelineItem
     let last: Bool
 
-    private var who: String { item.actor ?? "Someone" }
+    private var who: String { item.actor ?? String(localized: "Someone") }
 
     var body: some View {
         switch item.kind {
         case let .comment(body):
-            TimelineRow(actor: item.actor, title: "\(who) commented", date: item.date, last: last) {
+            TimelineRow(actor: item.actor, title: String(localized: "\(who) commented"), date: item.date, last: last) {
                 MarkdownView(text: body).font(.subheadline)
             }
         case let .review(verdict, body, comments, more):
@@ -57,22 +57,22 @@ private struct TimelineItemRow: View {
                 }
             }
         case let .reviewRequested(reviewer):
-            event("eye", "\(who) asked \(reviewer) to review")
+            event("eye", String(localized: "\(who) asked \(reviewer) to review"))
         case let .commit(oid, headline):
-            TimelineRow(actor: item.actor, title: "\(who) pushed \(oid)", date: item.date, last: last,
+            TimelineRow(actor: item.actor, title: String(localized: "\(who) pushed \(oid)"), date: item.date, last: last,
                         symbol: "arrow.up.circle", compact: true) {
                 if !headline.isEmpty { Text(headline).font(.subheadline).lineLimit(2) }
             }
         case let .forcePushed(oid):
-            event("arrow.uturn.up.circle", oid.map { "\(who) force-pushed to \($0)" } ?? "\(who) force-pushed")
+            event("arrow.uturn.up.circle", oid.map { String(localized: "\(who) force-pushed to \($0)") } ?? String(localized: "\(who) force-pushed"))
         case .readyForReview:
-            event("eye.circle", "\(who) marked this ready for review")
+            event("eye.circle", String(localized: "\(who) marked this ready for review"))
         case .closed:
-            event("xmark.circle", "\(who) closed this", tint: .red)
+            event("xmark.circle", String(localized: "\(who) closed this"), tint: .red)
         case .reopened:
-            event("arrow.triangle.pull", "\(who) reopened this", tint: .green)
+            event("arrow.triangle.pull", String(localized: "\(who) reopened this"), tint: .green)
         case .merged:
-            event("arrow.triangle.merge", "\(who) merged this", tint: .purple)
+            event("arrow.triangle.merge", String(localized: "\(who) merged this"), tint: .purple)
         }
     }
 
@@ -84,11 +84,11 @@ private struct TimelineItemRow: View {
 
     private func title(_ verdict: PullRequestDetail.Verdict) -> String {
         switch verdict {
-        case .approved: "\(who) approved"
-        case .changesRequested: "\(who) requested changes"
-        case .commented: "\(who) reviewed"
-        case .dismissed: "\(who)'s review was dismissed"
-        case .pending: "\(who) started a review"
+        case .approved: String(localized: "\(who) approved")
+        case .changesRequested: String(localized: "\(who) requested changes")
+        case .commented: String(localized: "\(who) reviewed")
+        case .dismissed: String(localized: "\(who)'s review was dismissed")
+        case .pending: String(localized: "\(who) started a review")
         }
     }
 }
@@ -113,7 +113,7 @@ private struct ReviewCommentCard: View {
 
     private var location: String {
         let name = (comment.path as NSString).lastPathComponent
-        return comment.line.map { "\(name) · line \($0)" } ?? name
+        return comment.line.map { String(localized: "\(name) · line \($0)") } ?? name
     }
 }
 

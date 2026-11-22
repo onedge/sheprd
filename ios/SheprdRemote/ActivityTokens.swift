@@ -224,8 +224,8 @@ final class ActivityTokens {
     /// after it was turned off; `pushRelayChanged` queues the sync for the
     /// new setting.
     private func register(_ fingerprint: Fingerprint) async -> String? {
-        let forgotten = "This computer is no longer paired."
-        let changed = "The push relay setting changed while registering."
+        let forgotten = String(localized: "This computer is no longer paired.")
+        let changed = String(localized: "The push relay setting changed while registering.")
         guard computers.contains(where: { $0.fingerprint == fingerprint }) else { return forgotten }
         let viaPushRelay = PushRelaySetting.isOn
         // Attests first when needed; without a credential no handle can be
@@ -279,7 +279,7 @@ final class ActivityTokens {
             // Through the push relay, no credential means the computer got
             // no handles at all.
             let failure = viaPushRelay && credential == nil
-                ? pushRelay.lastError ?? "The push relay gave this phone no credential."
+                ? pushRelay.lastError ?? String(localized: "The push relay gave this phone no credential.")
                 : nil
             lastError = failure
             return failure

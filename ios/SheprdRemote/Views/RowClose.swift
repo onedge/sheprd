@@ -57,7 +57,7 @@ private struct CloseConfirmation: ViewModifier {
     func body(content: Content) -> some View {
         content
             .confirmationDialog(
-                "Close \(closing?.title ?? "")?",
+                String(localized: "Close \(closing?.title ?? "")?"),
                 isPresented: Binding(get: { closing != nil }, set: { if !$0 { closing = nil } }),
                 titleVisibility: .visible,
                 presenting: closing

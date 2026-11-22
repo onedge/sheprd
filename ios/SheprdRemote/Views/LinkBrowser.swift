@@ -127,8 +127,8 @@ struct LinkBrowser: View {
             Button("Open in Safari", systemImage: "safari") { UIApplication.shared.open(current) }
         }
         ToolbarItemGroup(placement: .bottomBar) {
-            history(page.backForwardList.backList.reversed(), label: "Back", symbol: "chevron.backward")
-            history(page.backForwardList.forwardList, label: "Forward", symbol: "chevron.forward")
+            history(page.backForwardList.backList.reversed(), label: String(localized: "Back"), symbol: "chevron.backward")
+            history(page.backForwardList.forwardList, label: String(localized: "Forward"), symbol: "chevron.forward")
             Spacer()
             if page.isLoading {
                 Button("Stop", systemImage: "xmark") { page.stopLoading() }

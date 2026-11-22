@@ -137,6 +137,6 @@ final class RelayCarrier {
     enum Failure: Error, LocalizedError {
         case keys
 
-        var errorDescription: String? { "Could not make relay keys." }
+        var errorDescription: String? { String(localized: "Could not make relay keys.") }
     }
 }

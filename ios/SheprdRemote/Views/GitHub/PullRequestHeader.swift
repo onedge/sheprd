@@ -83,12 +83,16 @@ struct PullRequestHeader: View {
 
     private var counts: String {
         let count = { (state: PullRequestCheck.State) in checks.checks.count { $0.state == state } }
-        var parts = [(count(.pending), "running"), (count(.passed), "passed"), (count(.skipped), "skipped")]
-            .filter { $0.0 > 0 }.map { "\($0.0) \($0.1)" }
+        let pending = count(.pending), passed = count(.passed), skipped = count(.skipped)
+        var parts = [
+            pending > 0 ? String(localized: "\(pending) running") : nil,
+            passed > 0 ? String(localized: "\(passed) passed") : nil,
+            skipped > 0 ? String(localized: "\(skipped) skipped") : nil,
+        ].compactMap(\.self)
         // GitHub listed only the first page: the rest, failing ones
         // included, are on the pull request's page.
-        if pullRequest?.moreChecks == true { parts.append("more on GitHub") }
-        if parts.isEmpty { return checks.checks.isEmpty ? "No checks" : "" }
+        if pullRequest?.moreChecks == true { parts.append(String(localized: "more on GitHub")) }
+        if parts.isEmpty { return checks.checks.isEmpty ? String(localized: "No checks") : "" }
         return parts.joined(separator: " · ")
     }
 }

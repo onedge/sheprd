@@ -555,8 +555,8 @@ private enum Ending: Hashable, Identifiable {
 
     var title: String {
         switch self {
-        case .close: "Close Workspace"
-        case .removeWorktree: "Delete Worktree"
+        case .close: String(localized: "Close Workspace")
+        case .removeWorktree: String(localized: "Delete Worktree")
         }
     }
 
@@ -569,31 +569,31 @@ private enum Ending: Hashable, Identifiable {
 
     func question(discarding: Bool) -> String {
         switch self {
-        case .close: "Close this workspace?"
-        case .removeWorktree: discarding ? "Delete this worktree and its changes?" : "Delete this worktree?"
+        case .close: String(localized: "Close this workspace?")
+        case .removeWorktree: discarding ? String(localized: "Delete this worktree and its changes?") : String(localized: "Delete this worktree?")
         }
     }
 
     /// What ending does; `changes` uncommitted ones are lost with it.
     func consequence(discarding changes: Int) -> String {
         switch self {
-        case .close: "Its tabs close in Sheprd and their agents and programs stop. Its files stay on the computer."
+        case .close: String(localized: "Its tabs close in Sheprd and their agents and programs stop. Its files stay on the computer.")
         case .removeWorktree where changes > 0:
-            Self.discardWarning(changes) + " Its checkout is removed and the workspace closes, ending its tabs. Its branch stays."
-        case .removeWorktree: "Its checkout is removed from the computer and the workspace closes, ending its tabs. Its branch stays."
+            String(localized: "\(Self.discardWarning(changes)) Its checkout is removed and the workspace closes, ending its tabs. Its branch stays.")
+        case .removeWorktree: String(localized: "Its checkout is removed from the computer and the workspace closes, ending its tabs. Its branch stays.")
         }
     }
 
     static func discardWarning(_ changes: Int) -> String {
         changes == 1
-            ? "Its uncommitted change is lost and cannot be recovered."
-            : "Its \(changes) uncommitted changes are lost and cannot be recovered."
+            ? String(localized: "Its uncommitted change is lost and cannot be recovered.")
+            : String(localized: "Its \(changes) uncommitted changes are lost and cannot be recovered.")
     }
 
     var failure: String {
         switch self {
-        case .close: "The workspace was not closed"
-        case .removeWorktree: "The worktree was not deleted"
+        case .close: String(localized: "The workspace was not closed")
+        case .removeWorktree: String(localized: "The worktree was not deleted")
         }
     }
 }

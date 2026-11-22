@@ -88,7 +88,7 @@ struct QuestionSheet: View {
 
     private func sendBar(_ question: AskedQuestion) -> some View {
         let answers = question.answers(chosen: chosen, own: own)
-        let title = question.multiple && answers.count > 1 ? "Send \(answers.count) answers" : "Send"
+        let title = question.multiple && answers.count > 1 ? String(localized: "Send \(answers.count) answers") : String(localized: "Send")
         return Button { send(answers) } label: { Text(title).frame(maxWidth: .infinity) }
             .buttonStyle(.glassProminent).controlSize(.large)
             .tint(Home.AgentStatus.blocked.color)

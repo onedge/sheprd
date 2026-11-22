@@ -48,7 +48,7 @@ final class TermTyping {
     func paste(_ text: String, done: ((Bool) -> Void)? = nil) {
         guard !text.isEmpty else { return }
         guard text.utf8.count <= TermInput.maxPasted else {
-            problem = "That text is too long to paste; the limit is 1 MB."
+            problem = String(localized: "That text is too long to paste; the limit is 1 MB.")
             done?(false)
             return
         }

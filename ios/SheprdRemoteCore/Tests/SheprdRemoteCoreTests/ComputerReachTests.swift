@@ -27,6 +27,6 @@ import Testing
         #expect(relayed.reachLabel == "Tailscale · Relay")
         #expect(relayed.relayHosts == ["161-35-226-62.sslip.io"])
         // Reached only through relays, it still says how.
-        #expect(try computer(origins: [], relay: record).reachLabel == "Relay")
+        #expect(try computer(origins: [], relay: record).reachLabel == catalogLabel("Relay"))
     }
 }

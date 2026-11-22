@@ -203,19 +203,19 @@ public enum PushRelayOutcome: Equatable, Sendable {
         case .delivered:
             nil
         case .expired:
-            "The push relay credential ran out. This phone attests again on the next try; send it again."
+            String(localized: "The push relay credential ran out. This phone attests again on the next try; send it again.", bundle: .module)
         case .gone:
-            "APNs no longer knows this phone's notification token. Reopen the app to get a new one, then try again."
+            String(localized: "APNs no longer knows this phone's notification token. Reopen the app to get a new one, then try again.", bundle: .module)
         case .limited:
-            "The push relay or APNs is limiting pushes to this phone. Try again in a minute."
+            String(localized: "The push relay or APNs is limiting pushes to this phone. Try again in a minute.", bundle: .module)
         case .refused:
-            "The push relay refused this phone's handle. This phone attests again on the next try; send it again."
+            String(localized: "The push relay refused this phone's handle. This phone attests again on the next try; send it again.", bundle: .module)
         case .invalid:
-            "The push relay could not read the test push. Update the app."
+            String(localized: "The push relay could not read the test push. Update the app.", bundle: .module)
         case .unavailable:
-            "The push relay or APNs is unavailable right now. Try again later."
+            String(localized: "The push relay or APNs is unavailable right now. Try again later.", bundle: .module)
         case let .unknown(status):
-            "The push relay answered HTTP \(status)."
+            String(localized: "The push relay answered HTTP \(status).", bundle: .module)
         }
     }
 }

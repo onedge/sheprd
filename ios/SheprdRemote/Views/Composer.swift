@@ -58,7 +58,7 @@ struct Composer: View {
             }
             HStack(alignment: .bottom, spacing: 10) {
                 attachMenu
-                ComposerField(placeholder: "Message \(transcript.agent)", text: $draft, focused: $focused) { images in
+                ComposerField(placeholder: String(localized: "Message \(transcript.agent)"), text: $draft, focused: $focused) { images in
                     for image in images.prefix(4 - pictures.count) { add(image) }
                 }
                 .disabled(readOnly)

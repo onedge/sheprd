@@ -214,6 +214,6 @@ private struct SectionHeader: View {
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("\(folded ? "Expand" : "Collapse") \(title), \(count)")
+        .accessibilityLabel(folded ? String(localized: "Expand \(title), \(count)") : String(localized: "Collapse \(title), \(count)"))
     }
 }

@@ -13,10 +13,10 @@ public enum BubbleEffect: String, CaseIterable, Codable, Hashable, Sendable {
     /// The name its replay link shows.
     public var label: String {
         switch self {
-        case .gentle: "Gentle"
-        case .ink: "Invisible ink"
-        case .loud: "Loud"
-        case .slam: "Slam"
+        case .gentle: String(localized: "Gentle", bundle: .module)
+        case .ink: String(localized: "Invisible ink", bundle: .module)
+        case .loud: String(localized: "Loud", bundle: .module)
+        case .slam: String(localized: "Slam", bundle: .module)
         }
     }
 

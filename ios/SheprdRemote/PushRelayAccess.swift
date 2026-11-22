@@ -25,11 +25,11 @@ final class PushRelayAccess {
         var errorDescription: String? {
             switch self {
             case .unsupported:
-                "This device cannot prove the app is genuine (App Attest), which the push relay needs."
+                String(localized: "This device cannot prove the app is genuine (App Attest), which the push relay needs.")
             case let .refused(status, outcome):
-                "The push relay refused this phone (\(outcome ?? "HTTP \(status)"))."
+                String(localized: "The push relay refused this phone (\(outcome ?? "HTTP \(status)")).")
             case .malformed:
-                "The push relay sent an answer this app cannot read."
+                String(localized: "The push relay sent an answer this app cannot read.")
             }
         }
     }
