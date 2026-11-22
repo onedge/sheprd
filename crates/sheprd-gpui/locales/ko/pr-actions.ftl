@@ -19,3 +19,4 @@ pr-actions-checks-heading = 검사
 pr-actions-method = 방식
 pr-actions-merge = 병합
 pr-actions-merge-title = 풀 리퀘스트 병합
+pr-actions-merge-stack = 병합하면 { $numbers }도 아래부터 함께 병합됩니다.

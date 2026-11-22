@@ -8,3 +8,5 @@ group-menu-close-group = 묶음 닫기
 group-menu-split-right = 오른쪽으로 분할
 group-menu-new-chat = 새 채팅
 group-menu-listening = 수신 대기 포트
+group-menu-machines = 가상 Mac
+group-menu-new-machine = 새 가상 Mac…

@@ -1,0 +1,3 @@
+naming-with-claude = Claude로 이름 짓기
+naming-ask-agent = { $agent }에게 묻기
+naming-running = 이름 짓는 중…

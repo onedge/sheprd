@@ -46,6 +46,7 @@ error-github-accounts-id = [github] accounts id는 소문자 16진수 32자리�
 error-github-accounts-not-a-list = [github] accounts는 계정 표의 목록이어야 합니다
 error-github-accounts-owner = [github] accounts owner { $owner }은(는) GitHub 사용자나 조직 이름이 아닙니다
 error-github-accounts-random = GitHub 계정 ID를 만들지 못했습니다
+error-github-accounts-server = [github] enterprise 서버 { $server }이(가) 호스트 이름(포트 선택)이 아닙니다
 error-github-accounts-too-many = [github] accounts에는 계정을 최대 { $limit }개까지 넣을 수 있습니다
 
 ## GitHub CLI(gh)입니다. `gh auth login`과 `gh auth status`는 명령입니다.

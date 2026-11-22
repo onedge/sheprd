@@ -8,6 +8,8 @@ sidebar-label = 사이드바
 sidebar-workspaces-label = 워크스페이스
 sidebar-devices-label = 기기
 sidebar-agents-label = 에이전트
+sidebar-collapse-all-hosts = 모든 호스트 접기
+sidebar-expand-all-hosts = 모든 호스트 펼치기
 sidebar-no-agents = 에이전트 없음
 sidebar-no-matching-agents = 맞는 에이전트 없음
 
@@ -65,6 +67,7 @@ sidebar-workspace-move-not-sent = 워크스페이스 이동을 보내지 못했�
 sidebar-primary = 기본
 sidebar-spoken-muted = 알림 꺼짐
 sidebar-pull-request-unopened = +PR
+sidebar-pull-request-stacked = { $number } { $position }/{ $size }
 sidebar-group-all = 모든 그룹
 sidebar-agents-group = 에이전트 그룹: { $group }
 sidebar-coordinator-row = 코디네이터: { $row }

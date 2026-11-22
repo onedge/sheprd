@@ -2,6 +2,7 @@
 add-device-title = 기기 추가
 add-device-close = 닫기
 add-device-source-host = SSH 호스트
+add-device-source-nearby = 근처의 Sheprd
 add-device-source-catalog = 제공자 추가
 add-device-cloud-heading = 클라우드
 add-device-offer-ssh-wsl-cloud = SSH 호스트, WSL 배포판, 클라우드 머신

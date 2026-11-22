@@ -53,3 +53,6 @@ workspace-dialog-daemon-waiting = 데몬을 기다리는 중입니다. 닫아도
 workspace-dialog-remove-failed = 워크트리 제거: { $error }
 workspace-dialog-unexpected = 데몬 응답이 예상과 다릅니다. 다시 시도하기 전에 현재 워크스페이스 상태를 확인하세요.
 workspace-dialog-setup-failed = 준비 스크립트가 시작하지 않았습니다: { $error }
+workspace-dialog-removing = 체크아웃을 제거하는 중…
+workspace-dialog-removing-elapsed = { $seconds }초
+workspace-dialog-removing-note = 다른 워크스페이스 동작은 Git이 끝날 때까지 기다립니다. 닫아도 취소되지 않습니다.

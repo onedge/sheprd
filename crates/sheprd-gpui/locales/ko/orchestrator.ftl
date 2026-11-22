@@ -113,6 +113,7 @@ orchestrator-standing-behind = 뒤처짐
 orchestrator-standing-closed = 닫힘
 orchestrator-standing-conflicts = 충돌
 orchestrator-standing-merged = 병합됨
+orchestrator-standing-queued = 대기 중
 orchestrator-standing-ready = 준비됨
 orchestrator-standing-waiting = 대기 중
 orchestrator-review-yours = 내 검토

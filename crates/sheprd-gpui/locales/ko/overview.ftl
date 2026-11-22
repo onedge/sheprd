@@ -93,4 +93,5 @@ overview-alerts-empty = 아직 알림이 없습니다
 overview-alerts-clear = 지우기
 # 그 버튼의 툴팁입니다.
 overview-alerts-clear-hint = 모든 창의 알림을 지웁니다: 알림, 토스트, 앱의 시스템 알림
+overview-clear-all = 모두 지우기
 overview-core-host = 이 컴퓨터

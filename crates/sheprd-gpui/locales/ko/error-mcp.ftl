@@ -1,0 +1,10 @@
+error-mcp-choice = { $name }은(는) 다음 중 하나여야 합니다: { $choices }
+error-mcp-executable = 이 sheprd 실행 파일의 위치를 알 수 없습니다
+error-mcp-missing = { $name }이(가) 필요합니다
+error-mcp-off = MCP 서버가 꺼져 있습니다. Sheprd의 설정 > 일반에서 MCP 서버를 켜세요
+error-mcp-range = { $name }은(는) { $min }~{ $max }여야 합니다
+error-mcp-serve = MCP를 제공하지 못했습니다: { $error }
+error-mcp-serve-only = `sheprd mcp`는 MCP 클라이언트가 시작할 때만 동작합니다
+error-mcp-too-long = { $name }은(는) 최대 { $max }바이트입니다
+error-mcp-type = { $name }은(는) { $expected }여야 합니다
+error-mcp-unknown = 이 도구에는 { $name }(이)라는 인자가 없습니다

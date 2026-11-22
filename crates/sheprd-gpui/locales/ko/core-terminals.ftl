@@ -3,6 +3,7 @@ core-terminals-open-workspace = 먼저 워크스페이스를 여세요
 core-terminals-workspaces-need-core = 이 호스트에 herdr-core가 설치되어 있지 않아 Herdr 2 워크스페이스가 없습니다. 추가하려면 호스트 메뉴에서 Herdr 2 설치를 고르세요
 core-terminals-host-without-core = 이 호스트에 herdr-core가 설치되어 있지 않아 탭이 그 호스트의 Herdr에서 실행됩니다. 추가하려면 호스트 메뉴에서 Herdr 2 설치를 고르세요
 core-terminals-too-many-tabs = 열린 탭이 너무 많습니다
+core-terminals-shared-refused = 호스트의 다른 클라이언트에는 이 변경이 보이지 않습니다: { $reason }
 core-terminals-this-computer = 이 에이전트는 이 컴퓨터에서 실행됩니다. 에이전트를 열려면 보이게 하세요
 core-terminals-connecting = herdr-core에 연결하는 중…
 core-terminals-unavailable = herdr-core를 쓸 수 없습니다: { $reason }

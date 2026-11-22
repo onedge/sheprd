@@ -15,3 +15,4 @@ browser-tab-review = 검토 · { $branch }
 browser-tab-orchestrator = 오케스트레이터 · { $repo }
 browser-tab-devices = 기기
 browser-tab-terminal = 터미널
+browser-tab-machine = { $name }

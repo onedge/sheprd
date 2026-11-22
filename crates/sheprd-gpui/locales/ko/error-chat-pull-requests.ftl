@@ -1,0 +1,11 @@
+error-chat-pull-requests-closed = 채팅이 답하기 전에 연결을 끊었습니다
+error-chat-pull-requests-connect = 채팅이 실행 중이 아니거나 연결할 수 없습니다
+error-chat-pull-requests-invalid-endpoint = { $variable }이(가) 채팅을 가리키지 않습니다
+error-chat-pull-requests-invalid-url = GitHub 풀 리퀘스트 주소가 아닙니다. 예: https://github.com/OWNER/REPO/pull/7
+error-chat-pull-requests-io = 채팅과 통신하지 못했습니다
+error-chat-pull-requests-no-chat = { $variable }이(가) 설정되지 않았습니다. Sheprd 채팅의 에이전트로 실행하세요
+error-chat-pull-requests-no-endpoint-dir = XDG_STATE_HOME과 HOME이 모두 설정되지 않아 채팅을 찾을 수 없습니다
+error-chat-pull-requests-protocol = 채팅이 이 버전에서 읽을 수 없는 메시지를 보냈습니다
+error-chat-pull-requests-refused = 채팅이 연결을 거부했습니다
+error-chat-pull-requests-rejected = 채팅이 거부했습니다: { $reason }
+error-chat-pull-requests-timeout = 채팅이 제시간에 답하지 않았습니다

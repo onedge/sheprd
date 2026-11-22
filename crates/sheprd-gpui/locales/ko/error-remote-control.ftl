@@ -1,6 +1,8 @@
 # remote.port, remote.certificate, remote.device_idle_days는 구성 키이고, herdr-remote-control은 프로그램 이름입니다.
 # $key는 인증서의 구성 키(cert 또는 key)입니다.
 error-remote-control-certificate-path = remote.certificate { $key }은(는) UTF-8 절대 경로여야 합니다
+error-remote-control-favorite-pane = { $pane }은(는) 이 컴퓨터에서 즐겨찾기할 수 있는 패인이 아닙니다
+error-remote-control-github-host = remote.github_hosts에 호스트 이름이 아닌 { $host }이(가) 있습니다
 error-remote-control-idle-days = remote.device_idle_days는 0(안 함)에서 365 사이여야 합니다
 # $operation의 키는 그대로 두고 각 갈래만 번역합니다.
 error-remote-control-io = { $operation ->
@@ -16,6 +18,12 @@ error-remote-control-port = remote.port는 1에서 65535 사이여야 합니다
 error-remote-control-program-missing = Sheprd 옆이나 PATH에서 sheprd-remote-control을 찾지 못했습니다
 # $relay는 사용자가 remote.relays에 쓴 항목 그대로입니다.
 error-remote-control-relay = remote.relays의 { $relay }은(는) 릴레이 주소가 아닙니다
+error-remote-control-relay-tokens = Sheprd는 릴레이 최대 { $max }개의 수신 토큰을 보관합니다
+error-remote-control-relay-label = remote.relays가 { $relay }에 쓸 수 없는 라벨을 줍니다: { $reason }
+error-remote-control-relay-label-blank = { $field }이(가) 비어 있습니다
+error-remote-control-relay-label-control = { $field }에 줄바꿈 같은 제어 문자가 있습니다
+error-remote-control-relay-label-length = { $field }이(가) { $max }자보다 깁니다
+error-remote-control-relay-label-tags = 태그가 { $max }개보다 많습니다
 error-remote-control-qr = 페어링 링크가 QR 코드에 들어가지 않습니다
 # $program은 launchctl이나 systemctl 같은 서비스 관리자 명령입니다.
 error-remote-control-service = { $program } 실패({ $status }): { $stderr }

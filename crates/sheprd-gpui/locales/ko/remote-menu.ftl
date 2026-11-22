@@ -10,5 +10,6 @@ remote-menu-pair-phone = 휴대폰 페어링
 remote-menu-phones = 휴대폰
 remote-menu-pair = 휴대폰 페어링…
 remote-menu-settings = 설정
+remote-menu-firewall = 다시 빌드한 뒤 다음 재시작부터는 여기서 허용을 클릭할 때까지 휴대폰 연결이 막힙니다.
 remote-menu-disconnect = 연결 끊기
 remote-menu-disconnect-device = { $device } 연결 끊기

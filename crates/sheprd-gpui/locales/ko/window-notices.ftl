@@ -1,6 +1,7 @@
 # 메인 창의 짧은 알림: 터미널 위 플래시, 상태 줄 오류, 구성 진단 카드, 에이전트 스킬 제안입니다.
 window-notices-request-failed = { $operation }: { $error }
 window-notices-navigate = 이동
+window-notices-recent-panes-needs-surface = 최근 패인에는 더 새로운 Herdr 데몬이 필요합니다.
 window-notices-annotate-pages-unsupported = 페이지에 주석을 달려면 macOS나 Windows가 필요합니다
 window-notices-scrollback-needs-newer = 스크롤백을 열려면 더 새로운 Herdr 데몬이 필요합니다
 window-notices-clear-needs-newer = 패인 지우기에는 더 새로운 Herdr 데몬이 필요합니다.
@@ -13,6 +14,17 @@ window-notices-skill-offer-body = 패인의 에이전트가 이곳 브라우저 
 window-notices-skill-offer-detail = 설치하면 ~/.claude/skills와 ~/.agents/skills 중 있는 곳에 herdr-gpui-browser/SKILL.md, herdr-automations/SKILL.md, herdr-mods/SKILL.md를 쓰고 최신 상태로 유지합니다. 같은 이름의 스킬을 직접 만들었다면 건드리지 않습니다. 설정에서 언제든 제거할 수 있습니다.
 window-notices-skill-offer-install = 설치
 window-notices-skill-offer-decline = 나중에
+window-notices-rename-offer-title = Herdr를 Sheprd로 이름을 바꿀까요?
+window-notices-rename-offer-body = 이 앱은 { $from }(으)로 설치되어 있습니다. 새로 설치하면 { $to }(이)라는 이름이 됩니다. 이름을 바꾸고 다시 시작할까요?
+window-notices-rename-offer-detail = 터미널은 계속 실행되고, 설정과 로그인은 그대로 남습니다. 예전 이름은 숨겨진 링크로 남아서 그 이름을 쓰는 스크립트도 계속 동작합니다. 다시 묻지 않습니다.
+window-notices-rename-offer-confirm = 이름 바꾸고 다시 시작
+window-notices-rename-offer-decline = 나중에
+window-notices-rename-homebrew-title = Herdr는 이제 Sheprd입니다
+window-notices-rename-homebrew-body = 이 앱은 Homebrew로 { $from }에 설치되어 있어서, 업그레이드할 때마다 예전 이름이 유지됩니다. Sheprd.app을 받으려면 터미널에서 아래 명령을 실행하세요. 여기 있는 터미널도 됩니다:
+window-notices-rename-homebrew-detail = 잃는 것은 없습니다. 제거하면 앱만 지웁니다. 설정, 로그인, 저장한 탭, 기록은 남고 터미널도 계속 실행됩니다. 그다음 Sheprd를 종료하고 응용 프로그램에서 다시 여세요. 다시 묻지 않습니다.
+window-notices-rename-homebrew-copy = 명령 복사
+window-notices-rename-commands-copied = 다시 설치하는 명령을 복사했습니다
+window-notices-rename-failed = 앱 이름을 바꾸지 못했습니다: { $error }
 window-notices-zen-command = 젠 모드: 나가려면 젠 모드 전환을 실행하세요
 window-notices-zen-key = 젠 모드: 나가려면 { $key }
 window-notices-shift-select = 글을 선택하려면 Shift를 누른 채 드래그하세요

@@ -1,0 +1,15 @@
+chat-effects-balloons = 풍선
+chat-effects-celebration = 축하
+chat-effects-confetti = 색종이
+chat-effects-echo = 메아리
+chat-effects-fireworks = 불꽃놀이
+chat-effects-gentle = 부드럽게
+chat-effects-ink = 투명 잉크
+chat-effects-lasers = 레이저
+chat-effects-loud = 크게
+chat-effects-love = 사랑
+chat-effects-slam = 쾅
+chat-effects-spotlight = 스포트라이트
+chat-effects-wizz = 흔들기
+chat-effects-zap = 번쩍
+chat-effects-replay = { $effect } 다시 재생

@@ -10,6 +10,7 @@ sidebar-activity-security = 보안
 sidebar-activity-automations = 자동화
 sidebar-activity-ports = 포트
 sidebar-activity-usage = 사용량
+sidebar-activity-traces = 트레이스
 sidebar-activity-settings = 설정
 sidebar-activity-spoken = { $label }, { $count }
 sidebar-activity-spoken-new = { $label }, { $count }, 새 활동

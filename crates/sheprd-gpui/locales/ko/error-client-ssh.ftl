@@ -7,6 +7,7 @@ error-client-ssh-known-hosts-unavailable = SSH에 호스트 키를 저장할 사
 error-client-ssh-output-limit = SSH 시작 출력이 한도를 넘습니다
 error-client-ssh-refused = SSH 브리지가 닫혔습니다: { $error }
 error-client-ssh-timeout = SSH 검색 시간이 지났습니다
+error-client-ssh-unchecked = 이 호스트의 SSH 키를 확인하지 않았습니다
 error-client-ssh-unsupported = 이 플랫폼에서는 SSH 포트 포워딩을 지원하지 않습니다
 # "SSH 브리지가 닫혔습니다:" 뒤나 단독으로 보이는 이유입니다.
 error-client-ssh-failure-auth = 인증에 실패했습니다. 에이전트에 키를 올리거나 터미널에서 ControlMaster 연결을 여세요

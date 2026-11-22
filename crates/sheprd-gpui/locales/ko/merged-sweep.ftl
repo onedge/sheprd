@@ -1,0 +1,13 @@
+merged-sweep-title = 병합된 워크트리 { $count }개를 제거할까요?
+merged-sweep-more = 외 { $count }개
+merged-sweep-note = 각 체크아웃을 삭제하고 그 워크스페이스를 닫습니다. 커밋하지 않은 파일, 병합 뒤의 커밋, 작업 중인 에이전트, 보관 스크립트가 있는 체크아웃은 남깁니다.
+merged-sweep-cancel = 취소
+merged-sweep-submit = 제거
+merged-sweep-none = 제거할 병합된 워크트리가 없습니다
+merged-sweep-kept = 병합된 워크트리 { $count }개를 남겼습니다: 커밋하지 않은 파일, 더 새로운 커밋, 작업 중인 에이전트, 보관 스크립트 중 하나가 있습니다
+merged-sweep-button = 병합된 워크트리 제거
+merged-sweep-running = 병합된 워크트리를 제거하는 중…
+merged-sweep-count = { $total }개 중 { $done }개
+merged-sweep-running-note = 다른 워크스페이스 동작은 Git이 하나씩 끝낼 때까지 기다립니다. 숨겨도 멈추지 않습니다.
+merged-sweep-hide = 숨기기
+merged-sweep-stopped = 병합된 워크트리 제거를 멈췄습니다. 다른 기기나 연결이 선택되었습니다
