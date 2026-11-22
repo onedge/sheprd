@@ -298,7 +298,10 @@ impl Manager {
                 ]
             }
             Self::Systemd => vec![step("systemctl", ["--user", "start", UNIT], true)],
-            Self::ScheduledTask { .. } => vec![step("schtasks", ["/Run", "/TN", TASK], true)],
+            // The task may be gone while its definition is not, as after
+            // Setup's uninstall removed it; `/Create /F` registers it again
+            // and changes nothing when it is there.
+            Self::ScheduledTask { .. } => self.load(file),
         }
     }
 

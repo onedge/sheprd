@@ -179,9 +179,6 @@ Filename: "{app}\{#Launcher}"; Description: "{cm:LaunchProgram,{#AppName}}"; Fla
 Filename: "{app}\{#Launcher}"; WorkingDir: "{app}"; Flags: nowait; Check: RelaunchRequested
 ; The automation daemon Setup stopped to replace it, now the new copy.
 Filename: "{app}\{#Automate}"; Parameters: "start"; WorkingDir: "{app}"; Flags: runhidden nowait; Check: AutomateStopped
-; The remote control task Setup ended, now running the new copy; the app also
-; starts it when it next opens.
-Filename: "{sys}\schtasks.exe"; Parameters: "/Run /TN ""{#RemoteControlTask}"""; Flags: runhidden nowait; Check: RemoteControlStopped
 
 [Code]
 const
@@ -397,9 +394,15 @@ begin
   Result := StoppedAutomate;
 end;
 
-function RemoteControlStopped(): Boolean;
+{ Runs the remote control task Setup ended again when Setup ends, whether the
+  new copy is in place or the install was rolled back to the old one, so a
+  failed install does not leave remote control off while the app runs. }
+procedure DeinitializeSetup();
+var
+  Code: Integer;
 begin
-  Result := StoppedRemoteControl;
+  if StoppedRemoteControl then
+    Exec(ExpandConstant('{sys}\schtasks.exe'), '/Run /TN "{#RemoteControlTask}"', '', SW_HIDE, ewNoWait, Code);
 end;
 
 function InitializeUninstall(): Boolean;
@@ -407,13 +410,43 @@ var
   Problem: String;
 begin
   Problem := StopAutomate();
+  if Problem = '' then
+    Problem := StopRemoteControl();
   Result := Problem = '';
   if not Result then
     SuppressibleMsgBox(Problem, mbError, MB_OK, IDOK);
 end;
 
+{ Removes the remote control task the app registered, as turning remote
+  control off does, so Windows is not left starting a missing program at
+  every sign-in. Only a task that runs this installation's daemon goes; one
+  another copy of the app registered is left alone. }
+procedure DeleteRemoteControlTask();
+var
+  Scheduler, Root, Task: Variant;
+  Command: String;
+begin
+  try
+    Scheduler := CreateOleObject('Schedule.Service');
+    Scheduler.Connect();
+    Root := Scheduler.GetFolder('\');
+    Task := Root.GetTask('{#RemoteControlTask}');
+    Command := RemoveQuotes(Task.Definition.Actions.Item(1).Path);
+    if (CompareText(Command, ExpandConstant('{app}\{#RemoteControl}')) <> 0) and
+       (CompareText(Command, ExpandConstant('{app}\herdr-remote-control.exe')) <> 0) then
+      exit;
+    Root.DeleteTask('{#RemoteControlTask}', 0);
+  except
+    { No such task, which is the usual case. }
+    Log('Left the remote control task: ' + GetExceptionMessage);
+  end;
+end;
+
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 begin
   if CurUninstallStep = usPostUninstall then
+  begin
     SetUserPath(PathWithoutApp());
+    DeleteRemoteControlTask();
+  end;
 end;

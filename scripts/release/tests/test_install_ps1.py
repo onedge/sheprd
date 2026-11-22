@@ -169,10 +169,28 @@ class InstallScriptTests(unittest.TestCase):
         self.assertIn("'/End /TN \"{#RemoteControlTask}\"'", stop)
         for name in ("{#RemoteControl}", "herdr-remote-control.exe"):
             self.assertIn(f"StopRemoteControlAt(ExpandConstant('{{app}}\\{name}'))", iss)
-        self.assertIn('Filename: "{sys}\\schtasks.exe"; Parameters: "/Run /TN ""{#RemoteControlTask}""";'
-                      ' Flags: runhidden nowait; Check: RemoteControlStopped', iss)
+        # Run again when Setup ends, after a rolled-back install as well.
+        restart = iss[iss.index("procedure DeinitializeSetup("):]
+        restart = restart[:restart.index("\nend;")]
+        self.assertIn("if StoppedRemoteControl then", restart)
+        self.assertIn("'/Run /TN \"{#RemoteControlTask}\"'", restart)
         for isl in (ISL, ISL.with_name("ko.isl")):
             self.assertIn("RemoteControlStillRunning=", isl.read_text(encoding="utf-8"), isl.name)
+
+    def test_uninstall_ends_and_removes_only_its_own_remote_control_task(self):
+        # A running daemon keeps its executable from being deleted, and a task
+        # left behind would start a missing program at every sign-in.
+        iss = ISS.read_text(encoding="utf-8")
+        body = iss[iss.index("function InitializeUninstall("):]
+        self.assertIn("StopRemoteControl()", body[:body.index("\nend;")])
+        delete = iss[iss.index("procedure DeleteRemoteControlTask("):]
+        delete = delete[:delete.index("\nend;")]
+        self.assertIn("GetTask('{#RemoteControlTask}')", delete)
+        for name in ("{#RemoteControl}", "herdr-remote-control.exe"):
+            self.assertIn(f"ExpandConstant('{{app}}\\{name}')", delete)
+        self.assertIn("DeleteTask('{#RemoteControlTask}', 0)", delete)
+        step = iss[iss.index("procedure CurUninstallStepChanged("):]
+        self.assertIn("DeleteRemoteControlTask()", step[:step.index("\nend;")])
 
     @unittest.skipUnless(sys.platform == "win32" and shutil.which("powershell.exe"), "needs Windows PowerShell")
     def test_links_open_the_launcher_as_setup_exe_registers_and_uninstall_removes_them(self):

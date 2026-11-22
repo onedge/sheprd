@@ -306,6 +306,9 @@ fn managers_load_start_and_unload_with_their_own_commands() {
             "schtasks /Run /TN Herdr UI Remote Control"
         ]
     );
+    // The task may be gone while its definition is not, as after Setup's
+    // uninstall removed it, so starting registers it again before running it.
+    assert_eq!(commands(task.start(file)), commands(task.load(file)));
     assert_eq!(
         commands(task.unload()),
         [
