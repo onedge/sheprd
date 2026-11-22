@@ -70,6 +70,18 @@ fn windows_names_each_family_once() {
 }
 
 #[test]
+fn windows_finds_malgun_gothic_under_its_korean_name() {
+    // DirectWrite lists families in the user's locale, so a Korean system
+    // names Malgun Gothic 맑은 고딕 and never its English name.
+    let chosen = cjk_fallbacks(
+        WINDOWS_CJK_FONTS,
+        Some(CjkScript::Korean),
+        &installed(&["맑은 고딕", "Microsoft YaHei UI", "Cascadia Mono"]),
+    );
+    assert_eq!(chosen, ["맑은 고딕", "Microsoft YaHei UI"]);
+}
+
+#[test]
 fn linux_takes_the_first_installed_family_of_each_script() {
     // Source Han Sans for Japanese only, and the older Chinese faces when
     // neither Noto nor Source Han is there for Chinese.
@@ -122,6 +134,44 @@ fn the_setting_names_the_script_before_the_system() -> anyhow::Result<()> {
     );
     let french = Language::Locale("fr".parse()?);
     assert_eq!(preferred_script(&french, &[id("en")?]), None);
+    Ok(())
+}
+
+#[test]
+fn a_patched_text_face_comes_after_cjk_so_it_cannot_take_hangul() -> anyhow::Result<()> {
+    // A Nerd Font patched over a Korean coding face carries Hangul, and its
+    // Mono cut squeezes each syllable into one cell, so they overlap.
+    let mut config = Config::parse("language = 'ko'")?;
+    let families = || {
+        let mut families: Vec<String> = every_family(PLATFORM_CJK_FONTS).into_iter().collect();
+        families.push("D2CodingLigature Nerd Font Mono".to_owned());
+        families.push("Symbols Nerd Font Mono".to_owned());
+        families
+    };
+    config.resolve_fonts_with(families, |_| false);
+    let mut expected = vec!["Symbols Nerd Font Mono".to_owned()];
+    expected.extend(cjk_fallbacks(
+        PLATFORM_CJK_FONTS,
+        Some(CjkScript::Korean),
+        &families().into_iter().collect(),
+    ));
+    expected.push("D2CodingLigature Nerd Font Mono".to_owned());
+    assert_eq!(
+        config.sidebar.fallbacks.as_deref(),
+        Some(expected.as_slice())
+    );
+    assert_eq!(config.ui.fallbacks, config.sidebar.fallbacks);
+    // The terminal's cells take the patched face as the detection ranked it.
+    assert_eq!(
+        config.terminal.fallbacks.as_deref(),
+        Some(
+            [
+                "Symbols Nerd Font Mono".to_owned(),
+                "D2CodingLigature Nerd Font Mono".to_owned(),
+            ]
+            .as_slice()
+        )
+    );
     Ok(())
 }
 

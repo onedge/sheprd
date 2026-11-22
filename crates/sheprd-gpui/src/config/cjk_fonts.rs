@@ -27,12 +27,16 @@ pub(super) const MACOS_CJK_FONTS: CjkFonts = &[
 
 /// The `UI` cuts are the interface variants Windows draws its own chrome
 /// with. Microsoft JhengHei serves Hong Kong as well as Taiwan.
+/// DirectWrite lists a family under its name in the user's locale, so a
+/// Korean system lists Malgun Gothic only as 맑은 고딕. The other families
+/// carry no name of their own in another language.
 pub(super) const WINDOWS_CJK_FONTS: CjkFonts = &[
     (CjkScript::Simplified, "Microsoft YaHei UI"), // i18n: data
     (CjkScript::Traditional, "Microsoft JhengHei UI"), // i18n: data
     (CjkScript::HongKong, "Microsoft JhengHei UI"), // i18n: data
     (CjkScript::Japanese, "Yu Gothic UI"),         // i18n: data
     (CjkScript::Korean, "Malgun Gothic"),          // i18n: data
+    (CjkScript::Korean, "맑은 고딕"),              // i18n: data
 ];
 
 /// Distributions package Noto Sans CJK, its Source Han Sans twin, or only

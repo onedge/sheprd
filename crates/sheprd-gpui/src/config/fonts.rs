@@ -365,16 +365,21 @@ fn resolves_platform_alias(family: &str) -> bool {
 /// faces carry the icon ranges without replacing any text glyph, and `Mono`
 /// variants keep every icon inside a single terminal cell, so both come first.
 fn fallback_rank(family: &str) -> u8 {
-    let lowercase = family.to_lowercase();
-    // i18n: data
-    let symbols = lowercase.starts_with("symbols nerd font");
-    let mono = lowercase.ends_with(" mono");
+    let symbols = is_symbols_only(family);
+    let mono = family.to_lowercase().ends_with(" mono");
     match (symbols, mono) {
         (true, true) => 0,
         (true, false) => 1,
         (false, true) => 2,
         (false, false) => 3,
     }
+}
+
+/// Whether a Nerd Font family carries only the icons, with no text glyphs to
+/// take from a face later in a cascade.
+fn is_symbols_only(family: &str) -> bool {
+    // i18n: data
+    family.to_lowercase().starts_with("symbols nerd font")
 }
 
 /// Picks the installed icon families to search for Private Use Area glyphs.
@@ -477,11 +482,21 @@ impl Config {
         if terminal.fallbacks.is_none() {
             terminal.fallbacks = Some(detected.clone());
         }
-        // Icons first, so a CJK family that also maps the Private Use Area
-        // never draws a prompt icon.
+        // Symbols-only icons first, so a CJK family that also maps the
+        // Private Use Area never draws a prompt icon. A Nerd Font patched over
+        // a text face goes after CJK: one built on a Korean face carries
+        // Hangul, and its Mono cut squeezes each syllable into one cell.
+        let (symbols, patched): (Vec<&String>, Vec<&String>) =
+            detected.iter().partition(|family| is_symbols_only(family));
+        let interface: Vec<String> = symbols
+            .into_iter()
+            .chain(&cjk)
+            .chain(patched)
+            .cloned()
+            .collect();
         for face in [sidebar, tabs, ui] {
             if face.fallbacks.is_none() {
-                face.fallbacks = Some(detected.iter().chain(&cjk).cloned().collect());
+                face.fallbacks = Some(interface.clone());
             }
         }
     }
