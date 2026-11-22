@@ -21,176 +21,6 @@
         }
       }
     },
-    "A relay joins this %@ to a computer when they are on different networks." : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이 %@과(와) 컴퓨터가 서로 다른 네트워크에 있으면 릴레이가 둘을 이어 줍니다."
-          }
-        }
-      }
-    },
-    "Add a relay" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "릴레이 추가"
-          }
-        }
-      }
-    },
-    "Add Relay" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "릴레이 추가"
-          }
-        }
-      }
-    },
-    "Checking…" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "확인 중…"
-          }
-        }
-      }
-    },
-    "Connection" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "연결"
-          }
-        }
-      }
-    },
-    "Each computer is tried on the relays it named, then on the others here. A relay sees only encrypted traffic." : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "컴퓨터마다 그 컴퓨터가 알려 준 릴레이를 먼저 시도하고, 그다음 여기 있는 다른 릴레이를 시도합니다. 릴레이는 암호화된 트래픽만 봅니다."
-          }
-        }
-      }
-    },
-    "No answer" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "응답 없음"
-          }
-        }
-      }
-    },
-    "No relay yet. A computer that listens on relays adds them here the next time this %@ reaches it on its network." : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "아직 릴레이가 없습니다. 릴레이로 연결을 받는 컴퓨터가 있으면, 이 %@이(가) 다음에 그 컴퓨터와 같은 네트워크에서 연결될 때 그 릴레이가 여기에 추가됩니다."
-          }
-        }
-      }
-    },
-    "No WebSocket, which this %@ needs" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이 %@에 필요한 WebSocket을 지원하지 않음"
-          }
-        }
-      }
-    },
-    "Not a relay" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "릴레이 아님"
-          }
-        }
-      }
-    },
-    "Reachable" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "연결 가능"
-          }
-        }
-      }
-    },
-    "Relay address" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "릴레이 주소"
-          }
-        }
-      }
-    },
-    "Relays" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "릴레이"
-          }
-        }
-      }
-    },
-    "Remove a relay before adding another: %lld are kept at most." : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "릴레이는 최대 %lld개까지 둘 수 있습니다. 하나를 뺀 뒤 추가하세요."
-          }
-        }
-      }
-    },
-    "That is not a relay's address. Type one such as https://relay.example.org." : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "릴레이 주소가 아닙니다. https://relay.example.org 같은 주소를 입력하세요."
-          }
-        }
-      }
-    },
-    "That relay is already here." : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이미 추가된 릴레이입니다."
-          }
-        }
-      }
-    },
-    "Type the address of a relay a paired computer listens on, to reach that computer through it. A computer not paired yet is still paired nearby or on its network first." : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "페어링한 컴퓨터가 연결을 받는 릴레이의 주소를 입력하면, 그 릴레이를 거쳐 컴퓨터에 연결합니다. 아직 페어링하지 않은 컴퓨터는 먼저 가까이에서 또는 같은 네트워크에서 페어링해야 합니다."
-          }
-        }
-      }
-    },
     "·" : {
       "localizations" : {
         "ko" : {
@@ -305,6 +135,22 @@
         }
       }
     },
+    "%@ %@, %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@, %3$lld"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ %2$@, %3$lld"
+          }
+        }
+      }
+    },
     "%@ %lld percent" : {
       "localizations" : {
         "en" : {
@@ -327,6 +173,42 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ 동작"
+          }
+        }
+      }
+    },
+    "%@ did not answer in time." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@이(가) 제시간에 답하지 않았습니다."
+          }
+        }
+      }
+    },
+    "%@ did not suggest a name." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@이(가) 이름을 제안하지 않았습니다."
+          }
+        }
+      }
+    },
+    "%@ has not installed Sheprd's GitHub App, so this %@ reads only its public repositories. An owner can install it; until then, its private pull requests come from your computers." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ has not installed Sheprd's GitHub App, so this %2$@ reads only its public repositories. An owner can install it; until then, its private pull requests come from your computers."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@에 Sheprd GitHub App이 설치되어 있지 않아서 이 %2$@은(는) 공개 저장소만 읽습니다. 소유자가 설치할 수 있습니다. 그때까지 비공개 풀 리퀘스트는 컴퓨터에서 가져옵니다."
           }
         }
       }
@@ -377,6 +259,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ 페어링 준비됨"
+          }
+        }
+      }
+    },
+    "%@ is waiting for you in the terminal" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@이(가) 터미널에서 기다리고 있습니다"
           }
         }
       }
@@ -535,6 +427,16 @@
         }
       }
     },
+    "%lld attachments" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "첨부 파일 %lld개"
+          }
+        }
+      }
+    },
     "%lld chats need you" : {
       "localizations" : {
         "ko" : {
@@ -581,6 +483,16 @@
         }
       }
     },
+    "%lld checks failing" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "검사 %lld개 실패"
+          }
+        }
+      }
+    },
     "%lld commits, no pull request" : {
       "localizations" : {
         "ko" : {
@@ -621,6 +533,82 @@
         }
       }
     },
+    "%lld earlier items are on GitHub" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이전 항목 %lld개는 GitHub에 있습니다"
+          }
+        }
+      }
+    },
+    "%lld ended" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld개 종료됨"
+          }
+        }
+      }
+    },
+    "%lld failing, %lld pending, %lld passed checks" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld failing, %2$lld pending, %3$lld passed checks"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "검사 실패 %1$lld개, 대기 %2$lld개, 통과 %3$lld개"
+          }
+        }
+      }
+    },
+    "%lld files changed" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "파일 %lld개 변경됨"
+          }
+        }
+      }
+    },
+    "%lld more" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld개 더"
+          }
+        }
+      }
+    },
+    "%lld more comments on GitHub" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub에 댓글 %lld개 더"
+          }
+        }
+      }
+    },
+    "%lld more files are on GitHub." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "파일 %lld개는 GitHub에 더 있습니다."
+          }
+        }
+      }
+    },
     "%lld more files are too many to list here." : {
       "localizations" : {
         "ko" : {
@@ -647,6 +635,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld개 확인 필요"
+          }
+        }
+      }
+    },
+    "%lld of %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld of %2$lld"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld/%2$lld"
           }
         }
       }
@@ -823,6 +827,16 @@
         }
       }
     },
+    "1 attachment" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "첨부 파일 1개"
+          }
+        }
+      }
+    },
     "1 chat needs you. Open Sheprd to see which." : {
       "localizations" : {
         "ko" : {
@@ -843,12 +857,52 @@
         }
       }
     },
+    "1 check failing" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "검사 1개 실패"
+          }
+        }
+      }
+    },
     "1 commit, no pull request" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "커밋 1개, 풀 리퀘스트 없음"
+          }
+        }
+      }
+    },
+    "1 earlier item is on GitHub" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이전 항목 1개는 GitHub에 있습니다"
+          }
+        }
+      }
+    },
+    "1 file changed" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "파일 1개 변경됨"
+          }
+        }
+      }
+    },
+    "1 more comment on GitHub" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub에 댓글 1개 더"
           }
         }
       }
@@ -903,6 +957,46 @@
         }
       }
     },
+    "A computer sends pushes through the push relay. Turn it on here to get its alerts and Live Activities." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터는 푸시 릴레이를 거쳐 푸시를 보냅니다. 알림과 실시간 현황을 받으려면 여기에서 켜세요."
+          }
+        }
+      }
+    },
+    "A member removed this %@. Forgetting the fleet here signs nothing; you can then join again with a new key." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "구성원 한 명이 이 %@을(를) 내보냈습니다. 여기서 플릿을 잊어도 아무것도 서명하지 않습니다. 그다음 새 키로 다시 참여할 수 있습니다."
+          }
+        }
+      }
+    },
+    "A relay joins this %@ to a computer when they are on different networks." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 %@과(와) 컴퓨터가 서로 다른 네트워크에 있으면 릴레이가 둘을 이어 줍니다."
+          }
+        }
+      }
+    },
+    "Activity" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "활동"
+          }
+        }
+      }
+    },
     "Add" : {
       "localizations" : {
         "ko" : {
@@ -923,12 +1017,32 @@
         }
       }
     },
+    "Add %lld More Computers" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터 %lld대 더 추가"
+          }
+        }
+      }
+    },
     "Add a picture or shortcut" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "사진이나 단축 문구 추가"
+          }
+        }
+      }
+    },
+    "Add a relay" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "릴레이 추가"
           }
         }
       }
@@ -963,6 +1077,16 @@
         }
       }
     },
+    "Add Relay" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "릴레이 추가"
+          }
+        }
+      }
+    },
     "Add tag %@" : {
       "localizations" : {
         "ko" : {
@@ -993,6 +1117,16 @@
         }
       }
     },
+    "Add to Favorites" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "즐겨찾기에 추가"
+          }
+        }
+      }
+    },
     "Add to Top Row" : {
       "localizations" : {
         "ko" : {
@@ -1003,12 +1137,42 @@
         }
       }
     },
+    "Add your own answer" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "직접 답 쓰기"
+          }
+        }
+      }
+    },
+    "Added to this %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 %@에 추가됨"
+          }
+        }
+      }
+    },
     "Addresses" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "주소"
+          }
+        }
+      }
+    },
+    "Admitted by %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@이(가) 승인함"
           }
         }
       }
@@ -1043,6 +1207,16 @@
         }
       }
     },
+    "All Computers" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 컴퓨터"
+          }
+        }
+      }
+    },
     "Allow the microphone in Settings to dictate." : {
       "localizations" : {
         "ko" : {
@@ -1059,6 +1233,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sheprd에게 말하려면 설정에서 마이크를 허용하세요."
+          }
+        }
+      }
+    },
+    "Allow this %@ in Sheprd on %@, in Settings > Fleet." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Allow this %1$@ in Sheprd on %2$@, in Settings > Fleet."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$@의 Sheprd에서 설정 > 플릿으로 가서 이 %1$@을(를) 허용하세요."
           }
         }
       }
@@ -1143,6 +1333,16 @@
         }
       }
     },
+    "Answer in the chat instead" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "대신 채팅에서 답하기"
+          }
+        }
+      }
+    },
     "Answer kind" : {
       "localizations" : {
         "ko" : {
@@ -1173,6 +1373,16 @@
         }
       }
     },
+    "Ask %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@에게 묻기"
+          }
+        }
+      }
+    },
     "Ask ${chat} to ${prompt}" : {
       "localizations" : {
         "ko" : {
@@ -1199,6 +1409,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "대신 에이전트에게 묻기"
+          }
+        }
+      }
+    },
+    "Asking %@ for a name" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@에게 이름을 묻는 중"
           }
         }
       }
@@ -1289,6 +1509,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "카메라 접근이 꺼져 있습니다. 설정에서 허용하거나 아래에 링크를 붙여넣으세요."
+          }
+        }
+      }
+    },
+    "Can't Open This Page" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 페이지를 열 수 없습니다"
+          }
+        }
+      }
+    },
+    "Can't show this conversation" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 대화를 보여 줄 수 없습니다"
           }
         }
       }
@@ -1443,6 +1683,16 @@
         }
       }
     },
+    "Checking…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "확인 중…"
+          }
+        }
+      }
+    },
     "Checks" : {
       "localizations" : {
         "ko" : {
@@ -1479,6 +1729,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "폴더 고르기"
+          }
+        }
+      }
+    },
+    "Choose any" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "여러 개 고를 수 있습니다"
+          }
+        }
+      }
+    },
+    "Choose File…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "파일 선택…"
           }
         }
       }
@@ -1689,6 +1959,16 @@
         }
       }
     },
+    "Connected through a relay" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "릴레이로 연결됨"
+          }
+        }
+      }
+    },
     "Connected through the checked address. When it stops answering, this phone tries the others." : {
       "localizations" : {
         "ko" : {
@@ -1729,12 +2009,32 @@
         }
       }
     },
+    "Connection" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연결"
+          }
+        }
+      }
+    },
     "Context %lld percent full" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "컨텍스트 %lld퍼센트 사용"
+          }
+        }
+      }
+    },
+    "Conversation" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "대화"
           }
         }
       }
@@ -1755,6 +2055,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "복사"
+          }
+        }
+      }
+    },
+    "Copy Link" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "링크 복사"
           }
         }
       }
@@ -1809,6 +2119,16 @@
         }
       }
     },
+    "Deleting asks before discarding uncommitted changes, and leaves a checkout with an archive script for Sheprd." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "삭제할 때 커밋하지 않은 변경을 버리기 전에 묻습니다. 보관 스크립트가 있는 체크아웃은 Sheprd에 맡깁니다."
+          }
+        }
+      }
+    },
     "Dictate" : {
       "localizations" : {
         "ko" : {
@@ -1835,6 +2155,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이 언어에 맞는 받아쓰기 오디오 형식이 없습니다."
+          }
+        }
+      }
+    },
+    "Discard Changes and Delete" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "변경을 버리고 삭제"
           }
         }
       }
@@ -1869,6 +2199,26 @@
         }
       }
     },
+    "Double-tap to hide it again" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다시 숨기려면 두 번 탭하세요"
+          }
+        }
+      }
+    },
+    "Double-tap to reveal" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "보려면 두 번 탭하세요"
+          }
+        }
+      }
+    },
     "Draft not sent" : {
       "localizations" : {
         "ko" : {
@@ -1885,6 +2235,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "키를 줄과 추가 키 사이로 끌어 옮기거나, 추가 키에서 키를 탭해 넣으세요. 줄에서 지운 키는 추가 키로 옮겨집니다. 키보드 키는 항상 줄에 남습니다."
+          }
+        }
+      }
+    },
+    "Each computer is tried on the relays it named, then on the ones you added. A relay sees only encrypted traffic." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터마다 그 컴퓨터가 알려 준 릴레이를 먼저 시도하고, 그다음 직접 추가한 릴레이를 시도합니다. 릴레이는 암호화된 트래픽만 봅니다."
+          }
+        }
+      }
+    },
+    "Each one lets this %@ control it, through its API only." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 %@은(는) 각 항목을 API로만 제어할 수 있습니다."
           }
         }
       }
@@ -1919,6 +2289,36 @@
         }
       }
     },
+    "Effect Sounds" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "효과음"
+          }
+        }
+      }
+    },
+    "Effect sounds go with an agent's message effects, such as slam and fireworks, and stay quiet when the %@ is muted." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "효과음은 쾅, 불꽃놀이 같은 에이전트 메시지 효과와 함께 납니다. %@이(가) 무음이면 소리를 내지 않습니다."
+          }
+        }
+      }
+    },
+    "Effect sounds go with an agent's message effects, such as slam and fireworks, and stay quiet when the Ring/Silent switch is on silent. Haptics are what you feel on sending, answering, terminal keys, and effects." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "효과음은 쾅, 불꽃놀이 같은 에이전트 메시지 효과와 함께 납니다. 벨/무음 스위치가 무음이면 소리를 내지 않습니다. 햅틱은 보내기, 답하기, 터미널 키, 효과에서 느끼는 진동입니다."
+          }
+        }
+      }
+    },
     "Ended (%@) after %@" : {
       "localizations" : {
         "en" : {
@@ -1935,12 +2335,32 @@
         }
       }
     },
+    "Enterprise hosts come only from gh on a computer: Sheprd's GitHub App exists on github.com alone." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enterprise 호스트는 컴퓨터의 gh에서만 가져옵니다. Sheprd GitHub App은 github.com에만 있습니다."
+          }
+        }
+      }
+    },
     "Every computer's chats, by what they need." : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "모든 컴퓨터의 채팅을 필요한 일 순서로 보여 줍니다."
+          }
+        }
+      }
+    },
+    "Every host drops it as soon as the removal reaches it. It can only come back with a new key and a new approval." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "제거 소식이 닿는 즉시 모든 호스트가 이 기기를 뺍니다. 새 키와 새 승인이 있어야만 다시 들어올 수 있습니다."
           }
         }
       }
@@ -1975,6 +2395,26 @@
         }
       }
     },
+    "Expires" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "만료"
+          }
+        }
+      }
+    },
+    "Expires in %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 후 만료"
+          }
+        }
+      }
+    },
     "Failed" : {
       "localizations" : {
         "ko" : {
@@ -1985,12 +2425,92 @@
         }
       }
     },
+    "Fallback" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "대체 수단"
+          }
+        }
+      }
+    },
+    "Favorite" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "즐겨찾기"
+          }
+        }
+      }
+    },
+    "Files changed" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "변경된 파일"
+          }
+        }
+      }
+    },
+    "Filter agents" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "에이전트 거르기"
+          }
+        }
+      }
+    },
+    "Filter agents, filtered" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "에이전트 거르기, 걸러짐"
+          }
+        }
+      }
+    },
+    "Filter Computers" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터 거르기"
+          }
+        }
+      }
+    },
     "First prompt" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "첫 프롬프트"
+          }
+        }
+      }
+    },
+    "Fleet" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "플릿"
+          }
+        }
+      }
+    },
+    "Folded" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "접힘"
           }
         }
       }
@@ -2055,6 +2575,16 @@
         }
       }
     },
+    "Forget This Fleet" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 플릿 잊기"
+          }
+        }
+      }
+    },
     "Forgetting a computer removes its chats from this %@. It does not stop Sheprd there." : {
       "localizations" : {
         "ko" : {
@@ -2095,12 +2625,72 @@
         }
       }
     },
+    "Get a New Code" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 코드 받기"
+          }
+        }
+      }
+    },
+    "GitHub" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub"
+          }
+        }
+      }
+    },
+    "GitHub could not be read" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub를 읽지 못했습니다"
+          }
+        }
+      }
+    },
+    "GitHub could not be read. These may be out of date." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub를 읽지 못했습니다. 이 내용은 최신이 아닐 수 있습니다."
+          }
+        }
+      }
+    },
+    "GitHub did not list the files. Pull to try again." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub가 파일 목록을 주지 않았습니다. 당겨서 다시 시도하세요."
+          }
+        }
+      }
+    },
     "Go to %@" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@(으)로 이동"
+          }
+        }
+      }
+    },
+    "Haptics" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "햅틱"
           }
         }
       }
@@ -2121,6 +2711,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "숨김"
+          }
+        }
+      }
+    },
+    "Hidden with invisible ink" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "투명 잉크로 가려짐"
           }
         }
       }
@@ -2185,6 +2785,26 @@
         }
       }
     },
+    "Hosts" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "호스트"
+          }
+        }
+      }
+    },
+    "Hosts with a check are on this %@. Plain SSH hosts are only for your computers." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "체크 표시가 있는 호스트는 이 %@에 있습니다. 일반 SSH 호스트는 컴퓨터에서만 씁니다."
+          }
+        }
+      }
+    },
     "I cannot do that from here." : {
       "localizations" : {
         "ko" : {
@@ -2245,6 +2865,26 @@
         }
       }
     },
+    "Install Sheprd on %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@에 Sheprd 설치"
+          }
+        }
+      }
+    },
+    "Install Sheprd on GitHub" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub에 Sheprd 설치"
+          }
+        }
+      }
+    },
     "iPhone" : {
       "localizations" : {
         "ko" : {
@@ -2265,12 +2905,52 @@
         }
       }
     },
+    "It did not close" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "닫히지 않았습니다"
+          }
+        }
+      }
+    },
+    "It Is Retired" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "더 이상 쓰지 않음"
+          }
+        }
+      }
+    },
     "It was closed in Sheprd, or its computer is not connected." : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sheprd에서 닫혔거나 그 컴퓨터가 연결되어 있지 않습니다."
+          }
+        }
+      }
+    },
+    "It Was Compromised" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "보안이 뚫림"
+          }
+        }
+      }
+    },
+    "It Was Lost" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "잃어버림"
           }
         }
       }
@@ -2317,6 +2997,42 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sheprd에서 패인이 닫히고 에이전트가 멈춥니다."
+          }
+        }
+      }
+    },
+    "Join %@'s Fleet" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@의 플릿에 참여"
+          }
+        }
+      }
+    },
+    "Joining lets this %@ control every computer in your fleet, and remove a lost one. It never gets SSH. You approve it in Sheprd on %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Joining lets this %1$@ control every computer in your fleet, and remove a lost one. It never gets SSH. You approve it in Sheprd on %2$@."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "참여하면 이 %1$@이(가) 플릿의 모든 컴퓨터를 제어하고 잃어버린 기기를 뺄 수 있습니다. SSH 권한은 받지 않습니다. 승인은 %2$@의 Sheprd에서 합니다."
+          }
+        }
+      }
+    },
+    "Jump to the latest" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최신으로 이동"
           }
         }
       }
@@ -2421,6 +3137,56 @@
         }
       }
     },
+    "Leave" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "나가기"
+          }
+        }
+      }
+    },
+    "Leave the Fleet" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "플릿에서 나가기"
+          }
+        }
+      }
+    },
+    "Lent by" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "빌려준 곳"
+          }
+        }
+      }
+    },
+    "Lines per Row" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "행당 줄 수"
+          }
+        }
+      }
+    },
+    "Lines per Row is how much of a chat's latest reply or summary its row shows in the lists." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "행당 줄 수는 목록의 각 행이 채팅의 최근 답변이나 요약을 몇 줄까지 보여 줄지 정합니다."
+          }
+        }
+      }
+    },
     "Listening…" : {
       "localizations" : {
         "ko" : {
@@ -2491,6 +3257,16 @@
         }
       }
     },
+    "Loading pull requests…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "풀 리퀘스트를 불러오는 중…"
+          }
+        }
+      }
+    },
     "Loading the chat…" : {
       "localizations" : {
         "ko" : {
@@ -2541,12 +3317,12 @@
         }
       }
     },
-    "Message %@" : {
+    "Members" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@에 메시지"
+            "value" : "구성원"
           }
         }
       }
@@ -2567,6 +3343,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "모드"
+          }
+        }
+      }
+    },
+    "More files are on GitHub." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub에 파일이 더 있습니다."
           }
         }
       }
@@ -2607,6 +3393,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이름"
+          }
+        }
+      }
+    },
+    "Name from Chat" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅에서 이름 짓기"
+          }
+        }
+      }
+    },
+    "Naming…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이름 짓는 중…"
           }
         }
       }
@@ -2671,6 +3477,16 @@
         }
       }
     },
+    "New %@ chat" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 %@ 채팅"
+          }
+        }
+      }
+    },
     "New %@ tab" : {
       "localizations" : {
         "ko" : {
@@ -2713,6 +3529,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "새 활동"
+          }
+        }
+      }
+    },
+    "New activity. Open Sheprd to see it." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 활동이 있습니다. 보려면 Sheprd를 여세요."
+          }
+        }
+      }
+    },
+    "New chat" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 채팅"
           }
         }
       }
@@ -2807,6 +3643,16 @@
         }
       }
     },
+    "No answer" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "응답 없음"
+          }
+        }
+      }
+    },
     "No camera here. Paste the pairing link below." : {
       "localizations" : {
         "ko" : {
@@ -2847,6 +3693,66 @@
         }
       }
     },
+    "No description provided." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설명이 없습니다."
+          }
+        }
+      }
+    },
+    "No GitHub account" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub 계정 없음"
+          }
+        }
+      }
+    },
+    "No member of your fleet reaches it through the fleet any more." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이제 플릿의 어떤 구성원도 플릿을 통해 이 호스트에 접근하지 못합니다."
+          }
+        }
+      }
+    },
+    "No messages yet" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아직 메시지가 없습니다"
+          }
+        }
+      }
+    },
+    "No open pull requests" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "열린 풀 리퀘스트 없음"
+          }
+        }
+      }
+    },
+    "No relay yet. A computer that listens on relays adds them here the next time this %@ reaches it on its network." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아직 릴레이가 없습니다. 릴레이로 연결을 받는 컴퓨터가 있으면, 이 %@이(가) 다음에 그 컴퓨터와 같은 네트워크에서 연결될 때 그 릴레이가 여기에 추가됩니다."
+          }
+        }
+      }
+    },
     "No shortcuts" : {
       "localizations" : {
         "ko" : {
@@ -2857,12 +3763,42 @@
         }
       }
     },
+    "No summary" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요약 없음"
+          }
+        }
+      }
+    },
+    "No summary: %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요약 없음: %@"
+          }
+        }
+      }
+    },
     "No usage reported yet" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "아직 보고된 사용량이 없습니다"
+          }
+        }
+      }
+    },
+    "No WebSocket, which this %@ needs" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 %@에 필요한 WebSocket을 지원하지 않음"
           }
         }
       }
@@ -2887,12 +3823,42 @@
         }
       }
     },
+    "None of your computers is in a fleet. Create one in Sheprd's Settings > Fleet, then pair this %@ with it." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "플릿에 속한 컴퓨터가 없습니다. Sheprd의 설정 > 플릿에서 플릿을 만든 뒤 이 %@을(를) 페어링하세요."
+          }
+        }
+      }
+    },
     "None, in the checkout itself" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "없음, 체크아웃에서 바로"
+          }
+        }
+      }
+    },
+    "Not a relay" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "릴레이 아님"
+          }
+        }
+      }
+    },
+    "Not added to Favorites" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "즐겨찾기에 추가하지 못했습니다"
           }
         }
       }
@@ -2907,7 +3873,27 @@
         }
       }
     },
+    "Not in the fleet" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "플릿에 없음"
+          }
+        }
+      }
+    },
     "Not now" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "나중에"
+          }
+        }
+      }
+    },
+    "Not Now" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -2923,6 +3909,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이 휴대폰에 없음"
+          }
+        }
+      }
+    },
+    "Not read from GitHub" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub에서 읽지 않음"
+          }
+        }
+      }
+    },
+    "Not removed from Favorites" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "즐겨찾기에서 빼지 못했습니다"
           }
         }
       }
@@ -3007,6 +4013,16 @@
         }
       }
     },
+    "Notifications" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알림"
+          }
+        }
+      }
+    },
     "now" : {
       "localizations" : {
         "ko" : {
@@ -3027,6 +4043,16 @@
         }
       }
     },
+    "Off. Computers push only through the push relay, so this phone gets no alerts or Live Activities from them." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "꺼짐. 컴퓨터는 푸시 릴레이로만 푸시를 보내므로 이 휴대폰은 알림과 실시간 현황을 받지 못합니다."
+          }
+        }
+      }
+    },
     "Offline" : {
       "localizations" : {
         "ko" : {
@@ -3037,12 +4063,42 @@
         }
       }
     },
+    "OK" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "확인"
+          }
+        }
+      }
+    },
+    "Older messages stay on the computer" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이전 메시지는 컴퓨터에 남아 있습니다"
+          }
+        }
+      }
+    },
     "On" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "켬"
+          }
+        }
+      }
+    },
+    "On. The computers get sealed handles instead of this phone's push tokens. Turning it off revokes them." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "켜짐. 컴퓨터는 이 휴대폰의 푸시 토큰 대신 봉인된 핸들을 받습니다. 끄면 핸들을 폐기합니다."
           }
         }
       }
@@ -3087,6 +4143,16 @@
         }
       }
     },
+    "Open GitHub" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub 열기"
+          }
+        }
+      }
+    },
     "Open in New Window" : {
       "localizations" : {
         "ko" : {
@@ -3107,12 +4173,42 @@
         }
       }
     },
+    "Open on GitHub" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub에서 열기"
+          }
+        }
+      }
+    },
+    "Open pull request" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "풀 리퀘스트 열기"
+          }
+        }
+      }
+    },
     "Open Remote control > Pair device on the computer first." : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "먼저 컴퓨터에서 원격 제어 > 기기 페어링을 여세요."
+          }
+        }
+      }
+    },
+    "Open Settings › GitHub" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정 › GitHub 열기"
           }
         }
       }
@@ -3137,6 +4233,16 @@
         }
       }
     },
+    "Open Tab" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "탭 열기"
+          }
+        }
+      }
+    },
     "Open the Chats" : {
       "localizations" : {
         "ko" : {
@@ -3157,12 +4263,32 @@
         }
       }
     },
-    "Open this link?" : {
+    "Open Workspace on %@" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "이 링크를 열까요?"
+            "value" : "%@에서 워크스페이스 열기"
+          }
+        }
+      }
+    },
+    "Or answer in your own words" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "또는 직접 답하기"
+          }
+        }
+      }
+    },
+    "Organizations" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "조직"
           }
         }
       }
@@ -3327,6 +4453,16 @@
         }
       }
     },
+    "Paste" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "붙여넣기"
+          }
+        }
+      }
+    },
     "Paste Photo" : {
       "localizations" : {
         "ko" : {
@@ -3373,6 +4509,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "사진"
+          }
+        }
+      }
+    },
+    "Picture from %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@의 사진"
           }
         }
       }
@@ -3457,6 +4603,16 @@
         }
       }
     },
+    "Pull down to try again." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "당겨서 다시 시도하세요."
+          }
+        }
+      }
+    },
     "Pull request #%llu" : {
       "localizations" : {
         "ko" : {
@@ -3503,6 +4659,46 @@
         }
       }
     },
+    "Pull Requests" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "풀 리퀘스트"
+          }
+        }
+      }
+    },
+    "Pull requests you opened, and those asking for your review, appear here." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "직접 연 풀 리퀘스트와 리뷰를 요청받은 풀 리퀘스트가 여기에 나타납니다."
+          }
+        }
+      }
+    },
+    "Push Relay" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "푸시 릴레이"
+          }
+        }
+      }
+    },
+    "Push through the Sheprd push relay?" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd 푸시 릴레이로 푸시를 받을까요?"
+          }
+        }
+      }
+    },
     "Question" : {
       "localizations" : {
         "ko" : {
@@ -3543,6 +4739,26 @@
         }
       }
     },
+    "Reachable" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연결 가능"
+          }
+        }
+      }
+    },
+    "Read failing log" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "실패 로그 읽기"
+          }
+        }
+      }
+    },
     "ready to merge" : {
       "localizations" : {
         "ko" : {
@@ -3559,6 +4775,106 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "최근"
+          }
+        }
+      }
+    },
+    "Recently Updated" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최근 업데이트순"
+          }
+        }
+      }
+    },
+    "Relay address" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "릴레이 주소"
+          }
+        }
+      }
+    },
+    "Relays" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "릴레이"
+          }
+        }
+      }
+    },
+    "Reload" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새로 고침"
+          }
+        }
+      }
+    },
+    "Remove" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "제거"
+          }
+        }
+      }
+    },
+    "Remove %@ Everywhere?" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 곳에서 %@을(를) 제거할까요?"
+          }
+        }
+      }
+    },
+    "Remove %@?" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@을(를) 제거할까요?"
+          }
+        }
+      }
+    },
+    "Remove a relay before adding another: %lld are kept at most." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "릴레이는 최대 %lld개까지 둘 수 있습니다. 하나를 뺀 뒤 추가하세요."
+          }
+        }
+      }
+    },
+    "Remove Everywhere" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 곳에서 제거"
+          }
+        }
+      }
+    },
+    "Remove from Favorites" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "즐겨찾기에서 빼기"
           }
         }
       }
@@ -3653,12 +4969,42 @@
         }
       }
     },
+    "Renaming" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이름 바꾸는 중"
+          }
+        }
+      }
+    },
+    "Replay %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 다시 재생"
+          }
+        }
+      }
+    },
     "Reply" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "답장"
+          }
+        }
+      }
+    },
+    "Repositories" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저장소"
           }
         }
       }
@@ -3689,6 +5035,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "다시 시도"
+          }
+        }
+      }
+    },
+    "Review Access on GitHub" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub에서 접근 권한 검토"
           }
         }
       }
@@ -3763,6 +5119,16 @@
         }
       }
     },
+    "Scrolls to it" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "그 위치로 스크롤합니다"
+          }
+        }
+      }
+    },
     "Send" : {
       "localizations" : {
         "ko" : {
@@ -3773,12 +5139,32 @@
         }
       }
     },
-    "Send a picture" : {
+    "Send Test Push from %@" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "사진 보내기"
+            "value" : "%@에서 테스트 푸시 보내기"
+          }
+        }
+      }
+    },
+    "Send Test Push from This iPhone" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 iPhone에서 테스트 푸시 보내기"
+          }
+        }
+      }
+    },
+    "Send text, a picture, or a file" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "글, 사진, 파일 보내기"
           }
         }
       }
@@ -3839,6 +5225,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "컴퓨터 중 하나의 채팅에 프롬프트를 보냅니다."
+          }
+        }
+      }
+    },
+    "Sends this phone a sealed notification now, from a computer or from this phone through the push relay, and shows whether it arrived." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터에서, 또는 이 휴대폰에서 푸시 릴레이를 거쳐 봉인된 알림을 지금 이 휴대폰으로 보내고 도착했는지 보여 줍니다."
           }
         }
       }
@@ -4063,6 +5459,16 @@
         }
       }
     },
+    "Sheprd's GitHub App is not installed on any of your accounts, so this %@ reads only public repositories. Until it is, private pull requests come from your computers." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "어느 계정에도 Sheprd GitHub App이 설치되어 있지 않아서 이 %@은(는) 공개 저장소만 읽습니다. 설치할 때까지 비공개 풀 리퀘스트는 컴퓨터에서 가져옵니다."
+          }
+        }
+      }
+    },
     "Shortcuts" : {
       "localizations" : {
         "ko" : {
@@ -4083,12 +5489,32 @@
         }
       }
     },
-    "Show %@ computers" : {
+    "Show" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ 컴퓨터 보기"
+            "value" : "표시"
+          }
+        }
+      }
+    },
+    "Show %lld earlier of %lld" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이전 대화 %2$lld개 중 %1$lld개 더 보기"
+          }
+        }
+      }
+    },
+    "Show All Agents" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 에이전트 보기"
           }
         }
       }
@@ -4123,12 +5549,32 @@
         }
       }
     },
+    "Showing %@ computers" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 컴퓨터 표시 중"
+          }
+        }
+      }
+    },
     "Showing chats as of %@" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ 기준 채팅을 보여 줍니다"
+          }
+        }
+      }
+    },
+    "Showing only %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@만 표시 중"
           }
         }
       }
@@ -4183,6 +5629,26 @@
         }
       }
     },
+    "Shows sub-agents, shells, the plan, changed files, and pull requests" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "하위 에이전트, 셸, 계획, 변경된 파일, 풀 리퀘스트를 보여 줍니다"
+          }
+        }
+      }
+    },
+    "Shows the section" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 섹션을 펼칩니다"
+          }
+        }
+      }
+    },
     "Shows the session's settings" : {
       "localizations" : {
         "ko" : {
@@ -4199,6 +5665,86 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "명령이 할 일을 보여 주고 확인을 받습니다. 에이전트를 시작하거나, 채팅에 묻거나, 채팅을 멈추거나 열 수 있습니다."
+          }
+        }
+      }
+    },
+    "Sign In on This %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 %@에서 로그인"
+          }
+        }
+      }
+    },
+    "Sign In to GitHub" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub에 로그인"
+          }
+        }
+      }
+    },
+    "Sign in to GitHub on this %@, or let a paired computer lend its sign-in." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 %@에서 GitHub에 로그인하거나, 페어링한 컴퓨터의 로그인을 빌려 쓰세요."
+          }
+        }
+      }
+    },
+    "Sign in to GitHub on this phone, or share a computer's GitHub sign-in with it, to read the conversation here." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "여기서 대화를 읽으려면 이 휴대폰에서 GitHub에 로그인하거나, 컴퓨터의 GitHub 로그인을 이 휴대폰과 공유하세요."
+          }
+        }
+      }
+    },
+    "Sign Out" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "로그아웃"
+          }
+        }
+      }
+    },
+    "Sign out of GitHub on this %@?" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 %@에서 GitHub 로그아웃할까요?"
+          }
+        }
+      }
+    },
+    "Signed In" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "로그인됨"
+          }
+        }
+      }
+    },
+    "Signing out deletes this %@'s tokens. To revoke Sheprd's access itself, use Applications in your GitHub settings." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "로그아웃하면 이 %@의 토큰을 지웁니다. Sheprd의 접근 권한 자체를 거두려면 GitHub 설정의 Applications를 쓰세요."
           }
         }
       }
@@ -4239,6 +5785,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "에이전트 정렬"
+          }
+        }
+      }
+    },
+    "Sort pull requests" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "풀 리퀘스트 정렬"
+          }
+        }
+      }
+    },
+    "Sort Pull Requests" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "풀 리퀘스트 정렬"
+          }
+        }
+      }
+    },
+    "Sounds & Haptics" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사운드 및 햅틱"
+          }
+        }
+      }
+    },
+    "Source" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "출처"
           }
         }
       }
@@ -4379,6 +5965,16 @@
         }
       }
     },
+    "Status" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "상태"
+          }
+        }
+      }
+    },
     "Stop" : {
       "localizations" : {
         "ko" : {
@@ -4471,6 +6067,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "저장 공간"
+          }
+        }
+      }
+    },
+    "Sub-agents, shells, the plan, changed files, and pull requests show here when the agent reports them." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "에이전트가 알려 주면 하위 에이전트, 셸, 계획, 변경된 파일, 풀 리퀘스트가 여기에 나타납니다."
+          }
+        }
+      }
+    },
+    "Summarize" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요약"
+          }
+        }
+      }
+    },
+    "Summarizing…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요약하는 중…"
           }
         }
       }
@@ -4585,6 +6211,16 @@
         }
       }
     },
+    "Terminal: %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "터미널: %@"
+          }
+        }
+      }
+    },
     "Terminals" : {
       "localizations" : {
         "ko" : {
@@ -4665,6 +6301,16 @@
         }
       }
     },
+    "That is not a relay's address. Type one such as https://relay.example.org." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "릴레이 주소가 아닙니다. https://relay.example.org 같은 주소를 입력하세요."
+          }
+        }
+      }
+    },
     "That is not a Sheprd pairing link. Scan the QR in Sheprd's Remote control dialog." : {
       "localizations" : {
         "ko" : {
@@ -4695,6 +6341,16 @@
         }
       }
     },
+    "That relay is already here." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이미 추가된 릴레이입니다."
+          }
+        }
+      }
+    },
     "The agent started, but the prompt was not sent. Open Sheprd to send it." : {
       "localizations" : {
         "ko" : {
@@ -4711,16 +6367,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "카메라가 코드를 읽을 수 없습니다."
-          }
-        }
-      }
-    },
-    "The chat did not close" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "채팅이 닫히지 않았습니다"
           }
         }
       }
@@ -4845,6 +6491,16 @@
         }
       }
     },
+    "The name shows in Sheprd and in your lists. %@ can suggest a short one from its chat." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이름은 Sheprd와 목록에 보입니다. %@이(가) 채팅 내용으로 짧은 이름을 제안할 수 있습니다."
+          }
+        }
+      }
+    },
     "The pairing expired. Show a new QR on the computer." : {
       "localizations" : {
         "ko" : {
@@ -4871,6 +6527,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "휴대폰이 보내지 않았습니다."
+          }
+        }
+      }
+    },
+    "the tab" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "탭"
+          }
+        }
+      }
+    },
+    "The tab closes in Sheprd with everything running in it." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sheprd에서 탭이 닫히고, 그 안에서 실행 중인 모든 것도 함께 끝납니다."
           }
         }
       }
@@ -4915,6 +6591,26 @@
         }
       }
     },
+    "This %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 %@"
+          }
+        }
+      }
+    },
+    "This %@ reads pull requests and checks from GitHub with its own sign-in, or one a computer lends." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 %@은(는) 자체 로그인이나 컴퓨터가 빌려준 로그인으로 GitHub에서 풀 리퀘스트와 검사를 읽습니다."
+          }
+        }
+      }
+    },
     "This computer is no longer paired with this phone." : {
       "localizations" : {
         "ko" : {
@@ -4945,12 +6641,32 @@
         }
       }
     },
+    "this tab" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 탭"
+          }
+        }
+      }
+    },
     "This workspace is gone" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "이 워크스페이스가 사라졌습니다"
+          }
+        }
+      }
+    },
+    "This workspace's computer does not name its GitHub repository." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 워크스페이스의 컴퓨터가 GitHub 저장소를 알려 주지 않았습니다."
           }
         }
       }
@@ -4965,6 +6681,26 @@
         }
       }
     },
+    "Title (optional)" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "제목(선택)"
+          }
+        }
+      }
+    },
+    "Title, repository, author, branch" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "제목, 저장소, 작성자, 브랜치"
+          }
+        }
+      }
+    },
     "To do" : {
       "localizations" : {
         "ko" : {
@@ -4975,12 +6711,32 @@
         }
       }
     },
+    "To test notifications with no computer online, turn on Use the Push Relay above. This phone has no APNs key of its own, so only the push relay can push to it." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "온라인인 컴퓨터 없이 알림을 시험하려면 위의 푸시 릴레이 사용을 켜세요. 이 휴대폰에는 자체 APNs 키가 없어서 푸시 릴레이만 이 휴대폰으로 푸시를 보낼 수 있습니다."
+          }
+        }
+      }
+    },
     "Toggle Sidebar" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "사이드바 전환"
+          }
+        }
+      }
+    },
+    "Token" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "토큰"
           }
         }
       }
@@ -5001,6 +6757,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "위 줄"
+          }
+        }
+      }
+    },
+    "Touch and hold to choose another failing check" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다른 실패한 검사를 고르려면 길게 누르세요"
           }
         }
       }
@@ -5035,6 +6801,16 @@
         }
       }
     },
+    "Turn On" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "켜기"
+          }
+        }
+      }
+    },
     "Turning off auto-accept" : {
       "localizations" : {
         "ko" : {
@@ -5051,6 +6827,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "자동 수락을 켜는 중"
+          }
+        }
+      }
+    },
+    "Type the address of a relay a paired computer listens on, to reach that computer through it. A computer not paired yet is still paired nearby or on its network first." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "페어링한 컴퓨터가 연결을 받는 릴레이의 주소를 입력하면, 그 릴레이를 거쳐 컴퓨터에 연결합니다. 아직 페어링하지 않은 컴퓨터는 먼저 가까이에서 또는 같은 네트워크에서 페어링해야 합니다."
           }
         }
       }
@@ -5081,6 +6867,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "취소됨: %@"
+          }
+        }
+      }
+    },
+    "Unfavorite" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "즐겨찾기 해제"
           }
         }
       }
@@ -5215,6 +7011,16 @@
         }
       }
     },
+    "Uploading %@…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 업로드 중…"
+          }
+        }
+      }
+    },
     "Uploading picture… %lld%%" : {
       "localizations" : {
         "ko" : {
@@ -5251,6 +7057,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "에이전트의 제목 사용"
+          }
+        }
+      }
+    },
+    "Use the Push Relay" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "푸시 릴레이 사용"
           }
         }
       }
@@ -5305,6 +7121,16 @@
         }
       }
     },
+    "Waiting for approval" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "승인 대기 중"
+          }
+        }
+      }
+    },
     "Waiting for the chat to show it…" : {
       "localizations" : {
         "ko" : {
@@ -5321,6 +7147,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "컴퓨터를 기다리는 중…"
+          }
+        }
+      }
+    },
+    "Waiting for you to approve on GitHub" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub에서 승인하기를 기다리는 중"
+          }
+        }
+      }
+    },
+    "Waiting for your first prompt" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "첫 프롬프트를 기다리는 중"
           }
         }
       }
@@ -5385,6 +7231,42 @@
         }
       }
     },
+    "What the push relay sees" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "푸시 릴레이가 보는 것"
+          }
+        }
+      }
+    },
+    "What the Push Relay Sees" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "푸시 릴레이가 보는 것"
+          }
+        }
+      }
+    },
+    "When none of the addresses answers, such as with Tailscale off, this %@ reaches %@ through a relay, end to end encrypted." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "When none of the addresses answers, such as with Tailscale off, this %1$@ reaches %2$@ through a relay, end to end encrypted."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tailscale이 꺼져 있을 때처럼 어느 주소도 응답하지 않으면, 이 %1$@은(는) 종단 간 암호화된 릴레이를 거쳐 %2$@에 연결합니다."
+          }
+        }
+      }
+    },
     "Which agent?" : {
       "localizations" : {
         "ko" : {
@@ -5445,6 +7327,16 @@
         }
       }
     },
+    "Working…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "작업 중…"
+          }
+        }
+      }
+    },
     "Workspace" : {
       "localizations" : {
         "ko" : {
@@ -5485,12 +7377,52 @@
         }
       }
     },
+    "Write or paste text for the terminal" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "터미널에 보낼 글을 쓰거나 붙여넣으세요"
+          }
+        }
+      }
+    },
+    "Write Text" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "글 쓰기"
+          }
+        }
+      }
+    },
+    "Write Text…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "글 쓰기…"
+          }
+        }
+      }
+    },
     "You" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "나"
+          }
+        }
+      }
+    },
+    "Your computers and phones, and the hosts they share. Joining lets this %@ control all of them." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터와 휴대폰, 그리고 이들이 공유하는 호스트입니다. 참여하면 이 %@이(가) 이 모두를 제어할 수 있습니다."
           }
         }
       }
@@ -5505,22 +7437,22 @@
         }
       }
     },
+    "Your prompt: %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프롬프트: %@"
+          }
+        }
+      }
+    },
     "Zoom" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "확대"
-          }
-        }
-      }
-    },
-    "Show %lld earlier of %lld" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이전 대화 %2$lld개 중 %1$lld개 더 보기"
           }
         }
       }
